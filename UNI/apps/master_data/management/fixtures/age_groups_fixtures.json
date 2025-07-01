@@ -1,0 +1,38 @@
+[
+  {
+    "model": "master_data.agegroup",
+    "pk": 1,
+    "fields": {
+      "age_group": "18-25",
+      "display_name": "Young Adults",
+      "sort_order": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.agegroup",
+    "pk": 2,
+    "fields": {
+      "age_group": "26-35",
+      "display_name": "Adults",
+      "sort_order": 2,
+      "is_active": true,
+      "created_at": "2024-01-02T10:00:00Z",
+      "updated_at": "2024-01-02T10:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.agegroup",
+    "pk": 3,
+    "fields": {
+      "age_group": "36-45",
+      "display_name": "Middle Aged",
+      "sort_order": 3,
+      "is_active": true,
+      "created_at": "2024-01-03T10:00:00Z",
+      "updated_at": "2024-01-03T10:00:00Z"
+    }
+  }
+]

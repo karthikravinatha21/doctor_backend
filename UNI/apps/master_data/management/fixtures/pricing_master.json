@@ -1,0 +1,242 @@
+[
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 1,
+    "fields": {
+      "title": "Complete Movie",
+      "key": "complete_movie",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 2,
+    "fields": {
+      "title": "Per Day on Shooting",
+      "key": "per_day_shooting",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 3,
+    "fields": {
+      "title": "Monthly Salary",
+      "key": "monthly_salary",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 4,
+    "fields": {
+      "title": "Per Song",
+      "key": "per_song",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 5,
+    "fields": {
+      "title": "Per Fight in Movie",
+      "key": "per_fight",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 6,
+    "fields": {
+      "title": "Per Day on Studio",
+      "key": "per_day_studio",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 7,
+    "fields": {
+      "title": "60Min Sync All Voice Track",
+      "key": "sync_voice_track_60min",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 8,
+    "fields": {
+      "title": "Movie Main Poster",
+      "key": "main_poster",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 9,
+    "fields": {
+      "title": "Social Media Poster",
+      "key": "social_media_poster",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 10,
+    "fields": {
+      "title": "No. of Poster",
+      "key": "poster_count",
+      "input_type": "number",
+      "unit": "count",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 11,
+    "fields": {
+      "title": "Songs | Teaser | Trailer",
+      "key": "songs_teaser_trailer",
+      "input_type": "text",
+      "unit": "string",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 12,
+    "fields": {
+      "title": "Complete Movie All Posters - Total Cost",
+      "key": "all_posters_total",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 13,
+    "fields": {
+      "title": "Complete Movie All Posters - Poster Count",
+      "key": "all_posters_count",
+      "input_type": "number",
+      "unit": "count",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 14,
+    "fields": {
+      "title": "10 Min Clip",
+      "key": "clip_10_min",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 15,
+    "fields": {
+      "title": "Per Day in Studio",
+      "key": "per_day_studio_clip",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 16,
+    "fields": {
+      "title": "Government Fee",
+      "key": "government_fee",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 17,
+    "fields": {
+      "title": "Service Charges",
+      "key": "service_charges",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 18,
+    "fields": {
+      "title": "Censor Board",
+      "key": "censor_board",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 19,
+    "fields": {
+      "title": "Subsidy",
+      "key": "subsidy",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "master_data.pricingmaster",
+    "pk": 20,
+    "fields": {
+      "title": "Form 52A",
+      "key": "form_52a",
+      "input_type": "number",
+      "unit": "Rs",
+      "default_value": "",
+      "is_active": true
+    }
+  }
+]

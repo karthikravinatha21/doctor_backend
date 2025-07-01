@@ -1,0 +1,118 @@
+# Use an official Python runtime as a parent image
+FROM python:3.10-slim as builder
+
+# Set environment variables
+ENV PYTHONUNBUFFERED 1
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install PostgreSQL development headers, build essentials, and mpv
+RUN apt-get update && \
+    apt-get install -y libpq-dev gcc git mpv
+
+
+# Update the system and install necessary dependencies for Miniconda
+RUN apt-get update && apt-get install -y \
+    wget \
+    bzip2 \
+    ca-certificates \
+    libglib2.0-0 \
+    libxext6 \
+    libsm6 \
+    libxrender1 \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install Miniconda
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
+    bash /tmp/miniconda.sh -b -p /opt/miniconda && \
+    rm /tmp/miniconda.sh
+
+RUN apt-get update && apt-get install -y \
+    libgirepository1.0-dev \
+    libcairo2 \
+    libcairo2-dev \
+    gir1.2-gobject-2.0 \
+    python3-gi \
+    python3-cairo \
+    libgirepository1.0-dev
+
+RUN apt-get update && apt-get install -y libpango1.0-dev libffi-dev
+RUN apt-get update && apt-get install libpangocairo-1.0-0
+RUN apt-get -y install python3-pip python3-cffi python3-brotli libpango-1.0-0 libpangoft2-1.0-0
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    curl \
+    libffi-dev \
+    libcairo2 \
+    libcairo2-dev \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf2.0-0 \
+    libgdk-pixbuf2.0-dev \
+    libxml2 \
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
+    libjpeg-dev \
+    shared-mime-info \
+    gdal-bin \
+    libgdal-dev \
+    ffmpeg libsm6 libxext6 \
+    libglib2.0-dev
+    
+# Add Miniconda to PATH
+# ENV PATH="/opt/miniconda/bin:$PATH"
+# # Update conda to the latest version
+# RUN conda update -n base -c defaults conda -y
+
+# # Install WeasyPrint and its dependencies from conda-forge
+# RUN conda install -c conda-forge weasyprint -y
+
+# Copy the requirements file into the container
+COPY requirements.txt /app/
+
+# Create a virtual environment and activate it
+RUN python -m venv /venv
+ENV PATH="/venv/bin:$PATH"
+
+# Install the required packages
+RUN pip install --no-cache-dir -r requirements.txt
+
+# RUN pip install PyPDF2
+
+# Copy the rest of the application code into the container
+COPY . /app/
+
+# Collect static files
+RUN python manage.py collectstatic --no-input
+
+# Final stage to copy only necessary files
+FROM python:3.10-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED 1
+ENV PATH="/venv/bin:$PATH"
+
+# Copy the virtual environment from the builder
+COPY --from=builder /venv /venv
+
+# Copy the application code from the builder
+COPY --from=builder /app /app
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Perform database migrations
+RUN python manage.py migrate
+
+# Create superuser
+
+# Expose the port the application will run on
+EXPOSE 8000
+
+# Start Gunicorn to run the Django application
+CMD ["gunicorn", "Masterclass.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120"]

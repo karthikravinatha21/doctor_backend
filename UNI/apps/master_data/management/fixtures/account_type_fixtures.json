@@ -1,0 +1,46 @@
+[
+  {
+    "model": "master_data.accounttype",
+    "pk": 1,
+    "fields": {
+      "name": "Artist account",
+      "description": "Used by individual artists who participate in film projects.",
+      "tags": ["Pre builder", "Post builder", "Documentation"],
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.accounttype",
+    "pk": 2,
+    "fields": {
+      "name": "Production house account",
+      "description": "Used by companies or teams managing full-scale productions.",
+      "tags": ["Passion in making movies"],
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.accounttype",
+    "pk": 3,
+    "fields": {
+      "name": "Editor account",
+      "description": "Accounts for video editors working post-production.",
+      "tags": ["Cutting", "Sound sync", "Color grading"],
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.accounttype",
+    "pk": 4,
+    "fields": {
+      "name": "Music Director account",
+      "description": "Composers or sound designers creating original scores.",
+      "tags": ["Scoring", "Background score", "Studio"],
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  }
+]

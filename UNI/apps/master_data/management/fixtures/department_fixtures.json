@@ -1,0 +1,142 @@
+[
+  {
+    "model": "master_data.department",
+    "pk": 1,
+    "fields": {
+      "name": "Production",
+      "description": "Handles planning, logistics, and execution.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 2,
+    "fields": {
+      "name": "Direction",
+      "description": "Creative leadership led by the Director.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 3,
+    "fields": {
+      "name": "Casting",
+      "description": "Manages actor selection and auditions.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 4,
+    "fields": {
+      "name": "Screenwriting",
+      "description": "Develops the script and storyline.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 5,
+    "fields": {
+      "name": "Artist",
+      "description": "Designs sets, props, and visuals.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 6,
+    "fields": {
+      "name": "Costume",
+      "description": "Handles wardrobe, hair, and makeup.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 7,
+    "fields": {
+      "name": "Lighting & Grip",
+      "description": "Controls lighting and rigging.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 8,
+    "fields": {
+      "name": "Camera",
+      "description": "Captures visual content.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 9,
+    "fields": {
+      "name": "Sound",
+      "description": "Records dialogue and ambient sound.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 10,
+    "fields": {
+      "name": "Post-Production",
+      "description": "Edits and finalizes the film.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 11,
+    "fields": {
+      "name": "Visual Effects (VFX)",
+      "description": "Adds CGI and animation.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 12,
+    "fields": {
+      "name": "Music",
+      "description": "Handles score, soundtrack, and composition.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 13,
+    "fields": {
+      "name": "Marketing & Distribution",
+      "description": "Promotes and distributes the film.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.department",
+    "pk": 14,
+    "fields": {
+      "name": "Legal & Finance",
+      "description": "Contracts, rights, and budgeting.",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  }
+]

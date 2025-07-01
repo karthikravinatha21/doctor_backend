@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block meta_title %}{{ page.meta_title|default:page.title }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ page.meta_description }}{% endblock %}">
+    {% if page.template and page.template.css_styles %}
+    <style>
+        {{ page.template.css_styles|safe }}
+    </style>
+    {% endif %}
+</head>
+<body>
+    <nav>
+        {% block navigation %}
+        <ul>
+            {% for menu_item in menu_pages %}
+            <li><a href="{% url 'web_pages:page_detail' menu_item.slug %}">{{ menu_item.title }}</a></li>
+            {% endfor %}
+        </ul>
+        {% endblock %}
+    </nav>
+
+    <main>
+        {% block content %}
+        {% if page.template %}
+            {{ page.template.html_structure|safe }}
+        {% else %}
+            <article>
+                <h1>{{ page.title }}</h1>
+                {% if page.featured_image %}
+                <img src="{{ page.featured_image.url }}" alt="{{ page.title }}">
+                {% endif %}
+                {{ page.content|safe }}
+                
+                {% for section in page.sections.all %}
+                <section class="{{ section.css_class }}">
+                    {% if section.section_type == 'text' %}
+                        {{ section.content|safe }}
+                    {% elif section.section_type == 'image' %}
+                        <img src="{{ section.image.url }}" alt="{{ section.name }}">
+                    {% elif section.section_type == 'video' %}
+                        <iframe src="{{ section.video_url }}" frameborder="0" allowfullscreen></iframe>
+                    {% elif section.section_type == 'html' %}
+                        {{ section.content|safe }}
+                    {% endif %}
+                </section>
+                {% endfor %}
+            </article>
+        {% endif %}
+        {% endblock %}
+    </main>
+
+    {% if page.template and page.template.js_code %}
+    <script>
+        {{ page.template.js_code|safe }}
+    </script>
+    {% endif %}
+</body>
+</html>

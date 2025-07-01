@@ -1,0 +1,32 @@
+[
+  {
+    "model": "master_data.shootingrole",
+    "pk": 1,
+    "fields": {
+      "name": "Assistant",
+      "description": "Assistant",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.shootingrole",
+    "pk": 2,
+    "fields": {
+      "name": "Makeup",
+      "description": "Makeup",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "master_data.shootingrole",
+    "pk": 3,
+    "fields": {
+      "name": "Hairstylist",
+      "description": "Hairstylist",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  }
+]

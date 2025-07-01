@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Razorpay Payment Test</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <h2>Pay ₹500</h2>
+  <button id="pay-button">Pay Now</button>
+
+  <script>
+    const paymentData = {
+    "order_id": "order_QcJtXjpDI2rCFO",
+    "razorpay_key": "rzp_test_LrGJ9RG7cQCKns",
+    "amount": 500,
+    "currency": "INR"
+};
+
+    const callbackUrlBase = "https://100d-223-181-111-48.ngrok-free.app/api/payment/callback/";
+
+    function redirectToCallback(params) {
+      const url = new URL(callbackUrlBase);
+      Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+      window.location.href = url.toString();
+    }
+
+    document.getElementById("pay-button").onclick = function (e) {
+      const options = {
+        key: paymentData.razorpay_key,
+        amount: paymentData.amount * 100, // convert rupees to paise
+        currency: paymentData.currency,
+        name: "Your Business Name",
+        description: "Test Transaction",
+        order_id: paymentData.order_id,
+        handler: function (response) {
+          redirectToCallback({
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature,
+            status: "success"
+          });
+        },
+        prefill: {
+          name: "Test User",
+          email: "testuser@example.com",
+          contact: "9999999999"
+        },
+        theme: {
+          color: "#3399cc"
+        },
+        modal: {
+          ondismiss: function () {
+            redirectToCallback({ status: "cancelled" });
+          }
+        }
+      };
+
+      const rzp = new Razorpay(options);
+
+      rzp.on('payment.failed', function (response) {
+        redirectToCallback({
+          error_code: response.error.code,
+          error_description: response.error.description,
+          error_source: response.error.source,
+          error_step: response.error.step,
+          error_reason: response.error.reason,
+          status: "failed"
+        });
+      });
+
+      rzp.open();
+      e.preventDefault();
+    };
+  </script>
+</body>
+</html>

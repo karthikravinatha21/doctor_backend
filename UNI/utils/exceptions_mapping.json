@@ -1,0 +1,74 @@
+{
+    "E-10001": {
+        "error_key": "invalid_login_credential",
+        "error_message": "The entered email or password is incorrect. Please try again."
+    },
+    "E-10002": {
+        "error_key": "invalid_token",
+        "error_message": "Inavlid token!"
+    },
+    "E-10043": {
+        "error_key": "invalid_sms_provider",
+        "error_message": "Our SMS service is down, please try after some time."
+    },
+    "E-10004": {
+        "error_key": "invalid_auth_code",
+        "error_message": "Invalid Verification Code provided, please try again"
+    },
+    "E-10224": {
+        "error_key": "invalid_referal_code",
+        "error_message": "Invalid Referal Code provided, please try again"
+    },
+    "E-10005": {
+        "error_key": "auth_code_expire",
+        "error_message": "Your OTP is expired. Please click on resend to generate new OTP."
+    },
+    "E-10201": {
+        "error_key": "token_refresh_expired",
+        "error_message": "Token refresh has expired."
+    },
+    "E-10026": {
+        "error_key": "access_token_expire",
+        "error_message": "Token has expired, please login again."
+    },
+    "E-10202": {
+        "error_key": "token_decoding_error",
+        "error_message": "Error decoding signature."
+    },
+    "E-10037": {
+        "error_key": "internal_server",
+        "error_message": "Internal server error, please try again after sometime."
+    },
+    "E-10035": {
+        "error_key": "invalid_request",
+        "error_message": "Invalid request!"
+    },
+    "E-10161": {
+        "error_key": "uploaded_corrupted_file",
+        "error_message": "Corrupted file is uploaded!"
+    },
+    "E-10162": {
+        "error_key": "file_size_limit_exceeded",
+        "error_message": "The maximum file size that can be uploaded is {0}MB"
+    },
+    "E-10044": {
+        "error_key": "invalid_email_provider",
+        "error_message": "Our email service is down, please try after some time."
+    },
+    "E-10045": {
+        "error_key": "max_resent_attempt",
+        "error_message": "You are not allowed to use resend operation. Please retry after 5 minutes."
+    },
+    "E-10554": {
+        "error_key": "invalid_feed_book_mark_id",
+        "error_message": "Feed_BookMark_Id is not there,Please Add Feed BookMark id in your database."
+    },
+    "E-10223": {
+        "error_key": "invalid_mobile_number",
+        "error_message": "Invalid Mobile Number, Please enter correct mobile number starts with 6 to 9 !!!"
+    },
+    "E-10224": {
+        "error_key": "email_already_exist",
+        "error_message": "Already Email ID Exist, Please Try with new Email ID"
+    }
+}
