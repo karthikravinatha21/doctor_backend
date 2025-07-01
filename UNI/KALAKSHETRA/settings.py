@@ -184,8 +184,8 @@ TIME_FORMAT = 'H:i:s'  # e.g., "14:30:00"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-# STATIC_URL = "static/"
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+ STATIC_URL = "static/"
+ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # from storages.backends.s3boto3 import S3Boto3Storage
 #
@@ -193,7 +193,7 @@ TIME_FORMAT = 'H:i:s'  # e.g., "14:30:00"
 #     location = 'static'  # This folder inside your S3 bucket where static files will be stored
 #     default_acl = 'public-read'  # Optional, set default access permissions
 # S3 Configuration for static files
-if env('USE_S3'):
+if False:
     # AWS settings
     AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='')
     AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='')
