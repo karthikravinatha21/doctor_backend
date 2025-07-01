@@ -14,6 +14,7 @@ class BlogPostAdmin(admin.ModelAdmin):
 class BlogCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
+    #test
 
 @admin.register(BlogTag)
 class BlogTagAdmin(admin.ModelAdmin):
