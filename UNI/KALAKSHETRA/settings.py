@@ -136,7 +136,7 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'uni_db',
+        'NAME': 'uni_test',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': 'localhost',
