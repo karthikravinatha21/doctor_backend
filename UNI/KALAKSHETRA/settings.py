@@ -184,8 +184,8 @@ TIME_FORMAT = 'H:i:s'  # e.g., "14:30:00"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
- STATIC_URL = "static/"
- STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # from storages.backends.s3boto3 import S3Boto3Storage
 #
