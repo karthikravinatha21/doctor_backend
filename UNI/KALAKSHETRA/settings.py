@@ -136,10 +136,10 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'uni_test',
+        'NAME': 'uni-test',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': 'localhost',
+        'HOST': '13.211.191.3',
         'PORT': '5432',
     }
 }
