@@ -21,7 +21,7 @@ from rest_framework.test import APIRequestFactory
 from user_details import models
 # from user_details.models import NotificationCronLogs
 # from user_details.models import FirebaseDevices, NotificationHistory
-from utils.firebase_helper import FirebaseService
+# from utils.firebase_helper import FirebaseService
 import apps
 import magic
 
@@ -122,7 +122,7 @@ def trigger_event_notification(user, event_type, event_value, title, device_type
     fcm_token = None
     device = None
     try:
-        firebase_service = FirebaseService()
+        firebase_service = None
         if not isinstance(user, list):
             user = [user]
             user_list = [i.id for i in user]
@@ -164,7 +164,7 @@ def trigger_bulk_event_notifications(users, event_type, event_value):
     """
     Trigger Firebase notifications for multiple users.
     """
-    firebase_service = FirebaseService()  # Singleton Instance
+    firebase_service = None  # Singleton Instance
 
     # Get active Firebase tokens
     fcm_tokens = list(
