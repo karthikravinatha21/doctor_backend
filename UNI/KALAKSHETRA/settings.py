@@ -296,8 +296,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://cineartery.com',
 ]
 
-VALID_IMAGE_FILE_EXTENSIONS = ast.literal_eval(os.getenv('VALID_IMAGE_FILE_EXTENSIONS', default=''))
-MAX_FILE_UPLOAD_SIZE = int(env('MAX_FILE_UPLOAD_SIZE_IN_MB', default=''))
+VALID_IMAGE_FILE_EXTENSIONS = []#ast.literal_eval(os.getenv('VALID_IMAGE_FILE_EXTENSIONS', default=''))
+MAX_FILE_UPLOAD_SIZE = 10#int(env('MAX_FILE_UPLOAD_SIZE_IN_MB', default=''))
 
 AXES_FAILURE_LIMIT = 3
 AXES_COOLOFF_TIME = datetime.timedelta(minutes=1)
@@ -312,6 +312,6 @@ OTP_LENGTH = 4
 OTP_CHARACTERS = '0123456789'
 OTP_EXPIRATION_TIME = 300
 PAGE_SIZE = 15
-RAZORPAY_KEY_ID = env('RAZORPAY_KEY_ID', default='')
-RAZORPAY_KEY_SECRET = env('RAZORPAY_KEY_SECRET', default='')
-BED_BASE_URL = env('BED_BASE_URL', default='')
+RAZORPAY_KEY_ID = ''#env('RAZORPAY_KEY_ID', default='')
+RAZORPAY_KEY_SECRET = ''#env('RAZORPAY_KEY_SECRET', default='')
+BED_BASE_URL = ''#env('BED_BASE_URL', default='')
