@@ -211,7 +211,7 @@ if env('USE_S3'):
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
     STATICFILES_STORAGE = 'KALAKSHETRA.settings.s3boto3.S3Boto3Storage'
 
-S3_SESSION = boto3_session.Session(region_name=AWS_S3_REGION_NAME)
+S3_SESSION = boto3_session.Session(region_name='ap-south-1')
 S3_CLIENT = S3_SESSION.client(
     's3', config=boto3_session.Config(signature_version='s3v4'))
 # S3_CLIENT = S3_SESSION.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
