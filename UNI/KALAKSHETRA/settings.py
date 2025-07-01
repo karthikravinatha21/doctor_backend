@@ -139,7 +139,7 @@ DATABASES = {
         'NAME': 'uni-test',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': '13.211.191.3',
+        'HOST': '54.253.225.135',
         'PORT': '5432',
     }
 }
