@@ -1,5 +1,5 @@
-from apps.doctors.apps import Doctor
-from apps.doctors.apps import DynamicFieldsModelSerializer
+from apps.doctors.models import Doctor
+from apps.meta_app.serializers import DynamicFieldsModelSerializer
 
 
 class DoctorSerializer(DynamicFieldsModelSerializer):

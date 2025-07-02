@@ -2,13 +2,13 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views import DepartmentViewSet, AccountTypeViewSet, ActorPortfolioViewSet, ActorPaymentViewSet, \
-    ActorAuditionViewSet, ActorAwardViewSet, RolesViewSet, LanguageViewSet, AgeViewSet, SkillViewSet
+    ActorAuditionViewSet, ActorAwardViewSet, RolesViewSet, LanguageViewSet, AgeViewSet, SkillViewSet, DoctorViewSet
 
 app_name = 'master_data'
 
 router = DefaultRouter()
 # router.register('department', DepartmentViewSet)
-router.register('doctors', DepartmentViewSet)
+router.register('doctors', DoctorViewSet)
 router.register('account-type', AccountTypeViewSet)
 router.register('actor-portfolio', ActorPortfolioViewSet)
 router.register('actor-payments', ActorPaymentViewSet, basename='actor-payments')

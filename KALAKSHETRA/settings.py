@@ -46,7 +46,8 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env.development'))
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+# DEBUG = env('DEBUG')
+DEBUG = True
 
 ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
@@ -139,7 +140,7 @@ DATABASES = {
         'NAME': 'uni-test',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': '54.253.225.135',
+        'HOST': '3.106.236.167',
         'PORT': '5432',
     }
 }
@@ -222,9 +223,9 @@ S3_CLIENT = S3_SESSION.client(
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+# SECURE_SSL_REDIRECT = False
+# SESSION_COOKIE_SECURE = False
+# CSRF_COOKIE_SECURE = False
 # Security settings for production
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

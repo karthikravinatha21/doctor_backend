@@ -2,6 +2,8 @@ import json
 
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
+from apps.doctors.models import Doctor
+from apps.doctors.serializers import DoctorSerializer
 from apps.hospital.models import Hospital
 from apps.hospital.serializers import HospitalSerializer
 from apps.master_data.models import Department, AccountType, PricingMaster, Languages, AgeGroup, Skills
@@ -21,9 +23,9 @@ from django.contrib.auth.models import Group
 
 class DoctorViewSet(custom_viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    model = Hospital
-    queryset = Hospital.objects.all()
-    serializer_class = HospitalSerializer
+    model = Doctor
+    queryset = Doctor.objects.all()
+    serializer_class = DoctorSerializer
     create_success_message = 'Your registration completed successfully!'
     list_success_message = 'list returned successfully!'
     retrieve_success_message = 'Information returned successfully!'
