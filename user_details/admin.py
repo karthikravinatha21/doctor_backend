@@ -17,4 +17,4 @@ class BannerAdmin(admin.ModelAdmin):
     list_display = ('priority', 'banner')
     
 
-admin.site.site_header = 'Kala Vaibhava'
+admin.site.site_header = 'Vaidya Bandhu'

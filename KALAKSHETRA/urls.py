@@ -44,23 +44,10 @@ def health_check(request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/', include('apps.users.urls')),
-    path('api/', include('apps.blogs.urls')),
-    path('api/', include('apps.event.urls')),
-    path('', include('apps.staticpages.urls')),
     path('api/', include('apps.master_data.urls')),
-    path('api/production-house/', include('apps.production_house.urls')),
-    path('api/movies/', include('apps.movies.urls')),
-    path('health/', health_check, name='health_check'),
-    path('api/', include('apps.budget.urls')),
-    path('api/', include('apps.configurations.urls')),
     path('api/', include('apps.payments.urls')),
-    path('api/', include('apps.schedule.urls')),
     path('api/', include('apps.hospital.urls')),
     path('api/', include('apps.doctors.urls')),
-    path('api/blog/', include('apps.blog.urls')),
-    path('api/web-pages/', include('apps.web_pages.urls')),
-    # Catch-all pattern for web pages - should be last
-    # re_path(r'^.*$', include('apps.web_pages.urls')),
-    re_path(r'^(?!api/).*$', include('apps.web_pages.urls')),
+    # re_path(r'^(?!api/).*$', include('apps.web_pages.urls')),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
