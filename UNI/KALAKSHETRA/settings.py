@@ -139,7 +139,7 @@ DATABASES = {
         'NAME': 'uni-test',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': '13.211.191.3',
+        'HOST': '54.253.225.135',
         'PORT': '5432',
     }
 }
@@ -184,8 +184,8 @@ TIME_FORMAT = 'H:i:s'  # e.g., "14:30:00"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-# STATIC_URL = "static/"
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # from storages.backends.s3boto3 import S3Boto3Storage
 #
@@ -193,7 +193,7 @@ TIME_FORMAT = 'H:i:s'  # e.g., "14:30:00"
 #     location = 'static'  # This folder inside your S3 bucket where static files will be stored
 #     default_acl = 'public-read'  # Optional, set default access permissions
 # S3 Configuration for static files
-if env('USE_S3'):
+if False:
     # AWS settings
     AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='')
     AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='')
@@ -222,7 +222,9 @@ S3_CLIENT = S3_SESSION.client(
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 # Security settings for production
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
