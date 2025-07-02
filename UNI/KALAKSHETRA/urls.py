@@ -63,4 +63,4 @@ urlpatterns = [
     # re_path(r'^.*$', include('apps.web_pages.urls')),
     re_path(r'^(?!api/).*$', include('apps.web_pages.urls')),
 ]
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
