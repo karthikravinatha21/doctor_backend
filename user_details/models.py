@@ -56,7 +56,8 @@ class User(AbstractUser, PermissionsMixin):
     )
     email = models.EmailField(max_length=455, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    full_name = models.CharField(max_length=255, null=True, blank=True)
+    first_name = models.CharField(max_length=255, null=True, blank=True)
+    last_name = models.CharField(max_length=255, null=True, blank=True)
     dob = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=50, null=True, blank=True)
     designation = models.CharField(max_length=255, null=True, blank=True)
@@ -102,6 +103,12 @@ class User(AbstractUser, PermissionsMixin):
     languages = models.ManyToManyField(Languages, related_name='user_languages',blank=True, null=True)
 
     skills = models.ManyToManyField(Skills, related_name='user_skills', blank=True, null=True)
+
+    aadhaar_number = models.CharField(max_length=24, null=True, blank=True)
+
+    pan_number = models.CharField(max_length=24, null=True, blank=True)
+
+    blood_group = models.CharField(max_length=24, null=True, blank=True)
 
     REQUIRED_FIELDS = []
 
@@ -214,7 +221,7 @@ class Banner(MyBaseModel):
 
 
 class OTPStorage(MyBaseModel):
-    mobile = models.IntegerField(blank=True,
+    mobile = models.BigIntegerField(blank=True,
                                  null=True,
                                  verbose_name="Mobile Number")
 

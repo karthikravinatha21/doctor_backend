@@ -1,0 +1,156 @@
+[
+  {
+    "model": "hospital.specialisation",
+    "pk": 1,
+    "fields": {
+      "department": 1,
+      "code": "ORTHO_SURG",
+      "description": "Orthopedic Surgeon",
+      "start_date": "2025-01-01",
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.specialisation",
+    "pk": 2,
+    "fields": {
+      "department": 1,
+      "code": "PED_ORTHO",
+      "description": "Pediatric Orthopedic Surgeon",
+      "start_date": "2025-01-01",
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.specialisation",
+    "pk": 3,
+    "fields": {
+      "department": 1,
+      "code": "TRAUMA",
+      "description": "Trauma Specialist",
+      "start_date": "2025-01-01",
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.specialisation",
+    "pk": 4,
+    "fields": {
+      "department": 1,
+      "code": "SPORTS_MED",
+      "description": "Sports Medicine Specialist",
+      "start_date": "2025-01-01",
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.specialisation",
+    "pk": 5,
+    "fields": {
+      "department": 1,
+      "code": "SPINE",
+      "description": "Spine Specialist",
+      "start_date": "2025-01-01",
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.specialisation",
+    "pk": 6,
+    "fields": {
+      "department": 1,
+      "code": "JOINT_REPLACEMENT",
+      "description": "Joint Replacement Specialist",
+      "start_date": "2025-01-01",
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.specialisation",
+    "pk": 7,
+    "fields": {
+      "department": 2,
+      "code": "CARDIOLOGIST",
+      "description": "Cardiologist",
+      "start_date": "2025-01-01",
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.specialisation",
+    "pk": 8,
+    "fields": {
+      "department": 2,
+      "code": "INTERV_CARD",
+      "description": "Interventional Cardiologist",
+      "start_date": "2025-01-01",
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.specialisation",
+    "pk": 9,
+    "fields": {
+      "department": 2,
+      "code": "PEDI_CARD",
+      "description": "Pediatric Cardiologist",
+      "start_date": "2025-01-01",
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.specialisation",
+    "pk": 10,
+    "fields": {
+      "department": 2,
+      "code": "CARDIO_SURG",
+      "description": "Cardiothoracic Surgeon",
+      "start_date": "2025-01-01",
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.specialisation",
+    "pk": 11,
+    "fields": {
+      "department": 2,
+      "code": "ELECTROPHYSIO",
+      "description": "Electrophysiologist",
+      "start_date": "2025-01-01",
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  }
+]

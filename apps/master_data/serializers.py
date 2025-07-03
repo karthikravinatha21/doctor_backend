@@ -1,8 +1,34 @@
 from rest_framework import serializers
 
-from apps.master_data.models import PricingMaster, SubDepartment, Department, AccountType, AgeGroup, Skills
+from apps.hospital.models import Department, Specialisation
+from apps.master_data.models import PricingMaster, SubDepartment, AccountType, AgeGroup, Skills
 from apps.payments.models import Subscription
 from apps.payments.serializers import SubscriptionSerializer
+
+
+class DepartmentSpecificSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        exclude = ('created_at', 'updated_at')
+
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        exclude = ('created_at', 'updated_at')
+
+    def to_representation(self, instance):
+        response_object = super().to_representation(instance)
+        response_object['specialty'] = SpecialisationSpecificSerializer(
+            Specialisation.objects.filter(department=instance), many=True).data
+
+        return response_object
+
+
+class SpecialisationSpecificSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Specialisation
+        exclude = ('created_at', 'updated_at')
 
 
 class PricingMasterSerializer(serializers.ModelSerializer):
@@ -20,7 +46,6 @@ class PricingMasterSerializer(serializers.ModelSerializer):
         return response
 
 
-
 class SubDepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubDepartment
@@ -36,43 +61,43 @@ class SubDepartmentSerializer(serializers.ModelSerializer):
             subscription = SubscriptionSerializer(Subscription.objects.filter(sub_department=instance), many=True).data
             response['price_master'] = []
             response['subscription'] = [
-                    {
-                        "id": 3,
-                        "name": "Monthly Pro",
-                        "price": "500.00",
-                        "currency": "INR",
-                        "duration": "monthly",
-                        "discount": "30.00",
-                        "sub_department": [
-                            11,
-                            2,
-                            6,
-                            7,
-                            8,
-                            10,
-                            12,
-                            13,
-                            14
-                        ]
-                    }
-                ]
+                {
+                    "id": 3,
+                    "name": "Monthly Pro",
+                    "price": "500.00",
+                    "currency": "INR",
+                    "duration": "monthly",
+                    "discount": "30.00",
+                    "sub_department": [
+                        11,
+                        2,
+                        6,
+                        7,
+                        8,
+                        10,
+                        12,
+                        13,
+                        14
+                    ]
+                }
+            ]
         else:
             response['price_master'] = price_master_data
             response['subscription'] = subscription
         return response
 
 
-class DepartmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Department
-        exclude = ('created_at', 'updated_at')
-
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        if instance:
-            response['sub_departments'] = list(
-                SubDepartment.objects.filter(department=instance).values('id', 'name', 'description'))
-        return response
+# class DepartmentSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Department
+#         exclude = ('created_at', 'updated_at')
+#
+#     def to_representation(self, instance):
+#         response = super().to_representation(instance)
+#         if instance:
+#             response['sub_departments'] = list(
+#                 SubDepartment.objects.filter(department=instance).values('id', 'name', 'description'))
+#         return response
 
 
 class SpecificDepartmentSerializer(serializers.ModelSerializer):
@@ -87,6 +112,7 @@ class SpecificDepartmentSerializer(serializers.ModelSerializer):
             response['sub_departments'] = list(
                 SubDepartment.objects.filter(department=instance, id=sub_dept.id).values('id', 'name', 'description'))
         return response
+
 
 class SpecificUserConfigSerializer(serializers.ModelSerializer):
     class Meta:

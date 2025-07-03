@@ -152,6 +152,9 @@ class Hospital(MyBaseModel):
 
 
 class Department(MyBaseModel):
+    hospital = models.ForeignKey(Hospital,
+                                 on_delete=models.PROTECT,
+                                 null=True, blank=True)
     code = models.SlugField(max_length=200,
                             unique=True,
                             blank=True,
@@ -160,6 +163,7 @@ class Department(MyBaseModel):
     name = models.CharField(max_length=200,
                             null=True,
                             blank=True, )
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Department"
@@ -170,9 +174,6 @@ class Department(MyBaseModel):
 
 
 class Specialisation(MyBaseModel):
-    # hospital = models.ForeignKey(Hospital,
-    #                              on_delete=models.PROTECT,
-    #                              null=True, blank=True)
     department = models.ForeignKey(Department,
                                    on_delete=models.PROTECT,
                                    null=True,

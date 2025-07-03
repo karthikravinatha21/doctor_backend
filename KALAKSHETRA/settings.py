@@ -135,12 +135,20 @@ DATABASES = {
     #     'HOST': env('DBHOST'),
     #     'PORT': env('PORT'),
     # }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': 'uni-test',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'postgres',
+    #     'HOST': '3.106.236.167',
+    #     'PORT': '5432',
+    # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'uni-test',
+        'NAME': 'vb_local',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': '3.106.236.167',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
@@ -194,23 +202,23 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 #     location = 'static'  # This folder inside your S3 bucket where static files will be stored
 #     default_acl = 'public-read'  # Optional, set default access permissions
 # S3 Configuration for static files
-if False:
-    # AWS settings
-    AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='')
-    AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='')
-    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='kalakshetra-dev-static-files')
-    AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-
-    # S3 static settings
-    STATIC_LOCATION = 'static'
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
-    # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-    STATICFILES_STORAGE = 'KALAKSHETRA.settings.s3boto3.S3Boto3Storage'
+# if False:
+#     # AWS settings
+#     AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='')
+#     AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='')
+#     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='kalakshetra-dev-static-files')
+#     AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
+#     AWS_DEFAULT_ACL = 'public-read'
+#     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+#     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+#
+#     # S3 static settings
+#     STATIC_LOCATION = 'static'
+#     STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+#     # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#     # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+#     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+#     STATICFILES_STORAGE = 'KALAKSHETRA.settings.s3boto3.S3Boto3Storage'
 
 S3_SESSION = boto3_session.Session(region_name='ap-south-1')
 S3_CLIENT = S3_SESSION.client(

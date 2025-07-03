@@ -131,7 +131,7 @@ class UserViewSet(custom_viewsets.ModelViewSet):
                 logger.info(f"random_password: {random_password}")
 
                 message_text = (
-                    f'Welcome to Kalavaibhava, Your One Time Password (OTP) is {random_password}. It is valid for 5 minute. Do not share your OTP with anyone-Kalavaibhava')
+                    f'Welcome to Vaidhya Bandhu, Your One Time Password (OTP) is {random_password}. It is valid for 5 minute. Do not share your OTP with anyone-Kalavaibhava')
                 # if settings.IS_PRODUCTION:
                 #     infobip_client = InfobipSMSClient(settings.INFOBIP_BASE_URL, settings.INFOBIP_API_KEY,
                 #                                       settings.INFOBIP_SENDER)
