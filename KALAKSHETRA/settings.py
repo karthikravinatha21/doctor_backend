@@ -35,6 +35,22 @@ env = environ.Env(
 )
 
 # ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '::1',
+    '6c71-2401-4900-1cc5-19db-28ec-9069-cee9-5a24.ngrok-free.app',
+]
+USE_X_FORWARDED_HOST = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://6c71-2401-4900-1cc5-19db-28ec-9069-cee9-5a24.ngrok-free.app',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React dev server
+    "https://6c71-2401-4900-1cc5-19db-28ec-9069-cee9-5a24.ngrok-free.app",  # Ngrok
+]
 
 # Read .env.development file if it exists
 environ.Env.read_env(os.path.join(BASE_DIR, '.env.development'))
@@ -143,13 +159,21 @@ DATABASES = {
     #     'HOST': '3.106.236.167',
     #     'PORT': '5432',
     # }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': 'vb_local',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'postgres',
+    #     'HOST': 'localhost',
+    #     'PORT': '5432',
+    # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'vb_local',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': 'migration_trial_5',
+        'USER': 'healthcare',
+        'PASSWORD': 'Health@Admin@24',
+        'HOST': '35.207.201.1',
+        'PORT': '5462',
     }
 }
 
