@@ -36,12 +36,14 @@ env = environ.Env(
 
 # ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '::1',
-    '6c71-2401-4900-1cc5-19db-28ec-9069-cee9-5a24.ngrok-free.app',
+    # 'localhost',
+    # '127.0.0.1',
+    # '::1',
+    # '.ngrok-free.app',
+    '*'
 ]
 USE_X_FORWARDED_HOST = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 CSRF_TRUSTED_ORIGINS = [
     'https://6c71-2401-4900-1cc5-19db-28ec-9069-cee9-5a24.ngrok-free.app',
@@ -65,7 +67,7 @@ SECRET_KEY = env('SECRET_KEY')
 # DEBUG = env('DEBUG')
 DEBUG = True
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+# ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 # Application definition
 PREDEFINED_APPS = [
@@ -75,6 +77,7 @@ PREDEFINED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'corsheaders',
 ]
 
 CORE_APPS = [
@@ -104,6 +107,7 @@ INSTALLED_APPS = PREDEFINED_APPS + CORE_APPS
 # CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -169,7 +173,7 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'migration_trial_5',
+        'NAME': 'test',
         'USER': 'healthcare',
         'PASSWORD': 'Health@Admin@24',
         'HOST': '35.207.201.1',
@@ -331,8 +335,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://cineartery.com',
 ]
 
-VALID_IMAGE_FILE_EXTENSIONS = []#ast.literal_eval(os.getenv('VALID_IMAGE_FILE_EXTENSIONS', default=''))
-MAX_FILE_UPLOAD_SIZE = 10#int(env('MAX_FILE_UPLOAD_SIZE_IN_MB', default=''))
+VALID_IMAGE_FILE_EXTENSIONS = []  # ast.literal_eval(os.getenv('VALID_IMAGE_FILE_EXTENSIONS', default=''))
+MAX_FILE_UPLOAD_SIZE = 10  # int(env('MAX_FILE_UPLOAD_SIZE_IN_MB', default=''))
 
 AXES_FAILURE_LIMIT = 3
 AXES_COOLOFF_TIME = datetime.timedelta(minutes=1)
@@ -347,6 +351,6 @@ OTP_LENGTH = 4
 OTP_CHARACTERS = '0123456789'
 OTP_EXPIRATION_TIME = 300
 PAGE_SIZE = 15
-RAZORPAY_KEY_ID = ''#env('RAZORPAY_KEY_ID', default='')
-RAZORPAY_KEY_SECRET = ''#env('RAZORPAY_KEY_SECRET', default='')
-BED_BASE_URL = ''#env('BED_BASE_URL', default='')
+RAZORPAY_KEY_ID = ''  # env('RAZORPAY_KEY_ID', default='')
+RAZORPAY_KEY_SECRET = ''  # env('RAZORPAY_KEY_SECRET', default='')
+BED_BASE_URL = ''  # env('BED_BASE_URL', default='')
