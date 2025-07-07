@@ -110,13 +110,13 @@ class Doctor(MyBaseModel):
 
     pr_consultation_charges = models.IntegerField(default=0,
                                                   null=True)
-    start_date = models.DateField(blank=False,
-                                  null=False, )
+    start_date = models.DateField(blank=False, null=False, )
 
-    end_date = models.DateField(blank=True,
-                                null=True)
+    end_date = models.DateField(blank=True, null=True)
 
     is_primary_consultation_doctor = models.BooleanField(default=False)
+
+    ratings = models.FloatField(default=0.0, null=True, blank=True)
 
     @property
     def representation(self):

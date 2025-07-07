@@ -58,8 +58,9 @@ class UserSerializer(serializers.ModelSerializer):
         if instance.department:
             context = {'sub_dept_id': instance.sub_department}
             representation['department'] = SpecificDepartmentSerializer(instance.department, context=context).data
-        representation['payment'] = TransactionSerializer(
-            Transaction.objects.filter(user=instance, status='success').order_by('created_at').first()).data
+        # representation['payment'] = TransactionSerializer(
+        #     Transaction.objects.filter(user=instance, status='success').order_by('created_at').first()).data
+        representation['has_subscription'] = False
 
         return representation
 
