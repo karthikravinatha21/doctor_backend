@@ -6,6 +6,12 @@ from apps.meta_app.models import MyBaseModel
 
 # Create your models here.
 class Doctor(MyBaseModel):
+    GENDER_CHOICES = (
+        ("Male", "Male"),
+        ("Female", "Female"),
+        ("Other", "Other"),
+    )
+
     code = models.CharField(max_length=300,
                             null=False,
                             blank=False,
@@ -29,6 +35,8 @@ class Doctor(MyBaseModel):
                                  on_delete=models.PROTECT,
                                  blank=False,
                                  null=False)
+
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
 
     designation = models.CharField(max_length=500,
                                    null=True,

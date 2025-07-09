@@ -1,4 +1,6 @@
 import json
+
+from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
@@ -21,23 +23,17 @@ from django.contrib.auth.models import Group
 from utils.constants import custom_json_response
 
 
-# Create your views here.
-
 class DoctorViewSet(custom_viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     model = Doctor
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
+
     create_success_message = 'Your registration completed successfully!'
-    list_success_message = 'list returned successfully!'
+    list_success_message = 'List returned successfully!'
     retrieve_success_message = 'Information returned successfully!'
     update_success_message = 'Information updated successfully!'
     status_code = 200
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['name', 'id']
-
-    # Fields available for search (partial match, case-insensitive)
-    search_fields = ['name', 'description']
 
     def get_permissions(self):
 
@@ -50,6 +46,46 @@ class DoctorViewSet(custom_viewsets.ModelViewSet):
             return [permission() for permission in permission_classes]
 
         return super().get_permissions()
+
+    def get_queryset(self):
+        queryset = Doctor.objects.all()
+
+        # Get the search query
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            # Searching across multiple fields with OR conditions using Q objects
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) |
+                # Q(ratings__icontains=search_query) |
+                Q(gender__icontains=search_query) |
+                Q(speciality__description__icontains=search_query)  # Assuming specialisation model has 'name' field
+            )
+
+        # Specialisation filter
+        specialisation_ids = self.request.query_params.get('specialties', None)
+        if specialisation_ids:
+            specialisation_ids = list(str(specialisation_ids).split(","))
+            queryset = queryset.filter(speciality__id__in=specialisation_ids)
+
+        # Hospital location filter
+        hospital_location = self.request.query_params.get('locations', None)
+        if hospital_location:
+            queryset = queryset.filter(hospital__location_name__icontains=hospital_location)
+
+        rating = self.request.query_params.get('rating', None)
+        if rating:
+            queryset = queryset.filter(ratings__icontains=rating)
+
+        gender = self.request.query_params.get('gender', None)
+        if gender:
+            queryset = queryset.filter(gender__icontains=gender)
+
+
+        return queryset
+
+    # Enable search and ordering functionality
+    # filter_backends = (filters.OrderingFilter, filters.SearchFilter)
+    # search_fields = ['name', 'ratings', 'gender', 'speciality__name']
 
 
 class DepartmentViewSet(custom_viewsets.ModelViewSet):
