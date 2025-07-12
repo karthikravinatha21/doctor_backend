@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
@@ -107,7 +108,13 @@ class DiagnosticCenterViewSet(custom_viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset
-        # category = self.request.query_params.get('category', None)
-        # if category:
-        #     queryset = queryset.filter(main_diagnostic__id=category)
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            # Searching across multiple fields with OR conditions using Q objects
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) |
+                Q(pincode__icontains=search_query) |
+                Q(city__city_name__icontains=search_query) |
+                Q(category__name__icontains=search_query)
+            )
         return queryset.order_by('-id')
