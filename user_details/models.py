@@ -6,6 +6,8 @@ from django.contrib.auth.models import (AbstractUser, BaseUserManager, Permissio
 from django.db import models
 # from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import (FileExtensionValidator)
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from apps.master_data.models import Department, Languages, AgeGroup, Skills, SubDepartment
 from apps.production_house.models import ProductionHouse
 from utils.constants import validate_file_size, validate_file_authenticity

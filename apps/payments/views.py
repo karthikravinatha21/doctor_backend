@@ -1,4 +1,5 @@
 # views.py
+import datetime
 
 import razorpay
 import hmac, hashlib
@@ -10,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from user_details.permission import IsUserBlockedPermission
 from utils import custom_viewsets
-from .models import Transaction, Subscription
+from .models import Transaction, Subscription, UserSubscription
 from .serializers import TransactionSerializer, SubscriptionSerializer
 
 
@@ -44,6 +45,12 @@ class RazorpayView(custom_viewsets.ModelViewSet):
             raise ValueError("Pricing not available for this subscription.")
         amount = pricing.price
         currency = pricing.currency
+        existing_subscription = UserSubscription.objects.filter(user=request.user,
+                                                                start_date__lte=datetime.datetime.now(),
+                                                                end_date__gte=datetime.datetime.now()).first()
+        if existing_subscription:
+            raise Exception("Already Subscribed")
+
         try:
             order = client.order.create({
                 "amount": int(amount) * 100,  # Amount in paise
@@ -62,8 +69,16 @@ class RazorpayView(custom_viewsets.ModelViewSet):
             # order = client.order.create({"amount": int(amount) * 100, "currency": currency, "payment_capture": 1})
 
             # Save transaction
-            Transaction.objects.create(user=request.user, razorpay_order_id=order["id"], amount=amount,
+            transaction = Transaction.objects.create(user=request.user, razorpay_order_id=order["id"], amount=amount,
                                        currency=currency, status="created", subscription=pricing)
+            if transaction.subscription.duration == 'Yearly':
+                days = 365
+            if transaction.subscription.duration == 'Monthly':
+                days = 30
+            start_date = datetime.datetime.now()
+            end_date = start_date + datetime.timedelta(days=days)
+            UserSubscription.objects.create(transaction.user, start_date=start_date,
+                                            end_date=end_date, subscription=transaction.subscription)
 
             return Response({"order_id": order["id"], "razorpay_key": settings.RAZORPAY_KEY_ID, "amount": amount,
                              "currency": currency}, status=200)
@@ -103,11 +118,20 @@ class RazorpayView(custom_viewsets.ModelViewSet):
 
         if actual_status == "authorized":
             # Capture the payment
+            days = 0
             try:
                 capture_response = client.payment.capture(payment_id, int(transaction.amount * 100))
                 actual_status = capture_response.get("status", actual_status)
                 if actual_status == 'captured':
                     actual_status = 'success'
+                    if transaction.subscription.duration == 'Yearly':
+                        days = 365
+                    if transaction.subscription.duration == 'Monthly':
+                        days = 30
+                    start_date = datetime.datetime.now()
+                    end_date = start_date + datetime.timedelta(days=days)
+                    UserSubscription.objects.create(transaction.user, start_date=start_date,
+                                                    end_date=end_date, subscription=transaction.subscription)
             except razorpay.errors.BadRequestError as e:
                 transaction.status = "failed"
                 transaction.save()
@@ -151,6 +175,7 @@ class RazorpayView(custom_viewsets.ModelViewSet):
         serializer = TransactionSerializer(transactions, many=True)
         return Response(serializer.data, status=200)
 
+
 class SubscriptionView(custom_viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     model = Subscription
@@ -171,4 +196,3 @@ class SubscriptionView(custom_viewsets.ModelViewSet):
             return [permission() for permission in permission_classes]
 
         return super().get_permissions()
-

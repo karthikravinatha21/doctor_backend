@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 from apps.master_data.models import SubDepartment
@@ -46,3 +48,15 @@ class Transaction(MyBaseModel):
 
     def __str__(self):
         return f"{self.user} - {self.razorpay_order_id} - {self.status}"
+
+
+class UserSubscription(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
+    start_date = models.DateTimeField(default=datetime.now)
+    end_date = models.DateTimeField()
+    subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.user.mobile} - {self.plan} months"

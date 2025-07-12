@@ -139,7 +139,7 @@ class SpecialtyViewSet(custom_viewsets.ModelViewSet):
     # filterset_fields = ['name', 'id']
 
     # Fields available for search (partial match, case-insensitive)
-    # search_fields = ['name', 'description']
+    search_fields = ['code', 'description']
 
     def get_permissions(self):
 
@@ -152,3 +152,10 @@ class SpecialtyViewSet(custom_viewsets.ModelViewSet):
             return [permission() for permission in permission_classes]
 
         return super().get_permissions()
+
+    def get_queryset(self):
+        queryset = self.queryset
+        department_id = self.request.query_params.get('department')
+        if department_id:
+            queryset = queryset.filter(department__id=department_id)
+        return queryset
