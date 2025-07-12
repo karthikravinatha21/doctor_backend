@@ -102,6 +102,7 @@ CORE_APPS = [
     'apps.schedule',
     'apps.hospital',
     'apps.doctors',
+    'apps.diagnostic',
 ]
 INSTALLED_APPS = PREDEFINED_APPS + CORE_APPS
 
@@ -355,3 +356,4 @@ PAGE_SIZE = 15
 RAZORPAY_KEY_ID = ''  # env('RAZORPAY_KEY_ID', default='')
 RAZORPAY_KEY_SECRET = ''  # env('RAZORPAY_KEY_SECRET', default='')
 BED_BASE_URL = ''  # env('BED_BASE_URL', default='')
+VB_SUPPORT_NUMBER = '9900111111'

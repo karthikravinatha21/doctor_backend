@@ -1,0 +1,137 @@
+[
+  {
+    "model": "hospital.city",
+    "pk": 1,
+    "fields": {
+      "city_name": "Bengaluru",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 2,
+    "fields": {
+      "city_name": "Mysuru",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 3,
+    "fields": {
+      "city_name": "Hubballi",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 4,
+    "fields": {
+      "city_name": "Davanagere",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 5,
+    "fields": {
+      "city_name": "Ballari",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 6,
+    "fields": {
+      "city_name": "Belagavi",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 7,
+    "fields": {
+      "city_name": "Tumakuru",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 8,
+    "fields": {
+      "city_name": "Shimoga",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 9,
+    "fields": {
+      "city_name": "Chitradurga",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 10,
+    "fields": {
+      "city_name": "Hassan",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 11,
+    "fields": {
+      "city_name": "Karwar",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 12,
+    "fields": {
+      "city_name": "Raichur",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 13,
+    "fields": {
+      "city_name": "Bagalkot",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 14,
+    "fields": {
+      "city_name": "Chikkamagaluru",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "hospital.city",
+    "pk": 15,
+    "fields": {
+      "city_name": "Kodagu",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  }
+]

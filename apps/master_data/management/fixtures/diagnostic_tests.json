@@ -1,0 +1,629 @@
+[
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 1,
+    "fields": {
+      "name": "Chest X-ray",
+      "main_diagnostic": 1,
+      "code": "CODE01",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 2,
+    "fields": {
+      "name": "Knee X-ray",
+      "main_diagnostic": 1,
+      "code": "CODE02",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 3,
+    "fields": {
+      "name": "Wrist X-ray",
+      "main_diagnostic": 1,
+      "code": "CODE03",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 4,
+    "fields": {
+      "name": "PNS X-ray",
+      "main_diagnostic": 1,
+      "code": "CODE04",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 5,
+    "fields": {
+      "name": "Lumbar Spine X-ray",
+      "main_diagnostic": 1,
+      "code": "CODE05",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 6,
+    "fields": {
+      "name": "Cervical Spine X-ray",
+      "main_diagnostic": 1,
+      "code": "CODE06",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 7,
+    "fields": {
+      "name": "Foot X-ray",
+      "main_diagnostic": 1,
+      "code": "CODE07",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 8,
+    "fields": {
+      "name": "KUB Ultrasound",
+      "main_diagnostic": 2,
+      "code": "CODE08",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 9,
+    "fields": {
+      "name": "Doppler Ultrasound",
+      "main_diagnostic": 2,
+      "code": "CODE09",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 10,
+    "fields": {
+      "name": "Pregnancy Ultrasound",
+      "main_diagnostic": 2,
+      "code": "CODE10",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 11,
+    "fields": {
+      "name": "Anomaly Ultrasound",
+      "main_diagnostic": 2,
+      "code": "CODE11",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 12,
+    "fields": {
+      "name": "Abdomen Ultrasound",
+      "main_diagnostic": 2,
+      "code": "CODE12",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 13,
+    "fields": {
+      "name": "Breast Ultrasound",
+      "main_diagnostic": 2,
+      "code": "CODE13",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 14,
+    "fields": {
+      "name": "Scrotal Ultrasound",
+      "main_diagnostic": 2,
+      "code": "CODE14",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 15,
+    "fields": {
+      "name": "Pelvis Ultrasound",
+      "main_diagnostic": 2,
+      "code": "CODE15",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 16,
+    "fields": {
+      "name": "NT Ultrasound",
+      "main_diagnostic": 2,
+      "code": "CODE16",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 17,
+    "fields": {
+      "name": "TVS Ultrasound",
+      "main_diagnostic": 2,
+      "code": "CODE17",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 18,
+    "fields": {
+      "name": "Brain CT",
+      "main_diagnostic": 3,
+      "code": "CODE18",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 19,
+    "fields": {
+      "name": "Chest CT",
+      "main_diagnostic": 3,
+      "code": "CODE19",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 20,
+    "fields": {
+      "name": "PNS CT",
+      "main_diagnostic": 3,
+      "code": "CODE20",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 21,
+    "fields": {
+      "name": "KUB CT",
+      "main_diagnostic": 3,
+      "code": "CODE21",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 22,
+    "fields": {
+      "name": "Abdomen & Pelvis CT",
+      "main_diagnostic": 3,
+      "code": "CODE22",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 23,
+    "fields": {
+      "name": "Coronary Angiogram CT",
+      "main_diagnostic": 3,
+      "code": "CODE23",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 24,
+    "fields": {
+      "name": "Virtual Colonoscopy CT",
+      "main_diagnostic": 3,
+      "code": "CODE24",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 25,
+    "fields": {
+      "name": "Neck CT",
+      "main_diagnostic": 3,
+      "code": "CODE25",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 26,
+    "fields": {
+      "name": "Brain MRI",
+      "main_diagnostic": 4,
+      "code": "CODE26",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 27,
+    "fields": {
+      "name": "Cardiac MRI",
+      "main_diagnostic": 4,
+      "code": "CODE27",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 28,
+    "fields": {
+      "name": "Prostate MRI",
+      "main_diagnostic": 4,
+      "code": "CODE28",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 29,
+    "fields": {
+      "name": "MRCP MRI",
+      "main_diagnostic": 4,
+      "code": "CODE29",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 30,
+    "fields": {
+      "name": "Angiography / Venography MRI",
+      "main_diagnostic": 4,
+      "code": "CODE30",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 31,
+    "fields": {
+      "name": "Shoulder MRI",
+      "main_diagnostic": 4,
+      "code": "CODE31",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 32,
+    "fields": {
+      "name": "Lumbar Spine MRI",
+      "main_diagnostic": 4,
+      "code": "CODE32",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 33,
+    "fields": {
+      "name": "Cervical Spine MRI",
+      "main_diagnostic": 4,
+      "code": "CODE33",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 34,
+    "fields": {
+      "name": "Pelvis MRI",
+      "main_diagnostic": 4,
+      "code": "CODE34",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 35,
+    "fields": {
+      "name": "Knee MRI",
+      "main_diagnostic": 4,
+      "code": "CODE35",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 36,
+    "fields": {
+      "name": "Complete Blood Count (CBC) Test",
+      "main_diagnostic": 9,
+      "code": "CODE36",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 37,
+    "fields": {
+      "name": "Thyroid Test",
+      "main_diagnostic": 9,
+      "code": "CODE37",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 38,
+    "fields": {
+      "name": "(Hba1c) Glycosylated Haemoglobin",
+      "main_diagnostic": 9,
+      "code": "CODE38",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 39,
+    "fields": {
+      "name": "Lipid Profile Test",
+      "main_diagnostic": 9,
+      "code": "CODE39",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 40,
+    "fields": {
+      "name": "Liver Function Test",
+      "main_diagnostic": 9,
+      "code": "CODE40",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 41,
+    "fields": {
+      "name": "Renal Function Test",
+      "main_diagnostic": 9,
+      "code": "CODE41",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 42,
+    "fields": {
+      "name": "Vitamin D Test",
+      "main_diagnostic": 9,
+      "code": "CODE42",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 43,
+    "fields": {
+      "name": "Vitamin B12 Test",
+      "main_diagnostic": 9,
+      "code": "CODE43",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 44,
+    "fields": {
+      "name": "Blood Urea Nitrogen (BUN) Test",
+      "main_diagnostic": 10,
+      "code": "CODE44",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 45,
+    "fields": {
+      "name": "Creatinine Test",
+      "main_diagnostic": 10,
+      "code": "CODE45",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 46,
+    "fields": {
+      "name": "Electrolytes (NA, K, CL) Test",
+      "main_diagnostic": 10,
+      "code": "CODE46",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 47,
+    "fields": {
+      "name": "ELECTROLYTES (NA/K/CH/BIC) Test",
+      "main_diagnostic": 10,
+      "code": "CODE47",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 48,
+    "fields": {
+      "name": "Glucose – Fasting with Urine Glucose Test",
+      "main_diagnostic": 10,
+      "code": "CODE48",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 49,
+    "fields": {
+      "name": "Potassium (K)",
+      "main_diagnostic": 10,
+      "code": "CODE49",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 50,
+    "fields": {
+      "name": "Protein/Creatinine Ratio - Urine – Spot Sample Test",
+      "main_diagnostic": 10,
+      "code": "CODE50",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 51,
+    "fields": {
+      "name": "Uric Acid Test",
+      "main_diagnostic": 10,
+      "code": "CODE51",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 52,
+    "fields": {
+      "name": "Urine Microalbumin – Spot Sample Test",
+      "main_diagnostic": 10,
+      "code": "CODE52",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 53,
+    "fields": {
+      "name": "Urine Routine Test",
+      "main_diagnostic": 10,
+      "code": "CODE53",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 54,
+    "fields": {
+      "name": "Urine Complete Analysis Test",
+      "main_diagnostic": 10,
+      "code": "CODE54",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 55,
+    "fields": {
+      "name": "Sodium (Na+) Test",
+      "main_diagnostic": 10,
+      "code": "CODE55",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 56,
+    "fields": {
+      "name": "Renal Function Test (Urea/Creat/Uric/Electrolytes/Urine routine) RFT Test",
+      "main_diagnostic": 10,
+      "code": "CODE56",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "diagnostic.diagnostictest",
+    "pk": 57,
+    "fields": {
+      "name": "Alarine Aminotransferase(ALT/SGPT)Test",
+      "main_diagnostic": 11,
+      "code": "CODE57",
+      "created_at": "2025-04-19T12:00:00Z",
+      "updated_at": "2025-04-19T12:00:00Z"
+    }
+  }
+]

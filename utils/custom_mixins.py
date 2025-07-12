@@ -48,14 +48,14 @@ class ListModelMixin:
 
     def list(self, request, *args, **kwargs):
         pagination_data = None
-
+        skip_pagination = request.query_params.get('pagination', True)
         queryset = self.filter_queryset(self.get_queryset())
 
         if hasattr(queryset, 'distinct'):
             queryset = queryset.distinct()
 
         page = self.paginate_queryset(queryset)
-        if page is not None:
+        if page is not None and skip_pagination in [True, 'true']:
             serializer = self.get_serializer(page, context={
                 'request': request}, many=True)
             pagination_data = self.get_paginated_response(None)
