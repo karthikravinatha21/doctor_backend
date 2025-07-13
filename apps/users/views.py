@@ -502,6 +502,8 @@ class AdminUserViewSet(custom_viewsets.ModelViewSet):
             serializer = UserAdminSerializer(user_object)
             user_data = serializer.data
             user_data["user_permissions"] = permission_list
+            user_data["token"] = token
+            user_data["refresh_token"] = str(refresh)
             return Response({"message": "Profile retrieved successfully", "data": user_data},
                             status=status.HTTP_200_OK)
         else:
