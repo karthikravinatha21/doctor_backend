@@ -6,13 +6,17 @@ import jwt
 import phonenumbers
 from django.conf import settings
 from django.contrib.auth.models import update_last_login
+from django.db.models import Q
 from django.utils.crypto import get_random_string
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from sendgrid.helpers.mail import group_id
+from django.contrib.auth.hashers import check_password, make_password
+from apps.approles.models import AppGroup, UserGroup, AppGroupPermission
+from apps.approles.serializers import AppGroupPermissionSerializer
 from apps.master_data.serializers import SpecificUserConfigSerializer
 from apps.movies.models import Movie
 from apps.movies.serializers import MovieSerializer
@@ -21,9 +25,9 @@ from apps.schedule.models import Schedule
 from apps.users.serializers import ActorSerializer
 from user_details.models import User, UserTokens, Banner, OTPStorage
 from user_details.permission import IsUserBlockedPermission
-from user_details.serializers import BannerSerializer, UserSerializer
+from user_details.serializers import BannerSerializer, UserSerializer, UserAdminSerializer
 from utils import custom_viewsets
-from utils.constants import custom_json_response
+from utils.constants import custom_json_response, validate_non_empty_fields, USER_TYPE_ADMIN
 from utils.utils import validate_access_attempts, generate_otp
 
 logger = logging.getLogger('django')
@@ -398,3 +402,109 @@ class BannerViewSet(custom_viewsets.ModelViewSet):
             return queryset
         queryset = queryset.filter(is_for_app=True)
         return queryset
+
+
+class AdminUserViewSet(custom_viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    model = User
+    queryset = User.objects.filter(Q(is_superuser=True) | Q(user_type='admin'))
+    serializer_class = UserAdminSerializer
+    create_success_message = 'Your registration completed successfully!'
+    list_success_message = 'list returned successfully!'
+    retrieve_success_message = 'Information returned successfully!'
+    update_success_message = 'Information updated successfully!'
+    status_code = status.HTTP_200_OK
+
+    def get_permissions(self):
+
+        if self.action in ['verify_login_otp', 'login', 'resend_otp', 'logs']:
+            permission_classes = [AllowAny]
+            return [permission() for permission in permission_classes]
+
+        if self.action in ['create', 'partial_update', 'patch', 'department_config']:
+            permission_classes = [AllowAny]
+            return [permission() for permission in permission_classes]
+
+        if self.action in ['retrieve', 'list']:
+            permission_classes = [AllowAny]
+            return [permission() for permission in permission_classes]
+
+        return super().get_permissions()
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        email = data.get("email")
+        password = data.get("password")
+        group_id = data.pop('role_id', None)
+        validate_non_empty_fields([email, password])
+        user_exist = User.objects.filter(Q(email=email))
+
+        if user_exist:
+            # LOGGER.warning(
+            #     f"User creation failed: Email or mobile already exists (email={email}, mobile={mobile})"
+            # )
+            return custom_json_response(
+                {"message": "User with this email/phone already exist"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        user = User(full_name=data.get('full_name'), email=data.get('email'), mobile=data.get('mobile'),
+                    address=data.get('address'), dob=data.get('dob'), gender=data.get('gender'))
+        user.set_password(password)
+        user.is_staff = True
+        user.user_type = USER_TYPE_ADMIN
+        user.save()
+        app_group = AppGroup.objects.get(id__in=group_id)
+        if app_group:
+            UserGroup.objects.create(user=user, app_group=app_group)
+
+        # Serialize the user object and return the response
+        serializer = self.get_serializer(user)
+        return Response({
+            "status_code": status.HTTP_201_CREATED,
+            "data": serializer.data,
+            "message": self.create_success_message,
+        }, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        roles_data = request.data.get('roles[]', [])
+        # if roles_data:
+        #     request.data['roles'] = json.loads(roles_data)
+        return super().update(request, *args, **kwargs)
+
+    @action(detail=False, methods=['POST'])
+    def login(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password', None)
+        user_object = User.objects.get(email__iexact=email)
+        permission_list = None
+        if check_password(password, user_object.password):
+            payload = {
+                "id": user_object.id,
+                "email": user_object.email,
+                "full_name": user_object.full_name,
+                "mobile": user_object.mobile,
+                "access_type": "admin",
+                "created_time": str(datetime.now()),
+            }
+
+            token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+
+            refresh = RefreshToken.for_user(user_object)  # Generate JWT Token
+
+            UserTokens.objects.filter(user=user_object).delete()
+            UserTokens.objects.create(user=user_object, token=str(token))
+
+            user_group = UserGroup.objects.filter(user=user_object).first()
+            if user_group:
+                permission_list = AppGroupPermission.objects.filter(app_group=user_group.app_group)
+
+                permission_list = AppGroupPermissionSerializer(permission_list, many=True).data
+            serializer = UserAdminSerializer(user_object)
+            user_data = serializer.data
+            user_data["user_permissions"] = permission_list
+            return Response({"message": "Profile retrieved successfully", "data": user_data},
+                            status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST
+            )

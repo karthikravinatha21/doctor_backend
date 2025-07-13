@@ -103,6 +103,7 @@ CORE_APPS = [
     'apps.hospital',
     'apps.doctors',
     'apps.diagnostic',
+    'apps.approles'
 ]
 INSTALLED_APPS = PREDEFINED_APPS + CORE_APPS
 

@@ -1,6 +1,7 @@
 import os
 import uuid
 from django.conf import settings
+from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import (AbstractUser, BaseUserManager, PermissionsMixin, User, _user_has_module_perms,
                                         _user_has_perm)
 from django.db import models
@@ -54,17 +55,25 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser, PermissionsMixin):
     USER_TYPES = (
-        ('User', 'User'),
+        ('User', 'user'),
+        ('Admin', 'admin'),
     )
     email = models.EmailField(max_length=455, null=True, blank=True)
+
     description = models.TextField(null=True, blank=True)
-    first_name = models.CharField(max_length=255, null=True, blank=True)
-    last_name = models.CharField(max_length=255, null=True, blank=True)
+
+    full_name = models.CharField(max_length=255, null=True, blank=True)
+
     dob = models.DateField(null=True, blank=True)
+
     gender = models.CharField(max_length=50, null=True, blank=True)
+
     designation = models.CharField(max_length=255, null=True, blank=True)
+
     address = models.CharField(max_length=355, null=True, blank=True)
+
     is_staff = models.BooleanField(default=True)
+
     profile_image = models.ImageField(upload_to=generate_profile_path,
                                       blank=True,
                                       null=True,
@@ -74,37 +83,25 @@ class User(AbstractUser, PermissionsMixin):
                                           FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
                                           validate_file_size,
                                           validate_file_authenticity, ], )
+
     is_active = models.BooleanField(default=True)
+
     is_superuser = models.BooleanField(default=False)
+
     user_type = models.CharField(choices=USER_TYPES,
                                  blank=True,
                                  null=True,
                                  max_length=30,
                                  verbose_name='user_type',
-                                 default='Admin')
+                                 default='user')
     mobile = models.CharField(max_length=13, blank=False,
                               null=False,
                               verbose_name="Mobile",
                               unique=True)
-    recruit_slug = models.EmailField(max_length=155, null=True, blank=True)
-    is_phone_verified = models.BooleanField(default=False)
-    is_email_verified = models.BooleanField(default=False)
-    date_joined = models.DateTimeField(null=True, blank=True)
+
     last_login = models.DateTimeField(null=True, blank=True)
-    linkedin_url = models.CharField(max_length=355, null=True, blank=True)
+
     mobile_verified = models.BooleanField(default=False)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='user_department', blank=True,
-                                   null=True)
-    sub_department = models.ForeignKey(SubDepartment, on_delete=models.CASCADE, related_name='user_department', blank=True,
-                                   null=True)
-    production_house = models.ForeignKey(ProductionHouse, on_delete=models.CASCADE,
-                                         related_name='user_production_house', blank=True, null=True)
-
-    age_group = models.ForeignKey(AgeGroup, on_delete=models.CASCADE, related_name='user_age_group', blank=True, null=True)
-
-    languages = models.ManyToManyField(Languages, related_name='user_languages',blank=True, null=True)
-
-    skills = models.ManyToManyField(Skills, related_name='user_skills', blank=True, null=True)
 
     aadhaar_number = models.CharField(max_length=24, null=True, blank=True)
 
@@ -183,6 +180,10 @@ class User(AbstractUser, PermissionsMixin):
         except Exception as error:
             print(error)
 
+    def check_password(self, raw_password):
+        """Check if the given password matches the stored hashed password."""
+        return check_password(raw_password, self.password)
+
 
 class MyBaseModel(models.Model):
     id = models.AutoField(primary_key=True)
@@ -224,8 +225,8 @@ class Banner(MyBaseModel):
 
 class OTPStorage(MyBaseModel):
     mobile = models.BigIntegerField(blank=True,
-                                 null=True,
-                                 verbose_name="Mobile Number")
+                                    null=True,
+                                    verbose_name="Mobile Number")
 
     email_id = models.EmailField(max_length=455, null=True, blank=True)
 
@@ -265,17 +266,17 @@ class OTPStorage(MyBaseModel):
 
 
 class UserTokens(MyBaseModel):
-    # user = models.ForeignKey(apps.candidates.models.Candidate,
-    #                          on_delete=models.CASCADE,
-    #                          blank=True,
-    #                          null=True,
-    #                          )
-
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
                              blank=True,
                              null=True,
                              )
+
+    # doctor_user = models.ForeignKey("vendor.Vendor",
+    #                                 on_delete=models.CASCADE,
+    #                                 blank=True,
+    #                                 null=True,
+    #                                 )
 
     user_type = models.CharField(max_length=24, choices=[('admin', 'admin'), ('user', 'user')], default='user')
 

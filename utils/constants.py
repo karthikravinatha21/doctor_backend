@@ -41,6 +41,8 @@ INDUSTRY_CHOICES = [
     ('other', 'Other'),  # The "Other" option allows custom input
 ]
 
+USER_TYPE_ADMIN = 'admin'
+
 
 def custom_json_response(data=None, status=200, message=None, success=True, is_pagination=False, **kwargs):
     """

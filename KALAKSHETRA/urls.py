@@ -48,6 +48,7 @@ urlpatterns = [
     path('api/', include('apps.payments.urls')),
     path('api/', include('apps.hospital.urls')),
     path('api/', include('apps.doctors.urls')),
+    path("api/", include("apps.approles.urls")),
     path('api/diagnostic/', include('apps.diagnostic.urls')),
     # re_path(r'^(?!api/).*$', include('apps.web_pages.urls')),
 ]
