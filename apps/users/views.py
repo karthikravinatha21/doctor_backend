@@ -3,7 +3,6 @@ from datetime import datetime, timedelta, timezone
 import boto3
 from botocore.exceptions import ClientError
 import jwt
-import phonenumbers
 from django.conf import settings
 from django.contrib.auth.models import update_last_login
 from django.db.models import Q
@@ -13,8 +12,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from sendgrid.helpers.mail import group_id
-from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.hashers import check_password
 from apps.approles.models import AppGroup, UserGroup, AppGroupPermission
 from apps.approles.serializers import AppGroupPermissionSerializer
 from apps.master_data.serializers import SpecificUserConfigSerializer
