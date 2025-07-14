@@ -1,12 +1,6 @@
 from django.contrib import admin
 
-from apps.approles.models import (
-    AppGroup,
-    AppGroupPermission,
-    AppModules,
-    MasterModules,
-    UserGroup,
-)
+from apps.approles.models import AppGroupPermission, AppModules, AppGroup, UserGroup, MasterModules
 
 
 class UserGroupAdmin(admin.ModelAdmin):
