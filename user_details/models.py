@@ -8,9 +8,6 @@ from django.db import models
 # from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import (FileExtensionValidator)
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from apps.master_data.models import Department, Languages, AgeGroup, Skills, SubDepartment
-from apps.production_house.models import ProductionHouse
 from utils.constants import validate_file_size, validate_file_authenticity
 from utils.custom_storages import MediaStorage
 
@@ -272,11 +269,11 @@ class UserTokens(MyBaseModel):
                              null=True,
                              )
 
-    # doctor_user = models.ForeignKey("vendor.Vendor",
-    #                                 on_delete=models.CASCADE,
-    #                                 blank=True,
-    #                                 null=True,
-    #                                 )
+    doctor_user = models.ForeignKey("doctors.Doctor",
+                                    on_delete=models.CASCADE,
+                                    blank=True,
+                                    null=True,
+                                    )
 
     user_type = models.CharField(max_length=24, choices=[('admin', 'admin'), ('user', 'user')], default='user')
 

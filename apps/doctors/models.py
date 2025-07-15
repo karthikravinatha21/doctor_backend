@@ -18,10 +18,14 @@ class Doctor(MyBaseModel):
                             db_index=True,
                             )
 
-    name = models.CharField(max_length=512,
+    full_name = models.CharField(max_length=512,
                             blank=False,
                             null=False,
                             verbose_name='First Name')
+
+    email = models.EmailField(verbose_name='Email', null=True, blank=True)
+
+    password = models.CharField(max_length=128, null=True, blank=True)
 
     speciality = models.ManyToManyField(Specialisation,
                                         blank=True,
@@ -124,6 +128,8 @@ class Doctor(MyBaseModel):
     is_primary_consultation_doctor = models.BooleanField(default=False)
 
     ratings = models.FloatField(default=0.0, null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
 
     @property
     def representation(self):

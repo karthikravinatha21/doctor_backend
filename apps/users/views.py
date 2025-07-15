@@ -15,6 +15,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
 from apps.approles.models import AppGroup, UserGroup, AppGroupPermission
 from apps.approles.serializers import AppGroupPermissionSerializer
+from apps.doctors.models import Doctor
+from apps.doctors.serializers import DoctorSerializer, DoctorSpecificSerializer
 from apps.master_data.serializers import SpecificUserConfigSerializer
 from apps.movies.models import Movie
 from apps.movies.serializers import MovieSerializer
@@ -473,15 +475,19 @@ class AdminUserViewSet(custom_viewsets.ModelViewSet):
     def login(self, request):
         email = request.data.get('email')
         password = request.data.get('password', None)
-        user_object = User.objects.get(email__iexact=email)
+        user_object = User.objects.filter(email__iexact=email, is_active=True).first()
+        user_type = "admin"
+        if not user_object:
+            user_object = Doctor.objects.filter(email__iexact=email, is_active=True).first()
+            user_type = "doctor"
         permission_list = None
         if check_password(password, user_object.password):
             payload = {
                 "id": user_object.id,
                 "email": user_object.email,
                 "full_name": user_object.full_name,
-                "mobile": user_object.mobile,
-                "access_type": "admin",
+                "mobile": user_object.mobile if hasattr(user_object, 'mobile') else '',
+                "access_type": user_type,
                 "created_time": str(datetime.now()),
             }
 
@@ -489,19 +495,30 @@ class AdminUserViewSet(custom_viewsets.ModelViewSet):
 
             refresh = RefreshToken.for_user(user_object)  # Generate JWT Token
 
-            UserTokens.objects.filter(user=user_object).delete()
-            UserTokens.objects.create(user=user_object, token=str(token))
+            if user_type == 'admin':
+                UserTokens.objects.filter(user=user_object).delete()
+                UserTokens.objects.create(user=user_object, token=str(token))
 
-            user_group = UserGroup.objects.filter(user=user_object).first()
+                user_group = UserGroup.objects.filter(user=user_object).first()
+            elif user_type == 'doctor':
+                UserTokens.objects.filter(doctor_user=user_object).delete()
+                UserTokens.objects.create(doctor_user=user_object, token=str(token))
+
+                user_group = UserGroup.objects.filter().first()
             if user_group:
                 permission_list = AppGroupPermission.objects.filter(app_group=user_group.app_group)
 
                 permission_list = AppGroupPermissionSerializer(permission_list, many=True).data
-            serializer = UserAdminSerializer(user_object)
-            user_data = serializer.data
+            if user_type == 'doctor':
+                serializer = DoctorSpecificSerializer(user_object)
+                user_data = serializer.data
+            else:
+                serializer = UserAdminSerializer(user_object)
+                user_data = serializer.data
             user_data["user_permissions"] = permission_list
             user_data["token"] = token
             user_data["refresh_token"] = str(refresh)
+            user_data["user_type"] = user_type
             return Response({"message": "Profile retrieved successfully", "data": user_data},
                             status=status.HTTP_200_OK)
         else:
