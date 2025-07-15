@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 class DoctorAdmin(admin.ModelAdmin):
     # Fields to display in the list view
     list_display = (
-        'id', 'code', 'name', 'hospital', 'is_online_appointment_enable', 'is_logged_in', 'start_date', 'end_date'
+        'id', 'code', 'name', 'is_online_appointment_enable', 'is_logged_in', 'start_date', 'end_date'
     )
 
     # Search fields to make it searchable in the admin panel
@@ -18,19 +18,21 @@ class DoctorAdmin(admin.ModelAdmin):
     fields = (
         'code', 'name', 'speciality', 'hospital', 'designation', 'title_text', 'qualification',
         'educational_degrees', 'photo', 'content', 'notes', 'fellowship_membership', 'field_expertise',
-        'languages_spoken', 'awards_achievements', 'talks_publications', 'experience', 'meta_title',
-        'meta_description', 'meta_keywords', 'other_meta_tags', 'display_order', 'allow_website',
-        'is_online_appointment_enable', 'slug', 'hv_consultation_charges', 'vc_consultation_charges',
-        'pr_consultation_charges', 'start_date', 'end_date', 'is_primary_consultation_doctor'
+        'languages_spoken', 'awards_achievements', 'talks_publications', 'experience', 'display_order',
+        'allow_website','is_online_appointment_enable', 'slug',
     )
 
     # Use filter_horizontal to improve the UI for ManyToMany relationships (like Specialisation)
-    filter_horizontal = ('speciality',)
+    filter_horizontal = ('speciality', 'hospital')
 
     # Custom method to show the specializations as a string
     def speciality_display(self, obj):
         return ", ".join([s.code for s in obj.speciality.all()])
     speciality_display.short_description = _("Specialities")
+
+    def hospital_display(self, obj):
+        return ", ".join([s.code for s in obj.hospital.all()])
+    speciality_display.short_description = _("Hospital")
 
     # Making sure the `code` field is unique and readonly
     # readonly_fields = ('code',)

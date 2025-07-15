@@ -31,10 +31,9 @@ class Doctor(MyBaseModel):
     #                                          blank=True,
     #                                          related_name='doctor_hospital_department')
 
-    hospital = models.ForeignKey(Hospital,
-                                 on_delete=models.PROTECT,
-                                 blank=False,
-                                 null=False)
+    hospital = models.ManyToManyField(Hospital,
+                                      blank=False,
+                                      null=False)
 
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
 
@@ -135,7 +134,7 @@ class Doctor(MyBaseModel):
         verbose_name_plural = "Doctors"
         permissions = ()
         """  to maintain data integrity and prevent situations where multiple doctors in the same hospital have the same code or identifier. """
-        unique_together = [['code', 'hospital'], ]
+        unique_together = [['code'], ]
 
     # def __str__(self):
     #     return self.representation

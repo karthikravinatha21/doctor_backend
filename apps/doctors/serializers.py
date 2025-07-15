@@ -16,7 +16,7 @@ class DoctorSerializer(DynamicFieldsModelSerializer):
     def to_representation(self, instance):
         response_object = super().to_representation(instance)
         if instance.hospital:
-            response_object['hospital'] = HospitalSerializer(instance.hospital).data
+            response_object['hospital'] = HospitalSerializer(instance.hospital.all(), many=True).data
         if instance.speciality:
             response_object['speciality'] = SpecialisationSpecificSerializer(instance.speciality.all(), many=True).data
         return response_object
