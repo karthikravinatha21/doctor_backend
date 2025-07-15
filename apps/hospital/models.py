@@ -163,6 +163,9 @@ class Department(MyBaseModel):
     name = models.CharField(max_length=200,
                             null=True,
                             blank=True, )
+
+    image = models.CharField(blank=True, null=True)
+
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -193,6 +196,7 @@ class Specialisation(MyBaseModel):
     end_date = models.DateField(null=True,
                                 blank=True
                                 )
+    image = models.CharField(blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
 
