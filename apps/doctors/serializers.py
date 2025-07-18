@@ -24,7 +24,7 @@ class DoctorSerializer(DynamicFieldsModelSerializer):
 
     class Meta:
         model = Doctor
-        exclude = ('updated_at','created_at',)
+        exclude = ('updated_at','created_at', 'password')
 
     def to_representation(self, instance):
         response_object = super().to_representation(instance)
