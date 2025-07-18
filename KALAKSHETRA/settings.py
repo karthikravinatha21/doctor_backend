@@ -44,7 +44,7 @@ ALLOWED_HOSTS = [
 ]
 USE_X_FORWARDED_HOST = True
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS =  True
+CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     'https://6c71-2401-4900-1cc5-19db-28ec-9069-cee9-5a24.ngrok-free.app',
@@ -103,7 +103,8 @@ CORE_APPS = [
     'apps.hospital',
     'apps.doctors',
     'apps.diagnostic',
-    'apps.approles'
+    'apps.approles',
+    'apps.slots'
 ]
 INSTALLED_APPS = PREDEFINED_APPS + CORE_APPS
 

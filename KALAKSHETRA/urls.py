@@ -50,6 +50,7 @@ urlpatterns = [
     path('api/', include('apps.doctors.urls')),
     path("api/", include("apps.approles.urls")),
     path('api/diagnostic/', include('apps.diagnostic.urls')),
+    path('api/slots/', include('apps.slots.urls')),
     # re_path(r'^(?!api/).*$', include('apps.web_pages.urls')),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
