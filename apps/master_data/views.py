@@ -72,6 +72,11 @@ class DoctorViewSet(custom_viewsets.ModelViewSet):
         if hospital_location:
             queryset = queryset.filter(hospital__location_name__icontains=hospital_location)
 
+        hospital_ids = self.request.query_params.get('hospital_ids', None)
+        if hospital_ids:
+            hospital_ids = hospital_ids.split(',')
+            queryset = queryset.filter(hospital__id__in=hospital_ids)
+
         rating = self.request.query_params.get('rating', None)
         if rating:
             queryset = queryset.filter(ratings__icontains=rating)

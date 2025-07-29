@@ -1,17 +1,20 @@
 
 from rest_framework.permissions import AllowAny
+
+from utils import custom_viewsets
 from .models import Hospital
 from .serializers import HospitalSerializer
 from rest_framework import viewsets
 
-class HospitalViewSet(viewsets.ModelViewSet):
+class HospitalViewSet(custom_viewsets.ModelViewSet):
     permission_classes = [AllowAny]  # Default permission class for all actions
-    queryset = Hospital.objects.all().order_by('-created_at')
+    queryset = Hospital.objects.filter(is_active=True).order_by('-created_at')
     serializer_class = HospitalSerializer
     create_success_message = 'Hospital information created successfully!'
     list_success_message = 'Hospitals list returned successfully!'
     retrieve_success_message = 'Hospital information returned successfully!'
     update_success_message = 'Hospital information updated successfully!'
+    status_code = 200
 
     def get_permissions(self):
         """
@@ -27,6 +30,7 @@ class HospitalViewSet(viewsets.ModelViewSet):
             return [permission() for permission in [AllowAny]]
 
         return super().get_permissions()
+
 
     def perform_create(self, serializer):
         # Perform the creation logic (optional customization)
