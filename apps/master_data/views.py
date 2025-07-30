@@ -55,7 +55,7 @@ class DoctorViewSet(custom_viewsets.ModelViewSet):
         if search_query:
             # Searching across multiple fields with OR conditions using Q objects
             queryset = queryset.filter(
-                Q(name__icontains=search_query) |
+                Q(full_name__icontains=search_query) |
                 # Q(ratings__icontains=search_query) |
                 Q(gender__icontains=search_query) |
                 Q(speciality__description__icontains=search_query)  # Assuming specialisation model has 'name' field
