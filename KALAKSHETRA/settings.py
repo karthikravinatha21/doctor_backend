@@ -332,12 +332,8 @@ REST_FRAMEWORK = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://api.dev.cineartery.com',
-    'http://api.dev.cineartery.com',
-    'https://www.cineartery.com',
-    'http://www.cineartery.com',
-    'https://cineartery.com',
-    'http://cineartery.com',
+    "https://stage.vaidyabandhu.com",
+    "http://stage.vaidyabandhu.com",
 ]
 
 VALID_IMAGE_FILE_EXTENSIONS = []  # ast.literal_eval(os.getenv('VALID_IMAGE_FILE_EXTENSIONS', default=''))
