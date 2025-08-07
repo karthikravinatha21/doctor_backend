@@ -23,7 +23,7 @@ from apps.movies.serializers import MovieSerializer
 from apps.production_house.models import ProductionHouse
 from apps.schedule.models import Schedule
 from apps.users.serializers import ActorSerializer
-from user_details.models import User, UserTokens, Banner, OTPStorage
+from user_details.models import User, UserTokens, Banner, OTPStorage, Enquiry
 from user_details.permission import IsUserBlockedPermission
 from user_details.serializers import BannerSerializer, UserSerializer, UserAdminSerializer
 from utils import custom_viewsets
@@ -46,7 +46,7 @@ class UserViewSet(custom_viewsets.ModelViewSet):
 
     def get_permissions(self):
 
-        if self.action in ['verify_login_otp', 'login', 'resend_otp', 'logs']:
+        if self.action in ['verify_login_otp', 'login', 'resend_otp', 'logs', 'enquiry']:
             permission_classes = [AllowAny]
             return [permission() for permission in permission_classes]
 
@@ -304,6 +304,22 @@ class UserViewSet(custom_viewsets.ModelViewSet):
                     }
                 ]}
         return custom_json_response(data=response_data)
+
+    @action(detail=False, methods=['POST'])
+    def enquiry(self, request):
+        data = request.data
+        full_name = request.data.get('full_name')
+        mobile = request.data.get('phone')
+        email = request.data.get('email')
+        address = request.data.get('address')
+
+        Enquiry.objects.create(**data)
+        return Response({
+            "status_code": status.HTTP_201_CREATED,
+            "data": [],
+            "message": "Enquire submitted",
+        }, status=status.HTTP_201_CREATED)
+
 
 
 class ActorListViewSet(custom_viewsets.ModelViewSet):

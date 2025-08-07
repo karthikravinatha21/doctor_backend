@@ -1,7 +1,9 @@
 from collections import defaultdict
+from datetime import timedelta, datetime
 
 from django.db.models.functions import TruncDate
 from django.utils import timezone
+from django.utils.timezone import make_aware
 from rest_framework import generics, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -12,7 +14,7 @@ from utils import custom_viewsets
 from utils.utils import validate_non_empty_values
 from .models import Slot
 from .serializers import SlotSerializer
-from django.utils.dateparse import parse_date
+from django.utils.dateparse import parse_date, parse_time
 from django.db.models import Q
 
 
@@ -48,6 +50,66 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
         search_query = self.request.query_params.get('search', None)
         return queryset.order_by('id')
 
+    def create(self, request, *args, **kwargs):
+        """
+        Creates slots from start_time to end_time with a given slot_duration.
+        """
+        try:
+            doctor = request.data.get("doctor")
+            hospital = request.data.get("hospital")
+            start_time = parse_time(request.data.get("start_time"))
+            end_time = parse_time(request.data.get("end_time"))
+            start_date = parse_date(request.data.get("start_date"))
+            end_date = parse_date(request.data.get("end_date"))
+            slot_duration = int(request.data.get("slot_duration"))
+
+            if not all([doctor, hospital, start_time, end_time, start_date, end_date, slot_duration]):
+                return Response({"detail": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Generate slots for each date between start_date and end_date
+            slots_created = []
+            current_date = start_date
+            doctor
+            while current_date <= end_date:
+                current_time = start_time
+                while current_time < end_time:
+                    # end_time_of_slot = (
+                    #             datetime.combine(current_date, current_time) + timedelta(minutes=slot_duration)).time()
+                    # if end_time_of_slot > end_time:
+                    #     break
+                    start_datetime = make_aware(datetime.combine(current_date, current_time))
+                    end_datetime = start_datetime + timedelta(minutes=slot_duration)
+                    if end_datetime.time() > end_time:
+                        break
+
+                    slot_data = {
+                        "doctor": doctor,
+                        "hospital": hospital,
+                        "start_time": start_datetime.isoformat(),
+                        "end_time": end_datetime.isoformat(),
+                        "start_date": current_date,
+                        "end_date": current_date,
+                        "slot_duration": slot_duration,
+                    }
+
+                    serializer = self.get_serializer(data=slot_data)
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                    slots_created.append(serializer.data)
+
+                    # Move to next slot
+                    current_time = end_datetime.time()
+
+                current_date += timedelta(days=1)
+
+            return Response({
+                "message": self.create_success_message,
+                "slots": slots_created
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     def list(self, request):
         doctor_id = request.GET.get("doctor_id")
         hospital_id = request.GET.get("hospital_id")
@@ -59,8 +121,8 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
             return Response({"error": "Missing required parameters"}, status=400)
 
         queryset = Slot.objects.filter(
-            doctor_id=doctor_id,
-            hospital_id=hospital_id)
+            doctor__id=doctor_id,
+            hospital__id=hospital_id)
 
         if start_date:
             queryset = queryset.filter(start_time__date__gte=start_date)

@@ -5,7 +5,8 @@ from .models import Slot
 class SlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = Slot
-        exclude = ('created_at', 'updated_at', 'doctor', 'hospital')
+        fields = '__all__'
+        # exclude = ('created_at', 'updated_at', 'doctor', 'hospital')
 
 
     def validate(self, data):
