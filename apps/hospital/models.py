@@ -32,6 +32,8 @@ class Hospital(MyBaseModel):
 
     email = models.EmailField()
 
+    image = models.ImageField(upload_to='speciality/', null=True, blank=True, )
+
     mobile = models.CharField(blank=True,
                               null=True,
                               verbose_name="Mobile Number")
