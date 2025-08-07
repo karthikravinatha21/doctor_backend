@@ -19,9 +19,9 @@ class Doctor(MyBaseModel):
                             )
 
     full_name = models.CharField(max_length=512,
-                            blank=False,
-                            null=False,
-                            verbose_name='First Name')
+                                 blank=False,
+                                 null=False,
+                                 verbose_name='First Name')
 
     email = models.EmailField(verbose_name='Email', null=True, blank=True)
 
@@ -63,8 +63,7 @@ class Doctor(MyBaseModel):
     #                         null=True,
     #                         blank=True,
     #                         )
-    photo = models.ImageField(upload_to='static/doctors/',null=True,blank=True,)
-
+    photo = models.ImageField(upload_to='static/doctors/', null=True, blank=True, )
 
     content = models.TextField(null=True,
                                blank=True)
@@ -87,8 +86,8 @@ class Doctor(MyBaseModel):
     talks_publications = models.TextField(null=True,
                                           blank=True)
 
-    experience = models.IntegerField(blank=True,
-                                     null=True)
+    experience = models.CharField(blank=True,
+                                  null=True)
 
     meta_title = models.TextField(blank=True,
                                   null=True)
