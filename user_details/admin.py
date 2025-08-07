@@ -9,6 +9,8 @@ from .models import Banner, User, Enquiry
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ('id', 'mobile', 'user_type', 'last_login',)
+    fields = ('full_name', 'email', 'mobile', 'dob', 'gender','aadhaar_number','pan_number','blood_group',
+              'address', 'profile_image', 'is_active')
 
 
 admin.site.register(User, UserAdmin)
