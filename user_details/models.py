@@ -309,3 +309,19 @@ class FirebaseDevices(MyBaseModel):
 
     def __str__(self):
         return f"{self.user.first_name} - {self.device_id}"
+
+
+class Enquiry(MyBaseModel):
+    full_name = models.CharField(max_length=256)
+    phone = models.CharField(max_length=13)
+    email = models.CharField(max_length=256)
+    address = models.CharField(max_length=512)
+
+    class Meta:
+        verbose_name = "Enquiry"
+        indexes = [
+            models.Index(fields=["full_name"]),
+            models.Index(fields=["phone"]),
+            models.Index(fields=["email"]),
+        ]
+
