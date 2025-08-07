@@ -1,9 +1,23 @@
-from django.contrib import admin
+import csv
+import datetime
+import random
+import re
+from io import TextIOWrapper
+
+import numpy as np
+import pandas as pd
+from django.contrib import admin, messages
 from django.contrib.auth.hashers import make_password
+from django.shortcuts import redirect, render
+from django.urls import path
 
 from .models import Doctor, Specialisation, Hospital
 from django.utils.translation import gettext_lazy as _
 
+from django import forms
+
+class DoctorUploadForm(forms.Form):
+    csv_file = forms.FileField(label="Upload CSV file")
 
 class DoctorAdmin(admin.ModelAdmin):
     # Fields to display in the list view
@@ -29,6 +43,75 @@ class DoctorAdmin(admin.ModelAdmin):
 
     # Use filter_horizontal to improve the UI for ManyToMany relationships (like Specialisation)
     filter_horizontal = ('speciality', 'hospital')
+
+    change_list_template = "admin/doctor_changelist.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('upload-doctors/', self.admin_site.admin_view(self.upload_doctors), name="upload-doctors"),
+        ]
+        return custom_urls + urls
+
+    def upload_doctors(self, request):
+        if request.method == "POST":
+            form = DoctorUploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                csv_file = form.cleaned_data['csv_file']
+                if csv_file.name.endswith('.csv'):
+                    df = pd.read_csv(csv_file)
+                elif csv_file.name.endswith('.xlsx'):
+                    df = pd.read_excel(csv_file)
+                else:
+                    raise ValueError("Unsupported file format. Please upload a .csv or .xlsx file.")
+                # data = csv_file.file
+                # reader = csv.DictReader(data)
+                created_count = 0
+                updated_count = 0
+                df = df.replace({np.nan: None})  # First replace actual NaNs
+                df = df.applymap(lambda x: None if (x is None or (isinstance(x, str) and x.strip() == '')) else x)
+
+                def clean_hospital_name(value):
+                    if value:
+                        return re.sub(r'\s*\([^)]*\)$', '', value).strip()
+                for _, row in df.iterrows():
+                    hospital_name = clean_hospital_name(row['Hospital Ids'])
+                    if hospital_name:
+                        hospital_qs = Hospital.objects.filter(hospital_name=hospital_name)
+                        defaults = {
+                            'full_name': row['First Name'],
+                            'designation': row['Designation'],
+                            'qualification': row['Qualification'],
+                            'educational_degrees': row['Educational degrees'],
+                            'fellowship_membership': row['Fellowship membership'],
+                            'field_expertise': row['Field expertise'],
+                            'languages_spoken': row['Languages spoken'],
+                            'awards_achievements': row['Awards achievements'],
+                            'talks_publications': row['Talks publications'],
+                            'experience': row['Experience'],
+                            'is_online_appointment_enable': True,
+                            'start_date': datetime.datetime.now(),
+                            'code': f'D-04d{random.randint(0, 9999)}'
+                        }
+
+                        doctor, created = Doctor.objects.update_or_create(
+                            # code=row['code'],
+                            full_name= row['First Name'],
+                            defaults=defaults
+                        )
+                        doctor.hospital.set(hospital_qs)
+                        if created:
+                            created_count += 1
+                        else:
+                            updated_count += 1
+
+                messages.success(request,
+                                 f"Doctors uploaded successfully: {created_count} created, {updated_count} updated.")
+                return redirect("..")
+        else:
+            form = DoctorUploadForm()
+
+        return render(request, "admin/upload_doctors.html", {"form": form})
 
     def save_model(self, request, obj, form, change):
         if 'password' in form.changed_data:
