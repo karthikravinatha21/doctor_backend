@@ -59,10 +59,13 @@ class Doctor(MyBaseModel):
                                            blank=True,
                                            )  # what is qualification & education degree
 
-    photo = models.URLField(max_length=1024,
-                            null=True,
-                            blank=True,
-                            )
+    # photo = models.URLField(max_length=1024,
+    #                         null=True,
+    #                         blank=True,
+    #                         )
+    photo = models.ImageField(upload_to='static/doctors/',null=True,blank=True,)
+
+
     content = models.TextField(null=True,
                                blank=True)
     notes = models.TextField(blank=True,

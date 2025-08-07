@@ -22,9 +22,13 @@ class Hospital(MyBaseModel):
                             blank=False,
                             null=False, db_index=True)
 
-    description = models.TextField(blank=False,
-                                   null=False,
-                                   max_length=100)
+    name = models.TextField(blank=True,
+                            null=True,
+                            max_length=100)
+
+    hospital_name = models.TextField(blank=False,
+                                     null=False,
+                                     max_length=100)
 
     email = models.EmailField()
 
@@ -164,7 +168,9 @@ class Department(MyBaseModel):
                             null=True,
                             blank=True, )
 
-    image = models.CharField(blank=True, null=True)
+    # image = models.CharField(blank=True, null=True)
+
+    image = models.ImageField(upload_to='department/',null=True,blank=True,)
 
     is_active = models.BooleanField(default=True)
 
@@ -187,16 +193,18 @@ class Specialisation(MyBaseModel):
                             blank=True,
                             null=True)
 
-    description = models.CharField(max_length=200,
-                                   null=True,
-                                   blank=True, )
+    title = models.CharField(max_length=200,
+                             null=True,
+                             blank=True, )
 
     start_date = models.DateField()
 
     end_date = models.DateField(null=True,
                                 blank=True
                                 )
-    image = models.CharField(blank=True, null=True)
+    image = models.ImageField(upload_to='speciality/',null=True,blank=True,)
+
+    # image = models.CharField(blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
 

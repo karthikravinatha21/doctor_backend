@@ -14,10 +14,10 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 
 class SpecialisationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'department', 'code', 'description', 'start_date', 'end_date', 'is_active')
-    search_fields = ('department__name', 'code', 'description')
+    list_display = ('id', 'department', 'code', 'title', 'start_date', 'end_date', 'is_active')
+    search_fields = ('department__name', 'code', 'title')
     list_filter = ('is_active', 'department')
-    fields = ('department', 'code', 'description', 'start_date', 'end_date', 'is_active')
+    fields = ('department', 'code', 'title', 'start_date', 'end_date', 'image','is_active')
     def clean(self, *args, **kwargs):
         if Specialisation.objects.filter(department=self.department).exists():
             raise ValidationError("This department already has a speciality.")
@@ -33,15 +33,15 @@ from .models import Hospital, City
 
 
 class HospitalAdmin(admin.ModelAdmin):
-    list_display = ('id', 'code', 'description', 'email', 'mobile', 'city', 'is_active', 'hospital_enabled',
+    list_display = ('id', 'code', 'name', 'email', 'mobile', 'city', 'is_active', 'hospital_enabled',
                     'is_home_collection_supported', 'working_hours', 'owner_name')
 
-    search_fields = ('code', 'description', 'email', 'owner_name', 'city__name')
+    search_fields = ('code', 'name', 'email', 'owner_name', 'city__name')
 
     list_filter = ('is_active', 'hospital_enabled', 'is_home_collection_supported', 'city')
 
     fields = (
-        'code', 'description', 'email', 'mobile', 'address', 'location', 'location_name',
+        'code', 'name', 'email', 'mobile', 'address', 'location', 'location_name',
         'is_home_collection_supported', 'is_health_package_online_purchase_supported',
         'health_package_doctor_code', 'health_package_department_code', 'corporate_only',
         'hospital_enabled', 'promo_code', 'slot_blocking_duration', 'allow_refund_on_cancellation',
