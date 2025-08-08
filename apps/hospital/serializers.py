@@ -10,4 +10,6 @@ class HospitalSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response_object = super().to_representation(instance)
+        if instance.city:
+            response_object['city'] = instance.city.city_name
         return response_object

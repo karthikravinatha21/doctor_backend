@@ -4,7 +4,8 @@ from rest_framework.permissions import AllowAny
 from utils import custom_viewsets
 from .models import Hospital
 from .serializers import HospitalSerializer
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
+
 
 class HospitalViewSet(custom_viewsets.ModelViewSet):
     permission_classes = [AllowAny]  # Default permission class for all actions
@@ -15,6 +16,9 @@ class HospitalViewSet(custom_viewsets.ModelViewSet):
     retrieve_success_message = 'Hospital information returned successfully!'
     update_success_message = 'Hospital information updated successfully!'
     status_code = 200
+    # Add this line
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['hospital_name', 'city__city_name']
 
     def get_permissions(self):
         """
@@ -31,6 +35,10 @@ class HospitalViewSet(custom_viewsets.ModelViewSet):
 
         return super().get_permissions()
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        print(f"Queryset after search: {qs.query}")
+        return qs
 
     def perform_create(self, serializer):
         # Perform the creation logic (optional customization)
