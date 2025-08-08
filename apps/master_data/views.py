@@ -3,9 +3,10 @@ import json
 from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
 
-from apps.doctors.models import Doctor
-from apps.doctors.serializers import DoctorSerializer
+from apps.doctors.models import Doctor, Appointment
+from apps.doctors.serializers import DoctorSerializer, AppointmentSerializer
 from apps.hospital.models import Hospital, Department, Specialisation
 from apps.hospital.serializers import HospitalSerializer
 from apps.master_data.models import AccountType, PricingMaster, Languages, AgeGroup, Skills
@@ -14,10 +15,12 @@ from apps.master_data.serializers import DepartmentSerializer, AccountTypeSerial
 from apps.movies.models import ActorPortfolio, ActorPayment, PaymentTypeRate, ActorAudition, ActorAward
 from apps.movies.serializers import ActorPortfolioSerializer, ActorPaymentSerializer, ActorAuditionSerializer, \
     ActorAwardSerializer, GroupSerializer, LanguagesSerializer
+from apps.slots.models import Slot
+from user_details.adminpermission import IsUserblockedPermission
 from user_details.permission import IsUserBlockedPermission
 from utils import custom_viewsets
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from rest_framework import filters, status
 from django.contrib.auth.models import Group
 
 from utils.constants import custom_json_response
@@ -84,7 +87,6 @@ class DoctorViewSet(custom_viewsets.ModelViewSet):
         gender = self.request.query_params.get('gender', None)
         if gender:
             queryset = queryset.filter(gender__icontains=gender)
-
 
         return queryset
 
@@ -164,3 +166,82 @@ class SpecialtyViewSet(custom_viewsets.ModelViewSet):
         if department_id:
             queryset = queryset.filter(department__id=department_id)
         return queryset
+
+
+class AppointmentViewSet(custom_viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    model = Appointment
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+
+    create_success_message = 'Your appointment registration completed successfully!'
+    list_success_message = 'List returned successfully!'
+    retrieve_success_message = 'Information returned successfully!'
+    update_success_message = 'Information updated successfully!'
+    status_code = 200
+
+    def get_permissions(self):
+
+        if self.action == 'list':
+            permission_classes = [IsUserblockedPermission]
+            return [permission() for permission in permission_classes]
+
+        if self.action in ['retrieve', 'create']:
+            permission_classes = [IsUserblockedPermission]
+            return [permission() for permission in permission_classes]
+
+        return super().get_permissions()
+
+    def create(self, request, *args, **kwargs):
+        """
+        Creates slots from start_time to end_time with a given slot_duration.
+        """
+        try:
+            doctor = request.data.get("doctor")
+            hospital = request.data.get("hospital")
+            slot = request.data.get("slot")
+            notes = request.data.get("notes")
+            reason = request.data.get("reason")
+            user = request.user
+
+            # Check slot is available
+            slot_object = Slot.objects.filter(id=slot).first()
+            if slot_object.is_blocked:
+                return Response({"error": "Slot not available"}, status=status.HTTP_400_BAD_REQUEST)
+            slot_object.is_blocked = True
+            slot_object.save()
+            data = {
+                "user": user.id,
+                "slot": slot,
+                "hospital": hospital,
+                "doctor": doctor,
+                "status": 'booked',
+                "notes": notes,
+                "reason": reason
+            }
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({
+                "message": self.create_success_message,
+                "slots": serializer.data
+            }, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            print(ex)
+
+    def list(self, request):
+        # Allowing only the SuperUser to fetch the admin users
+        queryset = self.get_queryset()
+        if request.user.is_superuser:
+            serializer = AppointmentSerializer(queryset, many=True)
+            return Response({
+                "message": self.list_success_message,
+                "slots": serializer.data
+            }, status=status.HTTP_200_OK)
+        elif request.user.user_type == 'doctor':
+            queryset = queryset.filter(doctor=request.user)
+            serializer = AppointmentSerializer(queryset, many=True)
+            return Response({
+                "message": self.list_success_message,
+                "slots": serializer.data
+            }, status=status.HTTP_200_OK)
