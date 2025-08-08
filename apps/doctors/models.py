@@ -4,6 +4,7 @@ from apps.hospital.models import Specialisation, Hospital
 from apps.meta_app.models import MyBaseModel
 
 
+
 # Create your models here.
 class Doctor(MyBaseModel):
     GENDER_CHOICES = (
@@ -149,3 +150,27 @@ class Doctor(MyBaseModel):
 
     def __str__(self):
         return f'{str(self.id)} - {str(self.code)}'
+
+
+class Appointment(MyBaseModel):
+    from apps.slots.models import Slot
+    from user_details.models import User
+    STATUS_CHOICES = [
+        ('booked', 'Booked'),
+        ('cancelled', 'Cancelled'),
+        ('completed', 'Completed'),
+        ('no_show', 'No Show'),
+    ]
+    """
+    Represents a booked appointment by a user for a slot.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="appointments_user")
+    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name="appointments_slot")
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="appointments_doctor")
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name="appointments_hospital")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='booked')
+    notes = models.TextField(blank=True, null=True)
+    reason = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"Appointment by {self.user} for {self.slot}"
