@@ -61,7 +61,7 @@ class DoctorViewSet(custom_viewsets.ModelViewSet):
                 Q(full_name__icontains=search_query) |
                 # Q(ratings__icontains=search_query) |
                 Q(gender__icontains=search_query) |
-                Q(speciality__description__icontains=search_query)  # Assuming specialisation model has 'name' field
+                Q(speciality__title__icontains=search_query)  # Assuming specialisation model has 'name' field
             )
 
         # Specialisation filter
@@ -146,7 +146,7 @@ class SpecialtyViewSet(custom_viewsets.ModelViewSet):
     # filterset_fields = ['name', 'id']
 
     # Fields available for search (partial match, case-insensitive)
-    search_fields = ['code', 'description']
+    search_fields = ['code', 'title']
 
     def get_permissions(self):
 
