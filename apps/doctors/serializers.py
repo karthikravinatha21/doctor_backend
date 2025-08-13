@@ -43,5 +43,12 @@ class AppointmentSerializer(DynamicFieldsModelSerializer):
 
     def to_representation(self, instance):
         response_object = super().to_representation(instance)
+        response_object['name'] = instance.user.full_name
+        response_object['age'] = instance.user.dob
+        response_object['gender'] = instance.user.gender
+        response_object['phone'] = instance.user.mobile
+        response_object['description'] = instance.notes
+        response_object['status'] = instance.status
+        response_object['time'] = f'{instance.slot.start_time} - {instance.slot.end_time}'
         return response_object
 
