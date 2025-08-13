@@ -186,7 +186,7 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
             permission_classes = [IsUserblockedPermission]
             return [permission() for permission in permission_classes]
 
-        if self.action in ['retrieve', 'create']:
+        if self.action in ['retrieve', 'create', 'update', 'partial_update']:
             permission_classes = [IsUserblockedPermission]
             return [permission() for permission in permission_classes]
 
@@ -228,6 +228,17 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
             }, status=status.HTTP_201_CREATED)
         except Exception as ex:
             print(ex)
+
+    def update(self, request, *args, **kwargs):
+        """
+        Creates slots from start_time to end_time with a given slot_duration.
+        """
+        # try:
+        update_status = request.data.get("status")
+        return Response({
+                "message": self.update_success_message,
+                # "slots": serializer.data
+            }, status=status.HTTP_200_OK)
 
     def list(self, request):
         # Allowing only the SuperUser to fetch the admin users
