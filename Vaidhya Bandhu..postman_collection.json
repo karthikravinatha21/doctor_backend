@@ -1,0 +1,1175 @@
+{
+	"info": {
+		"_postman_id": "58e9a93c-b6e3-4827-82ad-a9ba7f2c87ca",
+		"name": "Vaidhya Bandhu.",
+		"description": "DEVELOPMENT: 3.27.214.105",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39236478",
+		"_collection_link": "https://restless-flare-827311.postman.co/workspace/My-Workspace~b5560f34-5edd-4c79-8a0d-87a1300d34cc/collection/39236478-58e9a93c-b6e3-4827-82ad-a9ba7f2c87ca?action=share&source=collection_link&creator=39236478"
+	},
+	"item": [
+		{
+			"name": "Diagnostic",
+			"item": [
+				{
+					"name": "all category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/diagnostic/diagnostic-category/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"diagnostic",
+								"diagnostic-category",
+								""
+							],
+							"query": [
+								{
+									"key": "pagination",
+									"value": "false",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "call tests",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/diagnostic/diagnostic-tests?pagination=false",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"diagnostic",
+								"diagnostic-tests"
+							],
+							"query": [
+								{
+									"key": "pagination",
+									"value": "false"
+								},
+								{
+									"key": "category",
+									"value": "1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list diognostic center",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/diagnostic/list-center?pagination=false&search=562123",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"diagnostic",
+								"list-center"
+							],
+							"query": [
+								{
+									"key": "pagination",
+									"value": "false"
+								},
+								{
+									"key": "search",
+									"value": "562123"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "diagnostic detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/diagnostic/list-center/1",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"diagnostic",
+								"list-center",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "App roles",
+			"item": [
+				{
+					"name": "permission list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/mastermodule/permissionlists/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"mastermodule",
+								"permissionlists",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "app gropu list",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseurl}}/api/roles/app-groups/?page_count=10&page=1",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"app-groups",
+								""
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Direction",
+									"disabled": true
+								},
+								{
+									"key": "id",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "d",
+									"disabled": true
+								},
+								{
+									"key": "page_count",
+									"value": "10"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "app group details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseurl}}/api/roles/details/?id=3",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"details",
+								""
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create roles & permission",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"payload\": {\n    \"role_type\": \"super_admin\",\n    \"app_group_name\": \"Super Admin\",\n    \"group_slug_name\": \"super_admin\",\n    \"is_active\": true,\n    \"permission_enabled\": [\n      {\n        \"id\": 5,\n        \"permission_slug_name\": \"doctor_delete_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 4,\n        \"permission_slug_name\": \"doctor_view_permission\",\n        \"access_level\": \"Everything\"\n      },\n      {\n        \"id\": 3,\n        \"permission_slug_name\": \"doctor_update_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 2,\n        \"permission_slug_name\": \"doctor_create_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 1,\n        \"permission_slug_name\": \"doctor_all_permission\",\n        \"access_level\": \"Everything\"\n      },\n      {\n        \"id\": 10,\n        \"permission_slug_name\": \"super_admin_delete_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 9,\n        \"permission_slug_name\": \"super_admin_view_permission\",\n        \"access_level\": \"Everything\"\n      },\n      {\n        \"id\": 8,\n        \"permission_slug_name\": \"super_admin_update_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 7,\n        \"permission_slug_name\": \"super_admin_create_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 6,\n        \"permission_slug_name\": \"super_admin_all_permission\",\n        \"access_level\": \"Everything\"\n      }\n    ]\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/roles/app-groups/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"app-groups",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update roles & permission",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"payload\": {\n    \"id\": 3,\n    \"role_type\": \"admin\",\n    \"app_group_name\": \"Admin\",\n    \"group_slug_name\": \"admin\",\n    \"is_active\": true,\n    \"permission_enabled\": [\n      {\n        \"id\": 5,\n        \"permission_slug_name\": \"doctor_delete_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 4,\n        \"permission_slug_name\": \"doctor_view_permission\",\n        \"access_level\": \"Everything\"\n      },\n      {\n        \"id\": 3,\n        \"permission_slug_name\": \"doctor_update_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 2,\n        \"permission_slug_name\": \"doctor_create_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 1,\n        \"permission_slug_name\": \"doctor_all_permission\",\n        \"access_level\": \"Everything\"\n      },\n      {\n        \"id\": 10,\n        \"permission_slug_name\": \"super_admin_delete_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 9,\n        \"permission_slug_name\": \"super_admin_view_permission\",\n        \"access_level\": \"Everything\"\n      },\n      {\n        \"id\": 8,\n        \"permission_slug_name\": \"super_admin_update_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 7,\n        \"permission_slug_name\": \"super_admin_create_permission\",\n        \"access_level\": \"No_Access\"\n      },\n      {\n        \"id\": 6,\n        \"permission_slug_name\": \"super_admin_all_permission\",\n        \"access_level\": \"Everything\"\n      }\n    ]\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/roles/app-groups/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"app-groups",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// {\n//     \"email\": \"karthikadmin@test.com\",\n//     \"password\": \"123123\"\n// }\n{\n    \"email\": \"vijaykumar@vb.com\",\n    \"password\": \"123123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/admin/user/login/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"user",
+								"login",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create admin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "full_name",
+									"value": "Karthik Admin",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "karthikadmin@test.com",
+									"type": "text"
+								},
+								{
+									"key": "mobile",
+									"value": "8877676765",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "Bangalore, 1st cross Bangalore",
+									"type": "text"
+								},
+								{
+									"key": "dob",
+									"value": "1994-11-21",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "Male",
+									"type": "text"
+								},
+								{
+									"key": "role_id",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123123",
+									"type": "text"
+								},
+								{
+									"key": "designation",
+									"value": "Hospital Admin",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/admin/user/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"user",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "login/register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mobile\": \"9611798838\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/users/login/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"login",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify-otp",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mobile\": \"9611798838\",\n    \"otp\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/users/verify_login_otp/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"verify_login_otp",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update basic details",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOm51bGwsIm1vYmlsZSI6Ijk2MTE3OTg4MzUiLCJmaXJzdF9uYW1lIjpudWxsLCJ1c2VyX3JvbGUiOltdLCJhY2Nlc3NfdHlwZSI6ImNybSIsImNyZWF0ZWRfdGltZSI6IjIwMjUtMDctMTAgMDg6MDk6MjAuMzkxOTE4IiwiaWF0IjoxNzUyMTM0OTYwLCJleHAiOjE3NTk5MTA5NjB9.1o983QYuHGK1wJfP2uKhWpEi5Ni2qztJSSIsWx5vT9w",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "karthik@vb.com",
+									"type": "text"
+								},
+								{
+									"key": "full_name",
+									"value": "Karthik",
+									"type": "text"
+								},
+								{
+									"key": "dob",
+									"value": "1990-01-01",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "Male",
+									"type": "text"
+								},
+								{
+									"key": "alternate_mobile",
+									"value": "Actor",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "123 Main St, City",
+									"type": "text"
+								},
+								{
+									"key": "aadhaar_number",
+									"value": "12345678",
+									"type": "text"
+								},
+								{
+									"key": "pan_number",
+									"value": "1234567890",
+									"type": "text"
+								},
+								{
+									"key": "blood_group",
+									"value": "B+",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/users/2/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"2",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "enquiry",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"full_name\": \"test\",\n    \"phone\": \"1234567898\",\n    \"email\": \"email@email.com\",\n    \"address\": \"Bangalore\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/users/enquiry/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"enquiry",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Slots",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"doctor\": 1,\n  \"hospital\": 2,\n  \"start_time\": \"08:00:00\",\n  \"end_time\": \"12:00:00\",\n  \"start_date\": \"2025-08-01\",\n  \"end_date\": \"2025-08-05\",\n  \"slot_duration\": 15\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/slots/slot/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"slots",
+								"slot",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update slot",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"doctor\": 1,\n    \"hospital\": 2,\n    \"start_time\": \"2025-07-16T11:00:00Z\",\n    \"end_time\": \"2025-07-16T11:30:00Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/slots/slot/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"slots",
+								"slot",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get slots",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/slots/slot/?doctor_id=1&hospital_id=2&start_date=2025-08-01&end_date=2025-08-05",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"slots",
+								"slot",
+								""
+							],
+							"query": [
+								{
+									"key": "doctor_id",
+									"value": "1"
+								},
+								{
+									"key": "hospital_id",
+									"value": "2"
+								},
+								{
+									"key": "start_date",
+									"value": "2025-08-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-08-05"
+								},
+								{
+									"key": "is_blocked",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "next available slot",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/slots/slot/next_available_slot?doctor_id=1&hospital_id=2",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"slots",
+								"slot",
+								"next_available_slot"
+							],
+							"query": [
+								{
+									"key": "doctor_id",
+									"value": "1"
+								},
+								{
+									"key": "hospital_id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "block slot",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"slot\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/slots/slot/block/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"slots",
+								"slot",
+								"block",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Hospital",
+			"item": [
+				{
+					"name": "list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/hospital/?search=Swastik Hospital",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"hospital",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "Swastik Hospital"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/hospital/14",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"hospital",
+								"14"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Appointment",
+			"item": [
+				{
+					"name": "appointment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTgsImVtYWlsIjpudWxsLCJtb2JpbGUiOiI5NjExNzk4ODM4IiwiZmlyc3RfbmFtZSI6IiIsInVzZXJfcm9sZSI6W10sImFjY2Vzc190eXBlIjoiY3JtIiwiY3JlYXRlZF90aW1lIjoiMjAyNS0wOC0wOCAwMzowNDoyMC4xMTMwNTEiLCJpYXQiOjE3NTQ2MjIyNjAsImV4cCI6MTc2MjM5ODI2MH0.8-Cf-MAziLCKrNh05lu3WVfcqyrleKFmJ69b-Skew7I",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"doctor\": 1,\n    \"hospital\": 2,\n    \"slot\": 26,\n    \"notes\": \"notes\",\n    \"reason\": \"reason\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/appointment/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"appointment",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list appointment",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ2aWpheWt1bWFyQHZiLmNvbSIsImZ1bGxfbmFtZSI6IkRyLiBWaWpheSBLdW1hciBKIFIiLCJtb2JpbGUiOiIiLCJhY2Nlc3NfdHlwZSI6ImRvY3RvciIsImNyZWF0ZWRfdGltZSI6IjIwMjUtMDgtMTQgMDA6Mzk6MjMuOTgyMjUyIn0.MaFRuGUDfI9_rhVC1s2kMVFjCjLy5ElY0TuYvXb2MC0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"name\": \"Patient 01\",\n    \"age\": 18,\n    \"description\": \"General consultation\",\n    \"gender\": \"Male\",\n    \"status\": \"pending\",\n    \"time\": \"9:00 AM\",\n    \"phone\": \"+1 552-686-9515\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/appointment/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"appointment",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ2aWpheWt1bWFyQHZiLmNvbSIsImZ1bGxfbmFtZSI6IkRyLiBWaWpheSBLdW1hciBKIFIiLCJtb2JpbGUiOiIiLCJhY2Nlc3NfdHlwZSI6ImRvY3RvciIsImNyZWF0ZWRfdGltZSI6IjIwMjUtMDgtMTQgMDA6Mzk6MjMuOTgyMjUyIn0.MaFRuGUDfI9_rhVC1s2kMVFjCjLy5ElY0TuYvXb2MC0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"approve\"\n    // \"status\": \"reject\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/appointment/1/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"appointment",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "doctor",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/api/doctors/?specialties=16",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"doctors",
+						""
+					],
+					"query": [
+						{
+							"key": "search",
+							"value": "Orthopedic+Surgeon%2CSpine+Specialist%2CElectrophysiologist",
+							"disabled": true
+						},
+						{
+							"key": "specialties",
+							"value": "16"
+						},
+						{
+							"key": "locations",
+							"value": "1,2",
+							"disabled": true
+						},
+						{
+							"key": "rating",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "gender",
+							"value": "male",
+							"disabled": true
+						},
+						{
+							"key": "hospital_ids",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "doctor Detail",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/api/doctors/1",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"doctors",
+						"1"
+					],
+					"query": [
+						{
+							"key": "search",
+							"value": "Orthopedic+Surgeon%2CSpine+Specialist%2CElectrophysiologist",
+							"disabled": true
+						},
+						{
+							"key": "specialties",
+							"value": "1,5",
+							"disabled": true
+						},
+						{
+							"key": "locations",
+							"value": "1,2",
+							"disabled": true
+						},
+						{
+							"key": "rating",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "gender",
+							"value": "male",
+							"disabled": true
+						},
+						{
+							"key": "hospital_ids",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "list departments",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/api/department/",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"department",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "list specality",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/api/specialty/",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"specialty",
+						""
+					],
+					"query": [
+						{
+							"key": "department",
+							"value": "10",
+							"disabled": true
+						},
+						{
+							"key": "search",
+							"value": "ortho",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "list dept wise specialisation",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/api/department/get_dept_specialty?department_id=1",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"department",
+						"get_dept_specialty"
+					],
+					"query": [
+						{
+							"key": "department_id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "test 1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Japan\",\n  \"capital\": \"Tokyo\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/countries/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"countries",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "test 2",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "13.238.117.108:8000/countries/",
+					"host": [
+						"13",
+						"238",
+						"117",
+						"108"
+					],
+					"port": "8000",
+					"path": [
+						"countries",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
