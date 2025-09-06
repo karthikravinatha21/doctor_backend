@@ -41,8 +41,6 @@ RUN python -m venv /venv && \
 # Copy app code
 COPY . .
 
----
-
 # Stage 2: Runtime
 FROM public.ecr.aws/docker/library/python:3.10-slim
 
