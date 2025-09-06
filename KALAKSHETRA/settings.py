@@ -178,11 +178,11 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'test',
-        'USER': 'healthcare',
-        'PASSWORD': 'Health@Admin@24',
-        'HOST': '35.207.201.1',
-        'PORT': '5462',
+        'NAME': 'Vaidya',
+        'USER': 'postgres',
+        'PASSWORD': 'Vaidya@Bandhu@25',
+        'HOST': '52.66.199.115',
+        'PORT': '5432',
     }
 }
 
