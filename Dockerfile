@@ -80,4 +80,5 @@ RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && \
 EXPOSE 8000
 
 # Start app
-ENTRYPOINT ["sh", "/app/docker-entrypoint.sh"]
+# Start app with Gunicorn
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "KALAKSHETRA.wsgi:application"]
