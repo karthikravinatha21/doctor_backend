@@ -41,7 +41,7 @@ class HospitalAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'hospital_enabled', 'is_home_collection_supported', 'city')
 
     fields = (
-        'code', 'name', 'email', 'mobile', 'address', 'location', 'location_name',
+        'code', 'name', 'email', 'mobile', 'address', 'location', 'location_name', 'image',
         'is_home_collection_supported', 'is_health_package_online_purchase_supported',
         'health_package_doctor_code', 'health_package_department_code', 'corporate_only',
         'hospital_enabled', 'promo_code', 'slot_blocking_duration', 'allow_refund_on_cancellation',

@@ -13,7 +13,7 @@ class City(MyBaseModel):
         return self.city_name
 
     def save(self, *args, **kwargs):
-        super(Hospital, self).save(*args, **kwargs)
+        super(City, self).save(*args, **kwargs)
 
 
 # Create your models here.
@@ -39,8 +39,7 @@ class Hospital(MyBaseModel):
                               verbose_name="Mobile Number")
 
     address = models.TextField(blank=True,
-                               null=True,
-                               max_length=100)
+                               null=True)
 
     location = models.CharField(default='0,0',
                                 null=True, blank=True, )
@@ -161,8 +160,7 @@ class Department(MyBaseModel):
     hospital = models.ForeignKey(Hospital,
                                  on_delete=models.PROTECT,
                                  null=True, blank=True)
-    code = models.SlugField(max_length=200,
-                            unique=True,
+    code = models.CharField(max_length=200,
                             blank=True,
                             null=True)
 
@@ -191,7 +189,6 @@ class Specialisation(MyBaseModel):
                                    blank=True
                                    )
     code = models.CharField(max_length=200,
-                            # unique=True,
                             blank=True,
                             null=True)
 
@@ -205,8 +202,6 @@ class Specialisation(MyBaseModel):
                                 blank=True
                                 )
     image = models.ImageField(upload_to='speciality/',null=True,blank=True,)
-
-    # image = models.CharField(blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
 
