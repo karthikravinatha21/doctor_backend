@@ -55,7 +55,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React dev server
     "https://6c71-2401-4900-1cc5-19db-28ec-9069-cee9-5a24.ngrok-free.app",
     "https://stage.vaidyabandhu.com",
-    "https://www.vaidyabandhu.com/",
+    "https://www.vaidyabandhu.com",
 ]
 
 # Read .env.development file if it exists
