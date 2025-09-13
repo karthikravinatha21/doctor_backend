@@ -48,7 +48,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     'https://6c71-2401-4900-1cc5-19db-28ec-9069-cee9-5a24.ngrok-free.app',
-    "https://www.vaidyabandhu.com/",
+    "https://www.vaidyabandhu.com",
 ]
 
 CORS_ALLOWED_ORIGINS = [
