@@ -81,4 +81,5 @@ EXPOSE 8000
 
 # Start app
 # Start app with Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "KALAKSHETRA.wsgi:application"]
+CMD ["sh", "-c", "python manage.py migrate && gunicorn -b 0.0.0.0:8000 KALAKSHETRA.wsgi:application"]
+
