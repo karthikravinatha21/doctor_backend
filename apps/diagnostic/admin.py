@@ -5,7 +5,7 @@ from .models import DiagnosticCenter, DiagnosticCategory, City
 # Customizing the admin interface for the DiagnosticCenter model
 class DiagnosticCenterAdmin(admin.ModelAdmin):
     list_display = ('name', 'address', 'pincode', 'city')  # Display relevant fields in the list view
-    search_fields = ('name', 'address', 'city__name')  # Allow searching by name, address, and city
+    search_fields = ('name', 'address')  # Allow searching by name, address, and city
     list_filter = ('city', 'category')  # Filter by city and category
 
     # This will show a dropdown of all categories and cities in the form

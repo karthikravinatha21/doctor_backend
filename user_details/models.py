@@ -1,7 +1,7 @@
 import os
 import uuid
 from django.conf import settings
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import (AbstractUser, BaseUserManager, PermissionsMixin, User, _user_has_module_perms,
                                         _user_has_perm)
 from django.db import models
@@ -55,60 +55,69 @@ class User(AbstractUser, PermissionsMixin):
         ('User', 'user'),
         ('Admin', 'admin'),
     )
+
     email = models.EmailField(max_length=455, null=True, blank=True)
-
     description = models.TextField(null=True, blank=True)
-
     full_name = models.CharField(max_length=255, null=True, blank=True)
-
+    age = models.PositiveIntegerField(null=True, blank=True)  # NEW FIELD
     dob = models.DateField(null=True, blank=True)
-
     gender = models.CharField(max_length=50, null=True, blank=True)
-
     designation = models.CharField(max_length=255, null=True, blank=True)
-
     address = models.CharField(max_length=355, null=True, blank=True)
+    pin_code = models.CharField(max_length=10, null=True, blank=True)  # NEW FIELD
 
     is_staff = models.BooleanField(default=True)
 
-    profile_image = models.ImageField(upload_to=generate_profile_path,
-                                      blank=True,
-                                      null=True,
-                                      verbose_name='screen Image',
-                                      storage=MediaStorage(),
-                                      validators=[
-                                          FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
-                                          validate_file_size,
-                                          validate_file_authenticity, ], )
+    profile_image = models.ImageField(
+        upload_to=generate_profile_path,
+        blank=True,
+        null=True,
+        verbose_name='screen Image',
+        storage=MediaStorage(),
+        validators=[
+            FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
+            validate_file_size,
+            validate_file_authenticity,
+        ],
+    )
 
     is_active = models.BooleanField(default=True)
-
     is_superuser = models.BooleanField(default=False)
 
-    user_type = models.CharField(choices=USER_TYPES,
-                                 blank=True,
-                                 null=True,
-                                 max_length=30,
-                                 verbose_name='user_type',
-                                 default='user')
-    mobile = models.CharField(max_length=13, blank=False,
-                              null=False,
-                              verbose_name="Mobile",
-                              unique=True)
+    user_type = models.CharField(
+        choices=USER_TYPES,
+        blank=True,
+        null=True,
+        max_length=30,
+        verbose_name='user_type',
+        default='user'
+    )
+
+    mobile = models.CharField(
+        max_length=13,
+        blank=True,
+        null=True,
+        verbose_name="Mobile",
+        unique=True
+    )
+
+    alternate_number = models.CharField(  # NEW FIELD
+        max_length=13,
+        null=True,
+        blank=True,
+        verbose_name="Alternate Mobile"
+    )
 
     last_login = models.DateTimeField(null=True, blank=True)
-
     mobile_verified = models.BooleanField(default=False)
 
     aadhaar_number = models.CharField(max_length=24, null=True, blank=True)
-
     pan_number = models.CharField(max_length=24, null=True, blank=True)
-
     blood_group = models.CharField(max_length=24, null=True, blank=True)
 
     REQUIRED_FIELDS = []
-
     USERNAME_FIELD = 'mobile'
+
     objects = UserManager()
 
     class Meta:
@@ -123,27 +132,18 @@ class User(AbstractUser, PermissionsMixin):
         ]
 
     def save(self, *args, **kwargs):
-
         if self.email:
             self.username = self.email
         elif self.mobile:
             self.username = self.mobile
         elif self.username:
             self.username = self.username
-        user = super(User, self)
-        # if self.password:
-        #     user.set_password(self.password)
+        if self.password and not self.password.startswith('pbkdf2_'):
+            self.password = make_password(self.password)
         super(User, self).save(*args, **kwargs)
 
-    # @property
-    # def representation(self):
-    #     return str(self.mobile) if self.mobile else ' '
-    #
-    # def __str__(self):
-    #     return self.representation if self.representation else ' '
-
     def __str__(self):
-        return str("Mobile : {}, Name: {},  Email: {}".format(self.mobile, self.first_name, self.email))
+        return str(f"Mobile : {self.mobile}, Name: {self.first_name}, Email: {self.email}")
 
     def tokens(self):
         refresh = RefreshToken.for_user(self)
@@ -153,9 +153,6 @@ class User(AbstractUser, PermissionsMixin):
         }
 
     def has_perm(self, perm, obj=None):
-        # "Does the user have a specific permission?"
-        # # Simplest possible answer: Yes, always
-        # return True
         try:
             if self.is_active and self.is_superuser:
                 return True
@@ -165,21 +162,17 @@ class User(AbstractUser, PermissionsMixin):
             return True
 
     def has_module_perms(self, app_label):
-        # "Does the user have permissions to view the app `app_label`?"
-        # # Simplest possible answer: Yes, always
-        # return True
         try:
             if self.is_active and self.is_superuser:
                 return True
-
             return _user_has_module_perms(self, app_label)
-
         except Exception as error:
             print(error)
 
     def check_password(self, raw_password):
         """Check if the given password matches the stored hashed password."""
         return check_password(raw_password, self.password)
+
 
 
 class MyBaseModel(models.Model):

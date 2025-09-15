@@ -36,7 +36,7 @@ class HospitalAdmin(admin.ModelAdmin):
     list_display = ('id', 'code', 'name', 'email', 'mobile', 'city', 'is_active', 'hospital_enabled',
                     'is_home_collection_supported', 'working_hours', 'owner_name')
 
-    search_fields = ('code', 'name', 'email', 'owner_name', 'city__name')
+    search_fields = ('code', 'name', 'email', 'owner_name')
 
     list_filter = ('is_active', 'hospital_enabled', 'is_home_collection_supported', 'city')
 

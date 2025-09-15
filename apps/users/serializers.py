@@ -5,6 +5,43 @@ from apps.movies.serializers import ActorPaymentSerializer, ActorPortfolioSerial
     ActorAwardSerializer
 from user_details.models import User
 
+class UserDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "full_name",
+            "age",
+            "gender",
+            "blood_group",
+            "address",
+            "pin_code",
+            "mobile",
+            "alternate_number",
+            "email",
+            "aadhaar_number",
+            "pan_number",
+        ]
+
+    def validate_mobile(self, value):
+        """Custom validation for mobile number"""
+        if not value.isdigit():
+            raise serializers.ValidationError("Mobile number must contain only digits.")
+        if len(value) < 10:
+            raise serializers.ValidationError("Mobile number must be at least 10 digits long.")
+        return value
+
+    def create(self, validated_data):
+        # You can handle password separately if required
+        user = User.objects.create(**validated_data)
+        return user
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+
 
 class ActorSerializer(serializers.ModelSerializer):
     class Meta:
