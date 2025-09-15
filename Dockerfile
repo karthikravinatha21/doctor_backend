@@ -80,7 +80,7 @@ RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && \
 EXPOSE 8000
 
 # Use entrypoint
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Default command (Gunicorn)
 CMD ["gunicorn", "-b", "0.0.0.0:8000", "KALAKSHETRA.wsgi:application"]
