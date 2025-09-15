@@ -13,6 +13,6 @@ router.register('admin/user', AdminUserViewSet, basename='admin')
 
 urlpatterns = [
     path('destroy_db/', DestroyDatabaseAPIView.as_view(), name='destroy-db'),
-    path('user/profile', UserAPIView.as_view(), name='destroy-db'),
+    path('user/profile/', UserAPIView.as_view(), name='destroy-db'),
     *router.urls
 ]

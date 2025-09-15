@@ -36,7 +36,7 @@ from .serializers import *
 logger = logging.getLogger('django')
 
 class UserAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUserBlockedPermission]
 
     def post(self, request):
         """Create a new user"""
