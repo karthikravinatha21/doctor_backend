@@ -38,6 +38,7 @@ class RazorpayView(custom_viewsets.ModelViewSet):
 
     @action(detail=False, methods=['POST'])
     def create_order(self, request):
+        days=0
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         subscription = request.data.get("subscription")
         pricing = Subscription.objects.filter(id=subscription).first()
