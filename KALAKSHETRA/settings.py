@@ -16,13 +16,14 @@ import os
 from pathlib import Path
 import environ
 from boto3 import session as boto3_session
+from botocore.client import Config as BotoConfig
 
 # from .loggers import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Environment variables setup
+# Environment variables
 env = environ.Env(
     DEBUG=(bool, False),
     SECRET_KEY=(str, "django-insecure-1^l_%acdj@6es-cjp#i()q2t*1sj(j2d!=c-mhl5o-vgg90fpq"),
@@ -47,14 +48,12 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://6c71-2401-4900-1cc5-19db-28ec-9069-cee9-5a24.ngrok-free.app',
     "https://stage.vaidyabandhu.com",
     "https://www.vaidyabandhu.com",
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React dev server
-    "https://6c71-2401-4900-1cc5-19db-28ec-9069-cee9-5a24.ngrok-free.app",
+    "http://localhost:3000",
     "https://stage.vaidyabandhu.com",
     "https://www.vaidyabandhu.com",
 ]
@@ -82,7 +81,7 @@ PREDEFINED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'corsheaders',
+    "corsheaders",
 ]
 
 CORE_APPS = [
@@ -96,26 +95,25 @@ CORE_APPS = [
     "apps.budget",
     "apps.event",
     "apps.blogs",
-    'ckeditor',
+    "ckeditor",
     "apps.blog",
     "apps.web_pages",
     "apps.staticpages",
     "apps.configurations",
-    'storages',
-    'apps.payments',
-    'apps.schedule',
-    'apps.hospital',
-    'apps.doctors',
-    'apps.diagnostic',
-    'apps.approles',
-    'apps.slots'
+    "storages",
+    "apps.payments",
+    "apps.schedule",
+    "apps.hospital",
+    "apps.doctors",
+    "apps.diagnostic",
+    "apps.approles",
+    "apps.slots",
 ]
+
 INSTALLED_APPS = PREDEFINED_APPS + CORE_APPS
 
-# CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
-
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -123,21 +121,15 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'axes.middleware.AxesMiddleware',
+    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "KALAKSHETRA.urls"
 
-CKEDITOR_CONFIGS = {
-    'default': {
-        'toolbar': 'full',
-    },
-}
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -212,9 +204,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = 'Asia/Kolkata'
-
+TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
 
 USE_TZ = True
@@ -227,47 +217,31 @@ DATETIME_FORMAT = 'd M Y, H:i:s'  # e.g., "10 May 2025, 14:30:00"
 DATE_FORMAT = 'd M Y'  # e.g., "10 May 2025"
 TIME_FORMAT = 'H:i:s'  # e.g., "14:30:00"
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+# Static & Media
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-STATIC_URL = "static/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# ✅ Media settings for local uploads
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# from storages.backends.s3boto3 import S3Boto3Storage
-#
-# class StaticStorage(S3Boto3Storage):
-#     location = 'static'  # This folder inside your S3 bucket where static files will be stored
-#     default_acl = 'public-read'  # Optional, set default access permissions
-# S3 Configuration for static files
-# if False:
-#     # AWS settings
-#     AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='')
-#     AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='')
-#     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='kalakshetra-dev-static-files')
-#     AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
-#     AWS_DEFAULT_ACL = 'public-read'
-#     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-#     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-#
-#     # S3 static settings
-#     STATIC_LOCATION = 'static'
-#     STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
-#     # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-#     # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-#     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-#     STATICFILES_STORAGE = 'KALAKSHETRA.settings.s3boto3.S3Boto3Storage'
+# File validation settings
+VALID_IMAGE_FILE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".webp"]
+MAX_FILE_UPLOAD_SIZE = 10  # MB
 
-S3_SESSION = boto3_session.Session(region_name='ap-south-1')
-S3_CLIENT = S3_SESSION.client(
-    's3', config=boto3_session.Config(signature_version='s3v4'))
-# S3_CLIENT = S3_SESSION.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
-#                               aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-#                               region_name=AWS_SNS_REGION_NAME)
+# ✅ Optional: S3 config (only if USE_S3=True in env)
+USE_S3 = env.bool("USE_S3", default=False)
+if USE_S3:
+    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
+    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
+    AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
+    AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="ap-south-1")
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
+# Default primary key
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # SECURE_SSL_REDIRECT = False
 # SESSION_COOKIE_SECURE = False
@@ -315,31 +289,22 @@ JWT_AUTH = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.JSONParser',
-        'rest_framework.parsers.MultiPartParser',
+    "DEFAULT_PARSER_CLASSES": (
+        "rest_framework.parsers.JSONParser",
+        "rest_framework.parsers.MultiPartParser",
     ),
-
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.SearchFilter',
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
     ],
-
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'EXCEPTION_HANDLER': 'utils.exception_handler.custom_exception_handler',
-    'DEFAULT_PAGINATION_CLASS': 'utils.custom_pagination.CustomPagination',
-    'PAGE_SIZE': 15
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "EXCEPTION_HANDLER": "utils.exception_handler.custom_exception_handler",
+    "DEFAULT_PAGINATION_CLASS": "utils.custom_pagination.CustomPagination",
+    "PAGE_SIZE": 15,
 }
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://stage.vaidyabandhu.com",
-    "http://stage.vaidyabandhu.com",
-]
 
 VALID_IMAGE_FILE_EXTENSIONS = []  # ast.literal_eval(os.getenv('VALID_IMAGE_FILE_EXTENSIONS', default=''))
 MAX_FILE_UPLOAD_SIZE = 10  # int(env('MAX_FILE_UPLOAD_SIZE_IN_MB', default=''))
