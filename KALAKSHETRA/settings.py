@@ -55,6 +55,7 @@ CSRF_TRUSTED_ORIGINS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://stage.vaidyabandhu.com",
+    "https://admin.vaidyabandhu.com",
     "https://www.vaidyabandhu.com",
 ]
 
