@@ -36,9 +36,7 @@ class Doctor(MyBaseModel):
     #                                          blank=True,
     #                                          related_name='doctor_hospital_department')
 
-    hospital = models.ManyToManyField(Hospital,
-                                      blank=False,
-                                      null=False)
+    hospital = models.ManyToManyField(Hospital, blank=False)
 
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
 

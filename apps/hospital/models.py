@@ -179,7 +179,7 @@ class Department(MyBaseModel):
         verbose_name_plural = "Departments"
 
     def __str__(self):
-        return self.code
+        return f"{self.name}"
 
 
 class Specialisation(MyBaseModel):
@@ -210,7 +210,7 @@ class Specialisation(MyBaseModel):
         verbose_name_plural = "Specialisations"
 
     def __str__(self):
-        return self.code
+        return f"{self.title}"
 
     def save(self, *args, **kwargs):
         super(Specialisation, self).save(*args, **kwargs)

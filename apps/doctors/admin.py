@@ -26,7 +26,7 @@ class DoctorAdmin(admin.ModelAdmin):
     )
 
     # Search fields to make it searchable in the admin panel
-    search_fields = ('code', 'full_name', 'hospital__description', 'speciality__code',)
+    search_fields = ('code', 'full_name', 'speciality__code',)
 
     # Add filters for some fields like hospital, is_logged_in
     list_filter = ('is_logged_in', 'hospital', 'is_online_appointment_enable', 'speciality')

@@ -34,7 +34,7 @@ class PricingMaster(models.Model):
 
     title = models.CharField(max_length=255, unique=True)
     key = models.SlugField(max_length=255, unique=True, help_text="Internal use for form binding or APIs")
-    input_type = models.JSONField(default={})
+    input_type = models.JSONField(default=dict)
     unit = models.CharField(max_length=20, choices=UNIT_CHOICES, default="Rs")
     default_value = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
