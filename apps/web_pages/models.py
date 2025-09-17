@@ -49,17 +49,7 @@ class Page(MyBaseModel):
     template = models.ForeignKey(PageTemplate, on_delete=models.SET_NULL, null=True, blank=True, related_name='pages')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pages')
-    featured_image = models.ImageField(
-        upload_to=generate_page_image_path,
-        null=True,
-        blank=True,
-        storage=MediaStorage(),
-        validators=[
-            FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
-            validate_file_size,
-            validate_file_authenticity,
-        ],
-    )
+    featured_image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
     meta_title = models.CharField(max_length=255, blank=True, null=True, help_text="SEO title")
     meta_description = models.TextField(blank=True, null=True, help_text="SEO description")
     is_homepage = models.BooleanField(default=False, help_text="Set as homepage")
@@ -102,17 +92,7 @@ class PageSection(MyBaseModel):
     name = models.CharField(max_length=100)
     section_type = models.CharField(max_length=20, choices=SECTION_TYPES, default='text')
     content = models.TextField(blank=True, null=True)
-    image = models.ImageField(
-        upload_to=generate_page_image_path,
-        null=True,
-        blank=True,
-        storage=MediaStorage(),
-        validators=[
-            FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
-            validate_file_size,
-            validate_file_authenticity,
-        ],
-    )
+    image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
     video_url = models.URLField(blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
     css_class = models.CharField(max_length=255, blank=True, null=True, help_text="CSS class for styling")

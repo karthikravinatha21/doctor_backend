@@ -31,20 +31,8 @@ class Movie(MyBaseModel):
     description = models.TextField(null=True, blank=True)
     poster_url = models.URLField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
-    display_picture = models.ImageField(upload_to=generate_movie_images_path,
-                                        storage=MediaStorage(),
-                                        validators=[
-                                            FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
-                                            validate_file_size,
-                                            validate_file_authenticity, ], )
-    cower_picture = models.ImageField(upload_to=generate_movie_images_path,
-                                        null=True,
-                                        blank=True,
-                                        storage=MediaStorage(),
-                                        validators=[
-                                            FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
-                                            validate_file_size,
-                                            validate_file_authenticity, ], )
+    display_picture = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
+    cower_picture = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
     objects = models.Manager()
 
     def __str__(self):
@@ -59,14 +47,7 @@ def generate_profile_path(self, filename):
 
 class ActorPortfolio(MyBaseModel):
     actor = models.OneToOneField(User, on_delete=models.CASCADE, related_name='portfolio')
-    profile_picture = models.ImageField(upload_to=generate_profile_path,
-                                        null=True,
-                                        blank=True,
-                                        storage=MediaStorage(),
-                                        validators=[
-                                            FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
-                                            validate_file_size,
-                                            validate_file_authenticity, ], )
+    profile_picture = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
     portfolio_url = models.URLField(null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
     social_media_links = models.JSONField(default=dict, blank=True)

@@ -3,7 +3,7 @@ import datetime
 import random
 import re
 from io import TextIOWrapper
-
+from django.utils.html import format_html
 import numpy as np
 import pandas as pd
 from django.contrib import admin, messages
@@ -22,7 +22,7 @@ class DoctorUploadForm(forms.Form):
 class DoctorAdmin(admin.ModelAdmin):
     # Fields to display in the list view
     list_display = (
-        'id', 'code', 'full_name', 'is_online_appointment_enable', 'is_logged_in', 'start_date', 'end_date'
+        'id', 'code', 'full_name', 'profile_image_tag', 'is_online_appointment_enable', 'is_logged_in', 'start_date', 'end_date'
     )
 
     # Search fields to make it searchable in the admin panel
@@ -34,12 +34,35 @@ class DoctorAdmin(admin.ModelAdmin):
     # Fields to display in the form view when adding/editing a doctor
     fields = (
         'code', 'full_name', 'email', 'password', 'speciality', 'hospital', 'designation', 'title_text', 'qualification',
-        'educational_degrees', 'photo', 'content', 'notes', 'fellowship_membership', 'field_expertise',
+        'educational_degrees', 'profile_image_preview', 'photo', 'content', 'notes', 'fellowship_membership', 'field_expertise',
         'languages_spoken', 'awards_achievements', 'talks_publications', 'experience', 'meta_title',
         'meta_description', 'meta_keywords', 'other_meta_tags', 'display_order', 'allow_website',
         'is_online_appointment_enable', 'slug', 'hv_consultation_charges', 'vc_consultation_charges',
         'pr_consultation_charges', 'start_date', 'end_date', 'is_primary_consultation_doctor',
     )
+    readonly_fields = ('profile_image_preview',)
+
+    def profile_image_tag(self, obj):
+        if obj.photo and hasattr(obj.photo, 'url'):
+            return format_html(
+                '<a href="{0}" target="_blank">'
+                '<img src="{0}" width="50" height="50" style="object-fit:cover; border-radius:50%;" />'
+                '</a>',
+                obj.photo.url
+            )
+        return "-"
+    profile_image_tag.short_description = "Photo"
+
+    def profile_image_preview(self, obj):
+        if obj.photo and hasattr(obj.photo, 'url'):
+            return format_html(
+                '<a href="{0}" target="_blank">'
+                '<img src="{0}" width="150" height="150" style="object-fit:cover; border-radius:8px;" />'
+                '</a>',
+                obj.photo.url
+            )
+        return "No image uploaded"
+    profile_image_preview.short_description = "Photo Preview"
 
     # Use filter_horizontal to improve the UI for ManyToMany relationships (like Specialisation)
     filter_horizontal = ('speciality', 'hospital')

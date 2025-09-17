@@ -46,14 +46,7 @@ class ProductionHouse(MyBaseModel):
     bank_account_number = models.CharField(max_length=50, null=True, blank=True)
     ifsc_code = models.CharField(max_length=15, null=True, blank=True)
     upi_id = models.CharField(max_length=100, null=True, blank=True)
-    profile_picture = models.ImageField(upload_to=generate_ph_profile_path,
-                                        null=True,
-                                        blank=True,
-                                        storage=MediaStorage(),
-                                        validators=[
-                                            FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
-                                            validate_file_size,
-                                            validate_file_authenticity, ], )
+    profile_picture = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
     # cower_picture = models.ImageField(upload_to=generate_ph_cover_image_path,
     #                                     null=True,
     #                                     blank=True,
@@ -62,14 +55,7 @@ class ProductionHouse(MyBaseModel):
     #                                         FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
     #                                         validate_file_size,
     #                                         validate_file_authenticity, ], )
-    certificate = models.ImageField(upload_to=generate_ph_certificate_image_path,
-                                      null=True,
-                                      blank=True,
-                                      storage=MediaStorage(),
-                                      validators=[
-                                          FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
-                                          validate_file_size,
-                                          validate_file_authenticity, ], )
+    certificate = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     objects = models.Manager()

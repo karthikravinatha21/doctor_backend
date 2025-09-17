@@ -34,14 +34,14 @@ from .models import Hospital, City
 
 class HospitalAdmin(admin.ModelAdmin):
     list_display = ('id', 'code', 'name', 'email', 'mobile', 'city', 'is_active', 'hospital_enabled',
-                    'is_home_collection_supported', 'working_hours', 'owner_name')
+                    'profile_image_tag', 'is_home_collection_supported', 'working_hours', 'owner_name')
 
     search_fields = ('code', 'name', 'email', 'owner_name')
 
     list_filter = ('is_active', 'hospital_enabled', 'is_home_collection_supported', 'city')
 
     fields = (
-        'code', 'name', 'email', 'mobile', 'address', 'location', 'location_name', 'image',
+        'code', 'name', 'email', 'mobile', 'address', 'location', 'location_name', 'profile_image_preview', 'image',
         'is_home_collection_supported', 'is_health_package_online_purchase_supported',
         'health_package_doctor_code', 'health_package_department_code', 'corporate_only',
         'hospital_enabled', 'promo_code', 'slot_blocking_duration', 'allow_refund_on_cancellation',
@@ -52,6 +52,29 @@ class HospitalAdmin(admin.ModelAdmin):
         'hpp_doctor_code', 'hpp_department_code', 'hpp_sync_allowed', 'is_hpp_online_purchase_supported',
         'pc_location_code', 'pc_department_code'
     )
+    readonly_fields = ('profile_image_preview',)
+
+    def profile_image_tag(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            return format_html(
+                '<a href="{0}" target="_blank">'
+                '<img src="{0}" width="50" height="50" style="object-fit:cover; border-radius:50%;" />'
+                '</a>',
+                obj.image.url
+            )
+        return "-"
+    profile_image_tag.short_description = "Profile Image"
+
+    def profile_image_preview(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            return format_html(
+                '<a href="{0}" target="_blank">'
+                '<img src="{0}" width="150" height="150" style="object-fit:cover; border-radius:8px;" />'
+                '</a>',
+                obj.image.url
+            )
+        return "No image uploaded"
+    profile_image_preview.short_description = "Profile Image Preview"
 
     def clean(self, *args, **kwargs):
         if Hospital.objects.filter(code=self.code).exists():

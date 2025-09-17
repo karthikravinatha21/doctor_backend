@@ -17,7 +17,7 @@ class ImageConvertTypeException(APIException):
 MANDATORY_FIELD_MISSING = "Mandatory Parameter missing"
 class MediaStorage(S3Boto3Storage):
     location = 'media'
-    file_overwrite = True
+    file_overwrite = False
 
     def image_convert(self, name, content, *args, **kwargs):
         import io
@@ -59,7 +59,7 @@ class MediaStorage(S3Boto3Storage):
 
 class FileStorage(S3Boto3Storage):
     location = 'files'
-    file_overwrite = True
+    file_overwrite = False
 
 
 class LocalFileStorage(FileSystemStorage):

@@ -2,14 +2,44 @@ from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as useradmin
-
+from django.utils.html import format_html
 
 from .models import Banner, User, Enquiry
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'mobile', 'full_name', 'user_type', 'age', 'gender', 'last_login', 'is_active')
-    fields = ('full_name', 'age', 'email', 'mobile', 'alternate_number', 'dob', 'gender', 'aadhaar_number', 'pan_number', 'blood_group', 'address', 'pin_code', 'profile_image', 'is_active')
+    list_display = (
+        'id', 'mobile', 'full_name', 'user_type', 'age', 'gender',
+        'last_login', 'is_active', 'profile_image_tag'
+    )
+    fields = (
+        'full_name', 'age', 'email', 'mobile', 'alternate_number', 'dob',
+        'gender', 'aadhaar_number', 'pan_number', 'blood_group', 'address',
+        'pin_code', 'profile_image_preview', 'profile_image', 'is_active'
+    )
+    readonly_fields = ('profile_image_preview',)
+
+    def profile_image_tag(self, obj):
+        if obj.profile_image and hasattr(obj.profile_image, 'url'):
+            return format_html(
+                '<a href="{0}" target="_blank">'
+                '<img src="{0}" width="50" height="50" style="object-fit:cover; border-radius:50%;" />'
+                '</a>',
+                obj.profile_image.url
+            )
+        return "-"
+    profile_image_tag.short_description = "Profile Image"
+
+    def profile_image_preview(self, obj):
+        if obj.profile_image and hasattr(obj.profile_image, 'url'):
+            return format_html(
+                '<a href="{0}" target="_blank">'
+                '<img src="{0}" width="150" height="150" style="object-fit:cover; border-radius:8px;" />'
+                '</a>',
+                obj.profile_image.url
+            )
+        return "No image uploaded"
+    profile_image_preview.short_description = "Profile Image Preview"
 
 
 admin.site.register(User, UserAdmin)

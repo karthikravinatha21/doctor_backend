@@ -1,6 +1,6 @@
 # views.py
 import datetime
-
+from dateutil.relativedelta import relativedelta
 import razorpay
 import hmac, hashlib
 from django.conf import settings
@@ -77,7 +77,7 @@ class RazorpayView(custom_viewsets.ModelViewSet):
             if transaction.subscription.duration == 'Monthly':
                 days = 30
             start_date = datetime.datetime.now()
-            end_date = start_date + datetime.timedelta(days=days)
+            end_date = start_date + relativedelta(years=1)
             UserSubscription.objects.create(user=transaction.user, start_date=start_date,
                                             end_date=end_date, subscription=transaction.subscription)
 

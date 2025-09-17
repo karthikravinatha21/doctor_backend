@@ -18,6 +18,7 @@ class UserDataSerializer(serializers.ModelSerializer):
             "full_name",
             "age",
             "gender",
+            "profile_image",
             "blood_group",
             "address",
             "pin_code",
@@ -34,23 +35,23 @@ class UserDataSerializer(serializers.ModelSerializer):
     def get_start_date(self, instance):
         subscription = UserSubscription.objects.filter(user=instance)
         if subscription:
-            return subscription.first().start_date
+            return subscription.last().start_date
         else:
             return None
     
     def get_end_date(self, instance):
         subscription = UserSubscription.objects.filter(user=instance)
         if subscription:
-            return subscription.first().end_date
+            return subscription.last().end_date
         else:
             return None
     
     def get_is_active(self, instance):
         subscription = UserSubscription.objects.filter(user=instance)
         if subscription:
-            return subscription.first().is_active
+            return subscription.last().is_active
         else:
-            return None
+            return False
 
     def validate_mobile(self, value):
         """Custom validation for mobile number"""

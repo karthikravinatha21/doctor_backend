@@ -25,14 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Environment variables
 env = environ.Env(
-    DEBUG=(bool, False),
-    SECRET_KEY=(str, "django-insecure-1^l_%acdj@6es-cjp#i()q2t*1sj(j2d!=c-mhl5o-vgg90fpq"),
-    ALLOWED_HOSTS=(list, ['*']),
-    AWS_STORAGE_BUCKET_NAME=(str, ''),
-    AWS_S3_REGION_NAME=(str, 'ap-south-1'),
-    USE_S3=(bool, False),
-    DOMAIN_NAME=(str, ''),
-    SITE_URL=(str, ''),
+    # DEBUG=(bool, False),
+    # SECRET_KEY=(str, "django-insecure-1^l_%acdj@6es-cjp#i()q2t*1sj(j2d!=c-mhl5o-vgg90fpq"),
+    # ALLOWED_HOSTS=(list, ['*']),
+    # AWS_STORAGE_BUCKET_NAME=(str, ''),
+    # AWS_S3_REGION_NAME=(str, 'ap-south-1'),
+    # USE_S3=(bool, False),
+    # DOMAIN_NAME=(str, ''),
+    # SITE_URL=(str, ''),
 )
 
 # ALLOWED_HOSTS = ['*']
@@ -67,7 +67,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env.development'))
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = "django-insecure-1^l_%acdj@6es-cjp#i()q2t*1sj(j2d!=c-mhl5o-vgg90fpq"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = env('DEBUG')
@@ -165,23 +165,23 @@ DATABASES = {
     #     'HOST': '3.106.236.167',
     #     'PORT': '5432',
     # }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': 'postgres',
-    #     'USER': 'postgres',
-    #     'PASSWORD': 'Fogus_1234',
-    #     'HOST': 'localhost',
-    #     'PORT': '5432',
-    # }
-
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'vaidya',
-        'USER': 'vaidya_postgres',
-        'PASSWORD': 'Bandhu@Vaidya@2025',
-        'HOST': '52.66.199.115',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'Fogus_1234',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
+
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': 'vaidya',
+    #     'USER': 'vaidya_postgres',
+    #     'PASSWORD': 'Bandhu@Vaidya@2025',
+    #     'HOST': '52.66.199.115',
+    #     'PORT': '5432',
+    # }
 }
 
 # Password validation
@@ -219,30 +219,27 @@ DATETIME_FORMAT = 'd M Y, H:i:s'  # e.g., "10 May 2025, 14:30:00"
 DATE_FORMAT = 'd M Y'  # e.g., "10 May 2025"
 TIME_FORMAT = 'H:i:s'  # e.g., "14:30:00"
 
-# Static & Media
+# -----------------------------
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-
-# ✅ Media settings for local uploads
-MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+VALID_IMAGE_FILE_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp"]
+MAX_FILE_UPLOAD_SIZE = 10
 
-# File validation settings
-VALID_IMAGE_FILE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".webp"]
-MAX_FILE_UPLOAD_SIZE = 10  # MB
+AWS_ACCESS_KEY_ID = "AKIAZYHPEV6UQIZNMPEO"
+AWS_SECRET_ACCESS_KEY = "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"
+AWS_STORAGE_BUCKET_NAME = "vaidya-bhandhu-prod"
+AWS_S3_REGION_NAME = "ap-south-1"
 
-# ✅ Optional: S3 config (only if USE_S3=True in env)
-USE_S3 = env.bool("USE_S3", default=False)
-if USE_S3:
-    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
-    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
-    AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
-    AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="ap-south-1")
-    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+# Use regional endpoint (safer than generic s3.amazonaws.com)
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
 
+# Default storage backend → custom MediaStorage class
+DEFAULT_FILE_STORAGE = "utils.custom_storages.MediaStorage"
+
+# Media files will be stored under s3://bucket-name/media/
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 # Default primary key
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # SECURE_SSL_REDIRECT = False
@@ -308,7 +305,6 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 15,
 }
 
-VALID_IMAGE_FILE_EXTENSIONS = []  # ast.literal_eval(os.getenv('VALID_IMAGE_FILE_EXTENSIONS', default=''))
 MAX_FILE_UPLOAD_SIZE = 10  # int(env('MAX_FILE_UPLOAD_SIZE_IN_MB', default=''))
 SILENCED_SYSTEM_CHECKS = ["ckeditor.W001"]
 

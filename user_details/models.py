@@ -9,7 +9,7 @@ from django.db import models
 from django.core.validators import (FileExtensionValidator)
 from rest_framework_simplejwt.tokens import RefreshToken
 from utils.constants import validate_file_size, validate_file_authenticity
-from utils.custom_storages import MediaStorage
+from utils.custom_storages import MediaStorage, FileStorage
 
 
 def generate_banner_path(self, filename):
@@ -68,18 +68,7 @@ class User(AbstractUser, PermissionsMixin):
 
     is_staff = models.BooleanField(default=True)
 
-    profile_image = models.ImageField(
-        upload_to=generate_profile_path,
-        blank=True,
-        null=True,
-        verbose_name='screen Image',
-        storage=MediaStorage(),
-        validators=[
-            FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
-            validate_file_size,
-            validate_file_authenticity,
-        ],
-    )
+    profile_image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
@@ -190,15 +179,7 @@ class Banner(MyBaseModel):
     priority = models.IntegerField(
         default=0, verbose_name='Priority')
 
-    banner = models.FileField(null=True,
-                              blank=True,
-                              upload_to=generate_banner_path,
-                              verbose_name='Banner Image',
-                              storage=MediaStorage(),
-                              validators=[
-                                  FileExtensionValidator(settings.VALID_IMAGE_FILE_EXTENSIONS),
-                                  validate_file_size,
-                                  validate_file_authenticity, ], )
+    banner = models.FileField(storage=FileStorage(), upload_to="", null=True, blank=True)
 
     is_for_app = models.BooleanField(default=True, verbose_name='For Mobile')
 

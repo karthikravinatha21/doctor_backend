@@ -1,5 +1,5 @@
 from django.db import models
-
+from utils.custom_storages import MediaStorage
 from apps.hospital.models import Specialisation, Hospital
 from apps.meta_app.models import MyBaseModel
 
@@ -62,7 +62,7 @@ class Doctor(MyBaseModel):
     #                         null=True,
     #                         blank=True,
     #                         )
-    photo = models.ImageField(upload_to='static/doctors/', null=True, blank=True, )
+    photo = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
 
     content = models.TextField(null=True,
                                blank=True)
