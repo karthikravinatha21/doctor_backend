@@ -165,23 +165,23 @@ DATABASES = {
     #     'HOST': '3.106.236.167',
     #     'PORT': '5432',
     # }
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'Fogus_1234',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': 'vaidya',
-    #     'USER': 'vaidya_postgres',
-    #     'PASSWORD': 'Bandhu@Vaidya@2025',
-    #     'HOST': '52.66.199.115',
+    #     'NAME': 'postgres',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'Fogus_1234',
+    #     'HOST': 'localhost',
     #     'PORT': '5432',
     # }
+
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'vaidya',
+        'USER': 'vaidya_postgres',
+        'PASSWORD': 'Bandhu@Vaidya@2025',
+        'HOST': '52.66.199.115',
+        'PORT': '5432',
+    }
 }
 
 # Password validation
