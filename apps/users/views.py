@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 import boto3
 from botocore.exceptions import ClientError
-import jwt
+import jwt, requests
 from django.conf import settings
 from django.contrib.auth.models import update_last_login
 from django.db.models import Q
@@ -22,7 +22,6 @@ from apps.movies.models import Movie
 from apps.movies.serializers import MovieSerializer
 from apps.production_house.models import ProductionHouse
 from apps.schedule.models import Schedule
-from apps.users.serializers import ActorSerializer
 from user_details.models import User, UserTokens, Banner, OTPStorage, Enquiry
 from user_details.permission import IsUserBlockedPermission
 from user_details.serializers import BannerSerializer, UserSerializer, UserAdminSerializer
@@ -31,6 +30,7 @@ from utils.constants import custom_json_response, validate_non_empty_fields, USE
 from utils.utils import validate_access_attempts, generate_otp
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+from .models import *
 from .serializers import *
 
 logger = logging.getLogger('django')
@@ -40,7 +40,9 @@ class UserAPIView(APIView):
 
     def post(self, request):
         """Create a new user"""
-        serializer = UserDataSerializer(data=request.data)
+        print(request.user)
+        user = get_object_or_404(User, pk=request.user.id)
+        serializer = UserDataSerializer(user, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -49,11 +51,11 @@ class UserAPIView(APIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, pk=None):
+    def get(self, request):
         """Retrieve user details (single or list)"""
-        if pk:
-            user = get_object_or_404(User, pk=pk)
-            serializer = UserSerializer(user)
+        if request.user:
+            user = get_object_or_404(User, pk=request.user.id)
+            serializer = UserDataSerializer(user)
         else:
             users = User.objects.all()
             serializer = UserDataSerializer(users, many=True)
@@ -115,24 +117,21 @@ class UserViewSet(custom_viewsets.ModelViewSet):
     def login(self, request):
         mobile = request.data.get('mobile')
         source = request.headers.get('X-App-Type', '').upper()
-        # logger.info(f'Login Called params: {request.data}')
-        # logger.error(f'Login Error params: {request.data}')
-        """ Check if the phone number is valid """
-        # phone_number = phonenumbers.parse(mobile, None)
-        # if not phonenumbers.is_valid_number(phone_number):
-        #     raise Exception('InvalidMobileException')
 
+        # Generate OTP
         if mobile == settings.HARDCODED_MOBILE_NO:
             random_password = settings.HARDCODED_MOBILE_NO_OTP
-            # logger.info("Hardcoded Mobile password -----> %s" % (str(random_password)))
-
         elif not settings.IS_PRODUCTION:
             random_password = settings.HARDCODED_MOBILE_OTP
         else:
             random_password = get_random_string(
-                length=settings.OTP_LENGTH, allowed_chars=settings.OTP_CHARACTERS)
+                length=settings.OTP_LENGTH,
+                allowed_chars=settings.OTP_CHARACTERS
+            )
+
         otp_expiration_time = datetime.now() + timedelta(seconds=int(settings.OTP_EXPIRATION_TIME))
-        # "Check If user not exists in LifeOn DB"
+
+        # Clear previous OTPs
         OTPStorage.objects.filter(mobile=mobile).delete()
         otp_obj = OTPStorage.objects.create(
             mobile=mobile,
@@ -143,49 +142,77 @@ class UserViewSet(custom_viewsets.ModelViewSet):
             is_active=True,
             otp_expiration_time=otp_expiration_time
         )
+
         active_user = self.get_queryset().filter(mobile=mobile).first()
         if active_user and not active_user.is_active:
             response_data = {"is_registered_user": True, "is_new_user": False}
-            return custom_json_response(data=response_data, message="Account is not activated",
-                                        status=status.HTTP_200_OK)
-        if not self.get_queryset().filter(mobile=mobile, is_active=True).exists():
-            # need to add to send OTP to user to login
-            message_text = (
-                f'Welcome to Kalavaibhava, Your One Time Password (OTP) is {random_password}. It is valid for 5 minute. Do not share your OTP with anyone-Kalavaibhava')
+            return custom_json_response(
+                data=response_data,
+                message="Account is not activated",
+                status=status.HTTP_200_OK
+            )
 
-            # if settings.IS_PRODUCTION:
-            # infobip_client = InfobipSMSClient(settings.INFOBIP_BASE_URL, settings.INFOBIP_API_KEY,
-            #                                   settings.INFOBIP_SENDER)
-            # infobip_client.send_sms(mobile[3::], message_text)
+        # Construct SMS URL
+        sms_url = (
+            "https://apibulksms.way2mint.com/pushsms?"
+            f"username={settings.SMS_USERNAME}"
+            f"&password={settings.SMS_PASSWORD}"
+            f"&to=91{mobile}"
+            f"&from={settings.SMS_SENDER}"
+            f"&text=Welcome to Vaidya Bandhu - your future healthcare companion. "
+            f"Login OTP: {random_password} Valid for 10 minutes. Please do not share this code with anyone. - Team VB"
+            f"&data4=1701175655959526722,1702173216915572636"
+        )
+        print(sms_url)
+
+        if not self.get_queryset().filter(mobile=mobile, is_active=True).exists():
+            # New user flow
             response_data = {"is_new_user": True}
             user_object: User = User.objects.create_user(mobile, random_password)
             user_object.set_password(random_password)
             user_object.source = source
             user_object.save()
-            # logger.info(random_password)
-            return custom_json_response(data=response_data, message='New user created', status=status.HTTP_200_OK,
-                                        success=True)
+
+            # Send SMS inline
+            if settings.IS_PRODUCTION:
+                try:
+                    response = requests.get(sms_url, timeout=10)
+                    response.raise_for_status()
+                    logger.info(f"SMS sent successfully: {response.text}")
+                except Exception as e:
+                    logger.error(f"Failed to send SMS: {e}")
+
+            return custom_json_response(
+                data=response_data,
+                message='New user created',
+                status=status.HTTP_200_OK,
+                success=True
+            )
         else:
+            # Existing user flow
             user_object = self.get_queryset().filter(mobile=mobile, is_active=True).first()
             if user_object:
                 user_object.set_password(random_password)
-                # user_object.otp_expiration_time = otp_expiration_time
                 user_object.save()
-                logger.info(f"random_password: {random_password}")
 
-                message_text = (
-                    f'Welcome to Vaidhya Bandhu, Your One Time Password (OTP) is {random_password}. It is valid for 5 minute. Do not share your OTP with anyone-Kalavaibhava')
-                # if settings.IS_PRODUCTION:
-                #     infobip_client = InfobipSMSClient(settings.INFOBIP_BASE_URL, settings.INFOBIP_API_KEY,
-                #                                       settings.INFOBIP_SENDER)
-                #     infobip_client.send_sms(mobile[3::], message_text)
+                # Send SMS inline
+                if settings.IS_PRODUCTION:
+                    try:
+                        response = requests.get(sms_url, timeout=10)
+                        response.raise_for_status()
+                        logger.info(f"SMS sent successfully: {response.text}")
+                    except Exception as e:
+                        logger.error(f"Failed to send SMS: {e}")
 
                 response_data = {"is_registered_user": True, "is_new_user": False}
+                return custom_json_response(
+                    data=response_data,
+                    message="OTP has been sent on your registered mobile no.! for existing User",
+                    status=status.HTTP_200_OK,
+                    success=True
+                )
             else:
                 raise Exception('User not found')
-            return custom_json_response(data=response_data,
-                                        message="OTP has been sent on your registered mobile no.! for existing User",
-                                        status=status.HTTP_200_OK, success=True)
 
     @action(detail=False, methods=['POST'])
     def verify_login_otp(self, request):
@@ -616,3 +643,13 @@ class AdminUserViewSet(custom_viewsets.ModelViewSet):
             return Response(
                 {"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST
             )
+
+class SubscribeAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        obj, _ = Subscribe.objects.get_or_create(
+            email=email
+        )
+        return Response({"message": "Subscribed Successfully"}, status=status.HTTP_200_OK)

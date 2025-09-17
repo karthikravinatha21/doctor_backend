@@ -78,8 +78,8 @@ class RazorpayView(custom_viewsets.ModelViewSet):
                 days = 30
             start_date = datetime.datetime.now()
             end_date = start_date + datetime.timedelta(days=days)
-            # UserSubscription.objects.create(transaction.user, start_date=start_date,
-            #                                 end_date=end_date, subscription=transaction.subscription)
+            UserSubscription.objects.create(user=transaction.user, start_date=start_date,
+                                            end_date=end_date, subscription=transaction.subscription)
 
             return Response({"order_id": order["id"], "razorpay_key": settings.RAZORPAY_KEY_ID, "amount": amount,
                              "currency": currency}, status=200)
@@ -131,8 +131,11 @@ class RazorpayView(custom_viewsets.ModelViewSet):
                         days = 30
                     start_date = datetime.datetime.now()
                     end_date = start_date + datetime.timedelta(days=days)
-                    UserSubscription.objects.create(transaction.user, start_date=start_date,
-                                                    end_date=end_date, subscription=transaction.subscription)
+                    user_subscription, _ = UserSubscription.objects.get_or_create(
+                        user=transaction.user, subscription=transaction.subscription)
+                    user_subscription.start_date = start_date
+                    user_subscription.end_date = end_date
+                    user_subscription.save()
             except razorpay.errors.BadRequestError as e:
                 transaction.status = "failed"
                 transaction.save()

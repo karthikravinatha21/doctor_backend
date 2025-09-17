@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import DiagnosticCenter, DiagnosticCategory, City
+from .models import *
 
 
 # Customizing the admin interface for the DiagnosticCenter model
@@ -20,4 +20,5 @@ class DiagnosticCenterAdmin(admin.ModelAdmin):
 
 admin.site.register(DiagnosticCenter, DiagnosticCenterAdmin)
 admin.site.register(DiagnosticCategory)  # This registers the DiagnosticCategory model as well
+admin.site.register(DiagnosticTest)  # This registers the DiagnosticSubcategory model as well
 admin.site.register(City)  # This registers the City model for the dropdown in DiagnosticCenter

@@ -53,8 +53,8 @@ class Transaction(MyBaseModel):
 class UserSubscription(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
-    start_date = models.DateTimeField(default=datetime.now)
-    end_date = models.DateTimeField()
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 

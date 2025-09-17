@@ -3,9 +3,14 @@ from rest_framework import serializers
 from apps.movies.models import ActorPayment, ActorPortfolio, ActorAudition, ActorAward
 from apps.movies.serializers import ActorPaymentSerializer, ActorPortfolioSerializer, ActorAuditionSerializer, \
     ActorAwardSerializer
+from apps.payments.models import UserSubscription
 from user_details.models import User
 
 class UserDataSerializer(serializers.ModelSerializer):
+    start_date = serializers.SerializerMethodField('get_start_date')
+    end_date = serializers.SerializerMethodField('get_end_date')
+    is_active = serializers.SerializerMethodField('get_is_active')
+
     class Meta:
         model = User
         fields = [
@@ -21,7 +26,31 @@ class UserDataSerializer(serializers.ModelSerializer):
             "email",
             "aadhaar_number",
             "pan_number",
+            "start_date",
+            "end_date",
+            "is_active",
         ]
+    
+    def get_start_date(self, instance):
+        subscription = UserSubscription.objects.filter(user=instance)
+        if subscription:
+            return subscription.first().start_date
+        else:
+            return None
+    
+    def get_end_date(self, instance):
+        subscription = UserSubscription.objects.filter(user=instance)
+        if subscription:
+            return subscription.first().end_date
+        else:
+            return None
+    
+    def get_is_active(self, instance):
+        subscription = UserSubscription.objects.filter(user=instance)
+        if subscription:
+            return subscription.first().is_active
+        else:
+            return None
 
     def validate_mobile(self, value):
         """Custom validation for mobile number"""

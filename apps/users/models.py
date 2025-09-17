@@ -44,3 +44,8 @@ class OTPStorage(MyBaseModel):
 
     def __str__(self):
         return self.representation
+
+class Subscribe(MyBaseModel):
+    mobile = models.CharField(max_length=455, null=True, blank=True)
+    email = models.EmailField(max_length=455, null=True, blank=True)
+    
