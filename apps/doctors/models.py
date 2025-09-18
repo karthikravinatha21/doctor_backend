@@ -145,10 +145,19 @@ class Doctor(MyBaseModel):
         unique_together = [['code'], ]
 
     def save(self, *args, **kwargs):
-        if self.password and not self.password.startswith('pbkdf2_'):
-            self.password = make_password(self.password)
-        super(Doctor, self).save(*args, **kwargs)
+        if not self.username:
+            last_doctor = Doctor.objects.order_by("-id").first()
+            if last_doctor and last_doctor.username:
+                last_number = int(last_doctor.username.replace("VBHK", ""))
+                new_number = last_number + 1
+            else:
+                new_number = 4999
+            self.username = "VBHK" + str(new_number).zfill(8)
 
+        if self.password and not self.password.startswith("pbkdf2_"):
+            self.password = make_password(self.password)
+
+        super(Doctor, self).save(*args, **kwargs)
     def __str__(self):
         return f'{str(self.id)} - {str(self.code)}'
 
