@@ -6,20 +6,20 @@ from apps.diagnostic.models import DiagnosticCategory, DiagnosticTest, Diagnosti
 
 class DiagnosticTestSpecificSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DiagnosticTest
+        model = DiagnosticCategory
         exclude = ('created_at', 'updated_at')
 
 
 class DiagnosticCategorySpecificSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DiagnosticCategory
+        model = DiagnosticTest
         exclude = ('created_at', 'updated_at')
 
     def to_representation(self, instance):
         """Customize the output representation"""
         representation = super().to_representation(instance)
         representation['sub_category'] = DiagnosticTestSpecificSerializer(
-            DiagnosticTest.objects.filter(main_diagnostic=instance), many=True).data
+            DiagnosticTest.objects.filter(main_diagnostic=instance.main_diagnostic)).data
         return representation
 
 
