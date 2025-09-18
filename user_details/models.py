@@ -55,7 +55,7 @@ class User(AbstractUser, PermissionsMixin):
         ('User', 'user'),
         ('Admin', 'admin'),
     )
-
+    membership_id = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(max_length=455, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     full_name = models.CharField(max_length=255, null=True, blank=True)
@@ -123,6 +123,14 @@ class User(AbstractUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         if self.email:
             self.username = self.email
+        if not self.membership_id:
+            last_user = User.objects.order_by("-id").first()
+            if last_user and last_user.membership_id:
+                last_number = int(last_user.membership_id.replace("VBHK", ""))
+                new_number = last_number + 1
+            else:
+                new_number = 4999
+            self.membership_id = "VBHK" + str(new_number).zfill(8)
         elif self.mobile:
             self.username = self.mobile
         elif self.username:
