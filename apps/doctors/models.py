@@ -2,7 +2,7 @@ from django.db import models
 from utils.custom_storages import MediaStorage
 from apps.hospital.models import Specialisation, Hospital
 from apps.meta_app.models import MyBaseModel
-
+from django.contrib.auth.hashers import make_password
 
 
 # Create your models here.
@@ -18,6 +18,7 @@ class Doctor(MyBaseModel):
                             blank=False,
                             db_index=True,
                             )
+    username = models.CharField(max_length=155, null=True, blank=True)
 
     full_name = models.CharField(max_length=512,
                                  blank=False,
@@ -26,7 +27,7 @@ class Doctor(MyBaseModel):
 
     email = models.EmailField(verbose_name='Email', null=True, blank=True)
 
-    password = models.CharField(max_length=128, null=True, blank=True)
+    password = models.CharField(max_length=755, null=True, blank=True)
 
     speciality = models.ManyToManyField(Specialisation,
                                         blank=True,
@@ -143,8 +144,10 @@ class Doctor(MyBaseModel):
         """  to maintain data integrity and prevent situations where multiple doctors in the same hospital have the same code or identifier. """
         unique_together = [['code'], ]
 
-    # def __str__(self):
-    #     return self.representation
+    def save(self, *args, **kwargs):
+        if self.password and not self.password.startswith('pbkdf2_'):
+            self.password = make_password(self.password)
+        super(Doctor, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'{str(self.id)} - {str(self.code)}'

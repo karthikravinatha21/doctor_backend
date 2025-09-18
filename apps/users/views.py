@@ -12,7 +12,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import make_password, check_password
 from apps.approles.models import AppGroup, UserGroup, AppGroupPermission
 from apps.approles.serializers import AppGroupPermissionSerializer
 from apps.doctors.models import Doctor
@@ -653,3 +653,58 @@ class SubscribeAPIView(APIView):
             email=email
         )
         return Response({"message": "Subscribed Successfully"}, status=status.HTTP_200_OK)
+
+
+class CreateDoctorPasswordAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        doctor = Doctor.objects.filter(usernam=username).last()
+        if doctor:
+            doctor.password = make_password(password)
+            doctor.save()
+            return Response({"message": "Password Saved Successfully"}, status=status.HTTP_200_OK)
+        else:
+            return custom_json_response(message='Invalid username')
+
+class DoctorLoginAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        email = self.request.data.get("email")
+
+        doctor = Doctor.objects.filter(username=username).last()
+
+        if not doctor:
+            return custom_json_response(message='Invalid username')
+
+        if check_password(doctor, password):
+
+            jwt_payload = {
+                'id': doctor.id,
+                "email": doctor.email,
+                'first_name': doctor.first_name,
+                'user_role': 'doctor',
+                'access_type': 'crm',
+                'created_time': str(datetime.utcnow()),
+                "iat": datetime.now(tz=timezone.utc),
+                "exp": datetime.now(tz=timezone.utc) + settings.JWT_AUTH['JWT_EXPIRATION_DELTA']
+            }
+            token = jwt.encode(jwt_payload, settings.SECRET_KEY, algorithm="HS256")
+
+            refresh = RefreshToken.for_user(doctor)
+            refresh_token = str(refresh)
+
+            UserTokens.objects.filter(doctor_user=doctor).delete()
+            UserTokens.objects.create(doctor_user=doctor, token=token)
+
+            data = {
+                "token": token,
+                "refresh_token": refresh_token
+            }
+            return custom_json_response(data=data, status=status.HTTP_200_OK, success=True, message=message)
+        return custom_json_response(message='Invalid Credentials!')

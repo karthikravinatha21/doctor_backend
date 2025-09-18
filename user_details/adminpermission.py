@@ -3,7 +3,7 @@ from datetime import datetime
 import jwt
 from django.conf import settings
 from rest_framework import permissions
-
+from apps.doctors.models import Doctor
 from user_details.exceptions import UserAccountBlockedException
 
 from .models import User, UserTokens
@@ -77,7 +77,7 @@ class IsUserblockedPermission(permissions.BasePermission):
             raise UserAccountBlockedException
 
 
-class IsVendorrblockedPermission(permissions.BasePermission):
+class IsDoctorblockedPermission(permissions.BasePermission):
     message = CUSTOM_MESSAGE
 
     def has_permission(self, request, view):
@@ -97,11 +97,11 @@ class IsVendorrblockedPermission(permissions.BasePermission):
                 usertoken, settings.SECRET_KEY, algorithms='HS256')
             
 
-            if UserTokens.objects.filter(token=usertoken, vendor_user__id=decode['id']).exists():
+            if UserTokens.objects.filter(token=usertoken, doctor_user__id=decode['id']).exists():
                 if 'id' in decode and decode['id']:
                     request.META['id'] = decode['id']
                     request.id = decode['id']
-                    request.user = Vendor.objects.get(id=request.id)
+                    request.user = Doctor.objects.get(id=request.id)
                     return True
             raise UserAccountBlockedException
 
