@@ -15,6 +15,7 @@ class UserDataSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id",
+            "membership_id",
             "full_name",
             "age",
             "gender",

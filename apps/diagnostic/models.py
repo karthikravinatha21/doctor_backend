@@ -1,6 +1,7 @@
 from django.db import models
 from apps.hospital.models import Hospital, City
 from user_details.models import MyBaseModel
+from utils.custom_storages import MediaStorage
 
 
 # Create your models here.
@@ -21,9 +22,10 @@ class DiagnosticTest(MyBaseModel):
         return self.name
 
 class DiagnosticCenter(MyBaseModel):
-    name = models.CharField(max_length=255)
-    address = models.TextField()
-    pincode = models.CharField(max_length=8)
+    name = models.CharField(max_length=255, null=True, blank=True)
+    name = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    pincode = models.CharField(max_length=8, null=True, blank=True)
     city = models.ForeignKey(City, on_delete=models.CASCADE)
     category = models.ManyToManyField(DiagnosticTest, related_name='diagnostic_centers')
 

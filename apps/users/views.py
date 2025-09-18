@@ -661,7 +661,7 @@ class CreateDoctorPasswordAPIView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        doctor = Doctor.objects.filter(usernam=username).last()
+        doctor = Doctor.objects.filter(username=username).last()
         if doctor:
             doctor.password = make_password(password)
             doctor.save()
@@ -675,19 +675,19 @@ class DoctorLoginAPIView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        email = self.request.data.get("email")
+        # email = self.request.data.get("email")
 
         doctor = Doctor.objects.filter(username=username).last()
 
         if not doctor:
             return custom_json_response(message='Invalid username')
 
-        if check_password(doctor, password):
+        if check_password(password, doctor.password):
 
             jwt_payload = {
                 'id': doctor.id,
                 "email": doctor.email,
-                'first_name': doctor.first_name,
+                'first_name': doctor.full_name,
                 'user_role': 'doctor',
                 'access_type': 'crm',
                 'created_time': str(datetime.utcnow()),
@@ -706,5 +706,5 @@ class DoctorLoginAPIView(APIView):
                 "token": token,
                 "refresh_token": refresh_token
             }
-            return custom_json_response(data=data, status=status.HTTP_200_OK, success=True, message=message)
+            return custom_json_response(data=data, status=200, success=True, message='Login Successfully!')
         return custom_json_response(message='Invalid Credentials!')

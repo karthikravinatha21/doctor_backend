@@ -47,4 +47,5 @@ class DiagnosticCenterSerializer(serializers.ModelSerializer):
 
         # Add custom field
         representation['contact_number'] = settings.VB_SUPPORT_NUMBER
+        representation['city_name'] = instance.city.city_name if instance.city else None
         return representation

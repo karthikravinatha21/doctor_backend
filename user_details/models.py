@@ -170,6 +170,11 @@ class User(AbstractUser, PermissionsMixin):
         """Check if the given password matches the stored hashed password."""
         return check_password(raw_password, self.password)
 
+class Patient(User):
+    class Meta:
+        proxy = True
+        verbose_name = "Patient"
+        verbose_name_plural = "Patients"
 
 
 class MyBaseModel(models.Model):

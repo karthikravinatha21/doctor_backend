@@ -72,15 +72,6 @@ class RazorpayView(custom_viewsets.ModelViewSet):
             # Save transaction
             transaction = Transaction.objects.create(user=request.user, razorpay_order_id=order["id"], amount=amount,
                                        currency=currency, status="created", subscription=pricing)
-            if transaction.subscription.duration == 'Yearly':
-                days = 365
-            if transaction.subscription.duration == 'Monthly':
-                days = 30
-            start_date = datetime.datetime.now()
-            end_date = start_date + relativedelta(years=1)
-            UserSubscription.objects.create(user=transaction.user, start_date=start_date,
-                                            end_date=end_date, subscription=transaction.subscription)
-
             return Response({"order_id": order["id"], "razorpay_key": settings.RAZORPAY_KEY_ID, "amount": amount,
                              "currency": currency}, status=200)
 
@@ -90,69 +81,91 @@ class RazorpayView(custom_viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def callback(self, request):
         data = request.GET
-        order_id = data.get('razorpay_order_id')
-        payment_id = data.get('razorpay_payment_id')
-        signature = data.get('razorpay_signature')
+        order_id = data.get("razorpay_order_id")
+        payment_id = data.get("razorpay_payment_id")
+        signature = data.get("razorpay_signature")
 
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-        if not order_id:
-            return Response({"error": 'failed'}, status=400)
-        generated_signature = hmac.new(
-            settings.RAZORPAY_KEY_SECRET.encode(),
-            f"{order_id}|{payment_id}".encode(),
-            hashlib.sha256
-        ).hexdigest()
 
+        if not order_id or not payment_id or not signature:
+            return Response({"error": "Missing parameters"}, status=400)
+
+        # Get the transaction
         try:
             transaction = Transaction.objects.get(razorpay_order_id=order_id)
         except Transaction.DoesNotExist:
             return Response({"error": "Transaction not found."}, status=404)
 
-        if generated_signature != signature:
+        # Verify signature
+        try:
+            client.utility.verify_payment_signature({
+                "razorpay_order_id": order_id,
+                "razorpay_payment_id": payment_id,
+                "razorpay_signature": signature,
+            })
+        except razorpay.errors.SignatureVerificationError:
             transaction.status = "failed"
             transaction.save()
             return Response({"error": "Invalid signature"}, status=400)
 
-        # Signature valid - fetch payment details
-        payment = client.payment.fetch(payment_id)
+        # Fetch payment details from Razorpay
+        try:
+            payment = client.payment.fetch(payment_id)
+        except razorpay.errors.RazorpayError as e:
+            transaction.status = "failed"
+            transaction.save()
+            return Response({"error": f"Payment fetch failed: {str(e)}"}, status=400)
+
         actual_status = payment.get("status")
 
+        # Capture if authorized
         if actual_status == "authorized":
-            # Capture the payment
-            days = 0
             try:
-                capture_response = client.payment.capture(payment_id, int(transaction.amount * 100))
+                capture_response = client.payment.capture(
+                    payment_id, int(transaction.amount * 100)
+                )
                 actual_status = capture_response.get("status", actual_status)
-                if actual_status == 'captured':
-                    actual_status = 'success'
-                    if transaction.subscription.duration == 'Yearly':
-                        days = 365
-                    if transaction.subscription.duration == 'Monthly':
-                        days = 30
-                    start_date = datetime.datetime.now()
-                    end_date = start_date + datetime.timedelta(days=days)
-                    user_subscription, _ = UserSubscription.objects.get_or_create(
-                        user=transaction.user, subscription=transaction.subscription)
-                    user_subscription.start_date = start_date
-                    user_subscription.end_date = end_date
-                    user_subscription.save()
-            except razorpay.errors.BadRequestError as e:
+            except razorpay.errors.RazorpayError as e:
                 transaction.status = "failed"
                 transaction.save()
                 return Response({"error": f"Payment capture failed: {str(e)}"}, status=400)
 
-        # Update transaction status
-        if actual_status == 'captured':
-            actual_status = 'success'
+        # If captured, create subscription
+        if actual_status == "captured":
+            actual_status = "success"
+            start_date = datetime.datetime.now()
+
+            if transaction.subscription.duration == "Yearly":
+                end_date = start_date + relativedelta(years=1)
+            elif transaction.subscription.duration == "Monthly":
+                end_date = start_date + relativedelta(months=1)
+            else:
+                end_date = start_date
+
+            # Avoid duplicate subscription creation
+            if not UserSubscription.objects.filter(
+                user=transaction.user, subscription=transaction.subscription
+            ).exists():
+                UserSubscription.objects.create(
+                    user=transaction.user,
+                    start_date=start_date,
+                    end_date=end_date,
+                    subscription=transaction.subscription,
+                )
+
+        # Update transaction record
         transaction.razorpay_payment_id = payment_id
         transaction.razorpay_signature = signature
-        transaction.status = actual_status
+        transaction.status = "success" if actual_status == "captured" else actual_status
         transaction.save()
 
-        return Response({
-            "status": f"Payment {actual_status}",
-            "payment_id": payment_id
-        })
+        return Response(
+            {
+                "status": f"Payment {transaction.status}",
+                "payment_id": payment_id,
+                "order_id": order_id,
+            }
+        )
 
     @action(detail=False, methods=['GET'])
     def status(self, request):

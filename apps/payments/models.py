@@ -29,10 +29,11 @@ class Transaction(MyBaseModel):
         ('created', 'Created'),
         ('authorized', 'Authorized'),
         ('captured', 'Captured'),
+        ('success', 'Success'),
         ('failed', 'Failed'),
+        ('pending', 'Pending'),
         ('refunded', 'Refunded'),
         ('partial_refunded', 'Partially Refunded'),
-        ('success', 'Success'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
