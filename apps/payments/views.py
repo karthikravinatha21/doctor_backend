@@ -16,7 +16,7 @@ from .serializers import TransactionSerializer, SubscriptionSerializer
 
 
 class RazorpayView(custom_viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUserBlockedPermission]
     model = Transaction
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
@@ -78,9 +78,9 @@ class RazorpayView(custom_viewsets.ModelViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=['POST'])
     def callback(self, request):
-        data = request.GET
+        data = request.data
         order_id = data.get("razorpay_order_id")
         payment_id = data.get("razorpay_payment_id")
         signature = data.get("razorpay_signature")
