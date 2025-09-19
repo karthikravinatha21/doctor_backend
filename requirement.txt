@@ -5,6 +5,7 @@ Django==5.2
 django-axes==7.0.2
 django-environ==0.12.0
 django-phonenumber-field==8.1.0
+django_unfold-0.65.0
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0
 idna==3.10
