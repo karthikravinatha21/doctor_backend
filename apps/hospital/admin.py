@@ -1,6 +1,6 @@
 from django.contrib import admin
 from rest_framework.exceptions import ValidationError
-
+from django.utils.html import format_html
 from .models import Department, Specialisation
 
 

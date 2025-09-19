@@ -267,7 +267,6 @@ if not DEBUG:
         CSRF_COOKIE_DOMAIN = DOMAIN_NAME
         # CSRF_TRUSTED_ORIGINS = [f"https://{DOMAIN_NAME}", f"https://www.{DOMAIN_NAME}"]
 
-RUN_SERVER_PORT = 8080
 AUTH_USER_MODEL = 'user_details.User'
 
 exceptions_mapping_file = open(os.path.join(BASE_DIR, 'utils/exceptions_mapping.json'), "r")
