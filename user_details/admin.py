@@ -13,10 +13,13 @@ class UserAdmin(admin.ModelAdmin):
         'last_login', 'is_active', 'profile_image_tag'
     )
     fields = (
-        'full_name', 'age', 'email', 'mobile', 'alternate_number', 'dob',
+        'full_name', 'membership_id', 'age', 'email', 'mobile', 'alternate_number', 'dob',
         'gender', 'aadhaar_number', 'pan_number', 'blood_group', 'address',
         'pin_code', 'profile_image_preview', 'profile_image', 'is_active'
     )
+
+    search_fields = ('full_name', 'email', 'mobile')
+
     readonly_fields = ('profile_image_preview',)
 
     def get_queryset(self, request):
@@ -49,15 +52,18 @@ class UserAdmin(admin.ModelAdmin):
 
 class PatientAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'mobile', 'full_name', 'age', 'gender',
+        'id', 'membership_id', 'mobile', 'full_name', 'age', 'gender',
         'last_login', 'is_active', 'profile_image_tag'
     )
     fields = (
-        'full_name', 'age', 'email', 'mobile', 'alternate_number', 'dob',
+        'membership_id', 'full_name', 'age', 'email', 'mobile', 'alternate_number', 'dob',
         'gender', 'aadhaar_number', 'pan_number', 'blood_group', 'address',
         'pin_code', 'profile_image_preview', 'profile_image', 'is_active'
     )
-    readonly_fields = ('profile_image_preview',)
+
+    search_fields = ('membership_id', 'full_name', 'email', 'mobile')
+
+    readonly_fields = ('membership_id', 'profile_image_preview',)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

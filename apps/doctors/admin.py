@@ -22,25 +22,25 @@ class DoctorUploadForm(forms.Form):
 class DoctorAdmin(admin.ModelAdmin):
     # Fields to display in the list view
     list_display = (
-        'id', 'code', 'full_name', 'profile_image_tag', 'is_online_appointment_enable', 'is_logged_in', 'start_date', 'end_date'
+        'id', 'username', 'code', 'full_name', 'profile_image_tag', 'is_online_appointment_enable', 'is_logged_in', 'start_date', 'end_date'
     )
 
     # Search fields to make it searchable in the admin panel
-    search_fields = ('code', 'full_name', 'speciality__code',)
+    search_fields = ('username', 'code', 'full_name', 'speciality__code',)
 
     # Add filters for some fields like hospital, is_logged_in
     list_filter = ('is_logged_in', 'hospital', 'is_online_appointment_enable', 'speciality')
 
     # Fields to display in the form view when adding/editing a doctor
     fields = (
-        'code', 'full_name', 'email', 'password', 'speciality', 'hospital', 'designation', 'title_text', 'qualification',
+        'username', 'code', 'full_name', 'email', 'password', 'speciality', 'hospital', 'designation', 'title_text', 'qualification',
         'educational_degrees', 'profile_image_preview', 'photo', 'content', 'notes', 'fellowship_membership', 'field_expertise',
         'languages_spoken', 'awards_achievements', 'talks_publications', 'experience', 'meta_title',
         'meta_description', 'meta_keywords', 'other_meta_tags', 'display_order', 'allow_website',
         'is_online_appointment_enable', 'slug', 'hv_consultation_charges', 'vc_consultation_charges',
         'pr_consultation_charges', 'start_date', 'end_date', 'is_primary_consultation_doctor',
     )
-    readonly_fields = ('profile_image_preview',)
+    readonly_fields = ('username', 'profile_image_preview',)
 
     def profile_image_tag(self, obj):
         if obj.photo and hasattr(obj.photo, 'url'):
