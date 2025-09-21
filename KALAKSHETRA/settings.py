@@ -231,6 +231,7 @@ TIME_FORMAT = 'H:i:s'  # e.g., "14:30:00"
 # -----------------------------
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 VALID_IMAGE_FILE_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp"]
