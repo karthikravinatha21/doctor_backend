@@ -116,9 +116,9 @@ CORE_APPS = [
 INSTALLED_APPS = PREDEFINED_APPS + CORE_APPS
 
 JAZZMIN_SETTINGS = {
-    "site_title": "Health Admin",
-    "site_header": "Health Management System",
-    "welcome_sign": "Welcome to the Health Portal",
+    "site_title": "Vaidya Bandhu",
+    "site_header": "vaidya Bandhu",
+    "welcome_sign": "Welcome to the Vaidya Bandhu",
     "show_ui_builder": True,
 }
 
