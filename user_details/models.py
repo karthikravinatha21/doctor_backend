@@ -299,10 +299,13 @@ class FirebaseDevices(MyBaseModel):
 
 
 class Enquiry(MyBaseModel):
-    full_name = models.CharField(max_length=256)
-    phone = models.CharField(max_length=13)
-    email = models.CharField(max_length=256)
-    address = models.CharField(max_length=512)
+    full_name = models.CharField(max_length=256, null=True, blank=True)
+    phone = models.CharField(max_length=13, null=True, blank=True)
+    email = models.CharField(max_length=256, null=True, blank=True)
+    address = models.CharField(max_length=512, null=True, blank=True)
+    subject = models.CharField(max_length=256, null=True, blank=True)
+    message = models.TextField(null=True, blank=True)
+
 
     class Meta:
         verbose_name = "Enquiry"
@@ -312,3 +315,8 @@ class Enquiry(MyBaseModel):
             models.Index(fields=["email"]),
         ]
 
+class ContactUs(Enquiry):
+    class Meta:
+        proxy = True
+        verbose_name = "Contact Us"
+        verbose_name_plural = "Contact Us"

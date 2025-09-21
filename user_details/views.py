@@ -13,7 +13,7 @@ from user_details.utils import api_requestget
 from user_details.utils import custom_json_response
 from .permission import IsCandidateblockedPermission, IsAdminUserblockedPermission
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from rest_framework.permissions import AllowAny
 from user_details.adminpermission import IsUserblockedPermission
 from .models import *
 from .serializers import *
@@ -994,13 +994,27 @@ class RecruitCRMWrapperViewSet(viewsets.ViewSet):
             return requests.get(url, headers=headers)
 
 
-class NotificationHistoryViewset(APIView):
-    permission_classes = [IsUserblockedPermission, ]
+# class NotificationHistoryViewset(APIView):
+#     permission_classes = [IsUserblockedPermission, ]
 
-    def get(self, request):
-        try:
-            response_object = NotificationHistory.objects.filter(user=request.user).order_by('-created_at')[:10]
-            response_object = NotificationHistorySerializer(response_object, many=True).data
-            return custom_json_response(data=response_object, message='Fetch Success')
-        except Exception as ex:
-            raise ex
+#     def get(self, request):
+#         try:
+#             response_object = NotificationHistory.objects.filter(user=request.user).order_by('-created_at')[:10]
+#             response_object = NotificationHistorySerializer(response_object, many=True).data
+#             return custom_json_response(data=response_object, message='Fetch Success')
+#         except Exception as ex:
+#             raise ex
+
+
+class EnquiryAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = EnquirySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Enquiry submitted successfully", "data": serializer.data},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,6 +1,5 @@
 from django.contrib.auth.models import Group
 from rest_framework import serializers
-
 from apps.approles.models import AppGroup, UserGroup
 from apps.master_data.models import Department, Languages
 from apps.master_data.serializers import SkillsSerializer, AgeGroupSerializer, SpecificDepartmentSerializer
@@ -10,7 +9,7 @@ from apps.payments.models import Transaction
 from apps.payments.serializers import TransactionSerializer
 from apps.production_house.models import ProductionHouse
 from apps.production_house.serializers import ProductionHouseSerializer
-from .models import Banner, User, OTPStorage
+from .models import Banner, User, OTPStorage, Enquiry
 
 
 # from apps.projects.models import Projects
@@ -152,3 +151,19 @@ class UserAdminSerializer(serializers.ModelSerializer):
             instance.production_house = obj
             instance.save()
         return instance
+
+
+class EnquirySerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = Enquiry
+        fields = '__all__'
+
+    def validate_email(self, value):
+        if value and "@" not in value:
+            raise serializers.ValidationError("Enter a valid email address.")
+        return value
+
+    def validate_phone(self, value):
+        if value and not value.isdigit():
+            raise serializers.ValidationError("Phone number must be numeric.")
+        return value

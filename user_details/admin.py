@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as useradmin
 from django.utils.html import format_html
 from apps.payments.models import UserSubscription
-from .models import Banner, User, Enquiry, Patient
+from .models import Banner, User, Enquiry, Patient, ContactUs
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -114,5 +114,17 @@ class BannerAdmin(admin.ModelAdmin):
 @admin.register(Enquiry)
 class EnquiryAdmin(admin.ModelAdmin):
     list_display = ('id', 'full_name', 'email', 'phone')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(subject__isnull=True, message__isnull=True)
+
+@admin.register(ContactUs)
+class ContactUsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'full_name', 'email', 'phone')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(subject__isnull=False)
 
 admin.site.site_header = 'Vaidya Bandhu'
