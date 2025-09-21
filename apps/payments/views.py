@@ -140,7 +140,7 @@ class RazorpayView(custom_viewsets.ModelViewSet):
             elif transaction.subscription.duration == "Monthly":
                 end_date = start_date + relativedelta(months=1)
             else:
-                end_date = start_date
+                end_date = start_date + relativedelta(years=1)
 
             # Avoid duplicate subscription creation
             if not UserSubscription.objects.filter(

@@ -21,78 +21,86 @@ from user_details.permission import IsUserBlockedPermission
 from utils import custom_viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status
+from rest_framework.generics import GenericAPIView
 from django.contrib.auth.models import Group
 
 from utils.constants import custom_json_response
 
 
-class DoctorViewSet(custom_viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    model = Doctor
-    queryset = Doctor.objects.all()
+class DoctorAPIView(GenericAPIView):
+    permission_classes = [AllowAny]
     serializer_class = DoctorSerializer
 
-    create_success_message = 'Your registration completed successfully!'
-    list_success_message = 'List returned successfully!'
-    retrieve_success_message = 'Information returned successfully!'
-    update_success_message = 'Information updated successfully!'
-    status_code = 200
-
-    def get_permissions(self):
-
-        if self.action == 'list':
-            permission_classes = [AllowAny]
-            return [permission() for permission in permission_classes]
-
-        if self.action == 'retrieve':
-            permission_classes = [AllowAny]
-            return [permission() for permission in permission_classes]
-
-        return super().get_permissions()
-
-    def get_queryset(self):
+    def get(self, request):
         queryset = Doctor.objects.all()
 
-        # Get the search query
-        search_query = self.request.query_params.get('search', None)
+        # Search query
+        search_query = request.query_params.get('search')
         if search_query:
-            # Searching across multiple fields with OR conditions using Q objects
             queryset = queryset.filter(
                 Q(full_name__icontains=search_query) |
-                # Q(ratings__icontains=search_query) |
                 Q(gender__icontains=search_query) |
-                Q(speciality__title__icontains=search_query)  # Assuming specialisation model has 'name' field
+                Q(speciality__title__icontains=search_query)
             )
 
         # Specialisation filter
-        specialisation_ids = self.request.query_params.get('specialties', None)
+        specialisation_ids = request.query_params.get('specialties')
         if specialisation_ids:
-            specialisation_ids = list(str(specialisation_ids).split(","))
+            specialisation_ids = specialisation_ids.split(',')
             queryset = queryset.filter(speciality__id__in=specialisation_ids)
 
         # Hospital location filter
-        hospital_location = self.request.query_params.get('locations', None)
+        hospital_location = request.query_params.get('locations')
         if hospital_location:
             queryset = queryset.filter(hospital__location_name__icontains=hospital_location)
 
-        hospital_ids = self.request.query_params.get('hospital_ids', None)
+        # Hospital IDs filter
+        hospital_ids = request.query_params.get('hospital_ids')
+        hospital_id_for_context = None
         if hospital_ids:
-            hospital_ids = hospital_ids.split(',')
-            queryset = queryset.filter(hospital__id__in=hospital_ids)
+            hospital_ids_list = hospital_ids.split(',')
+            queryset = queryset.filter(hospital__id__in=hospital_ids_list)
+            # Take the first hospital ID for context
+            try:
+                hospital_id_for_context = int(hospital_ids_list[0])
+            except ValueError:
+                hospital_id_for_context = None
 
-        rating = self.request.query_params.get('rating', None)
+        # Rating filter
+        rating = request.query_params.get('rating')
         if rating:
             queryset = queryset.filter(ratings__icontains=rating)
 
-        gender = self.request.query_params.get('gender', None)
+        # Gender filter
+        gender = request.query_params.get('gender')
         if gender:
             queryset = queryset.filter(gender__icontains=gender)
 
-        return queryset
+        # Pagination (if needed)
+        page = self.paginate_queryset(queryset.order_by('display_order'))
+        serializer_context = {
+            'request': request,
+            'hospital_id': hospital_id_for_context
+        }
 
-    # Enable search and ordering functionality
-    # filter_backends = (filters.OrderingFilter, filters.SearchFilter)
-    # search_fields = ['name', 'ratings', 'gender', 'speciality__name']
+        if page is not None:
+            serializer = self.get_serializer(page, many=True, context=serializer_context)
+            paginated_data = self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(queryset, many=True, context=serializer_context)
+            paginated_data = None
+
+        data = {
+            "status_code": 200,
+            "data": serializer.data,
+            "message": "List returned successfully!"
+        }
+
+        if paginated_data:
+            data["pagination_data"] = paginated_data
+
+        return Response(data, status=status.HTTP_200_OK)
+    
 
 
 class DepartmentViewSet(custom_viewsets.ModelViewSet):

@@ -92,9 +92,12 @@ class HospitalAdmin(admin.ModelAdmin):
     def __str__(self):
         return self.code
 
+class CityAdmin(admin.ModelAdmin):
+    list_display = ('id', 'city_name')
+    search_fields = ('city_name',)
 
 # Register the admin class with the Hospital model
 admin.site.register(Hospital, HospitalAdmin)
-
+admin.site.register(City, CityAdmin)
 admin.site.register(Specialisation, SpecialisationAdmin)
 admin.site.register(Department, DepartmentAdmin)

@@ -1,8 +1,9 @@
 from apps.doctors.models import Doctor, Appointment
-from apps.hospital.models import Specialisation
+from apps.hospital.models import Specialisation, Hospital
 from apps.hospital.serializers import HospitalSerializer
 from apps.master_data.serializers import SpecialisationSpecificSerializer
 from apps.meta_app.serializers import DynamicFieldsModelSerializer
+from rest_framework import serializers
 
 
 class DoctorSpecificSerializer(DynamicFieldsModelSerializer):
@@ -20,11 +21,22 @@ class DoctorSpecificSerializer(DynamicFieldsModelSerializer):
         return response_object
 
 
-class DoctorSerializer(DynamicFieldsModelSerializer):
+class DoctorSerializer(serializers.ModelSerializer):
+    hospital_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Doctor
         exclude = ('updated_at','created_at', 'password')
+
+    def get_hospital_name(self, obj):
+        hospital_id = self.context.get('hospital_id')
+        if hospital_id:
+            try:
+                hospital = Hospital.objects.get(id=hospital_id)
+                return hospital.name
+            except Hospital.DoesNotExist:
+                return None
+        return None
 
     def to_representation(self, instance):
         response_object = super().to_representation(instance)

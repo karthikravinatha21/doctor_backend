@@ -15,6 +15,7 @@ urlpatterns = [
     path('destroy_db/', DestroyDatabaseAPIView.as_view(), name='destroy-db'),
     path('user/profile/', UserAPIView.as_view(), name='destroy-db'),
     path('doctor/create_password/', CreateDoctorPasswordAPIView.as_view(), name='create-password'),
+    path('doctor/reset_password/', ResetDoctorPasswordAPIView.as_view(), name='reset-password'),
     path('doctor/login/', DoctorLoginAPIView.as_view(), name='doctor-login'),
     path('user/subscribe/', SubscribeAPIView.as_view(), name='subscribe'),
     *router.urls

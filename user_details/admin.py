@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as useradmin
 from django.utils.html import format_html
-
+from apps.payments.models import UserSubscription
 from .models import Banner, User, Enquiry, Patient
 
 
@@ -53,21 +53,29 @@ class UserAdmin(admin.ModelAdmin):
 class PatientAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'membership_id', 'mobile', 'full_name', 'age', 'gender',
-        'last_login', 'is_active', 'profile_image_tag'
+        'last_login', 'subscription_status', 'profile_image_tag'
     )
     fields = (
         'membership_id', 'full_name', 'age', 'email', 'mobile', 'alternate_number', 'dob',
         'gender', 'aadhaar_number', 'pan_number', 'blood_group', 'address',
-        'pin_code', 'profile_image_preview', 'profile_image', 'is_active'
+        'pin_code', 'profile_image_preview', 'profile_image', 'subscription_status'
     )
 
     search_fields = ('membership_id', 'full_name', 'email', 'mobile')
 
-    readonly_fields = ('membership_id', 'profile_image_preview',)
+    readonly_fields = ('membership_id', 'profile_image_preview', 'subscription_status')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.filter(is_staff=False)  # Only non-staff users
+        # Prefetch subscriptions to avoid N+1 queries
+        return qs.filter(is_staff=False).prefetch_related("subscriptions")
+
+    def subscription_status(self, obj):
+        latest_sub = UserSubscription.objects.filter(user=obj).order_by('-start_date').first()
+        if latest_sub:
+            return "Active" if latest_sub.is_active else "Inactive"
+        return "Inactive"
+    subscription_status.short_description = "Subscription Status"
 
     def profile_image_tag(self, obj):
         if obj.profile_image and hasattr(obj.profile_image, 'url'):
@@ -105,6 +113,6 @@ class BannerAdmin(admin.ModelAdmin):
 
 @admin.register(Enquiry)
 class EnquiryAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'email', 'phone')
+    list_display = ('id', 'full_name', 'email', 'phone')
 
 admin.site.site_header = 'Vaidya Bandhu'

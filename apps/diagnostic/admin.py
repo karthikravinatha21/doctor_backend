@@ -1,24 +1,45 @@
 from django.contrib import admin
-from .models import *
+from django.utils.html import format_html
+from .models import DiagnosticCategory, DiagnosticTest, DiagnosticCenter
+
+class DiagnosticCategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'code')
+    search_fields = ('name', 'code')
 
 
-# Customizing the admin interface for the DiagnosticCenter model
+class DiagnosticTestAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'code', 'main_diagnostic')
+    search_fields = ('name', 'code', 'main_diagnostic__name')
+    list_filter = ('main_diagnostic',)
+
+
 class DiagnosticCenterAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address', 'pincode', 'city')  # Display relevant fields in the list view
-    search_fields = ('name', 'address')  # Allow searching by name, address, and city
-    list_filter = ('city', 'category')  # Filter by city and category
+    list_display = ('id', 'name', 'address', 'pincode', 'city', 'image_tag')
+    search_fields = ('name', 'address', 'pincode', 'city__name')
+    list_filter = ('city', 'category')
+    filter_horizontal = ('category',)
 
-    # This will show a dropdown of all categories and cities in the form
-    filter_horizontal = ('category',)  # This adds a filter that makes it easier to select multiple categories
+    def image_tag(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;" />',
+                obj.image.url
+            )
+        return "No Image"
+    image_tag.short_description = 'Image'
 
-    # Optional: Add custom fields and behavior for inlines if you want more complex admin forms
-    # inlines = [DiagnosticCategoryInline]  # Example if you have a related inline
+    readonly_fields = ('image_preview',)
 
-    # Optional: Custom form to handle the dropdown and categories mapping
-    # If you want to use form widgets for better UI customization, you can add a custom form here
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" width="200" height="200" style="object-fit: cover; border-radius: 10px;" />',
+                obj.image.url
+            )
+        return "No Image"
+    image_preview.short_description = 'Current Image'
 
 
+admin.site.register(DiagnosticCategory, DiagnosticCategoryAdmin)
+admin.site.register(DiagnosticTest, DiagnosticTestAdmin)
 admin.site.register(DiagnosticCenter, DiagnosticCenterAdmin)
-admin.site.register(DiagnosticCategory)  # This registers the DiagnosticCategory model as well
-admin.site.register(DiagnosticTest)  # This registers the DiagnosticSubcategory model as well
-admin.site.register(City)  # This registers the City model for the dropdown in DiagnosticCenter

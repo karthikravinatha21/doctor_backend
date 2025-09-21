@@ -24,6 +24,7 @@ from apps.production_house.models import ProductionHouse
 from apps.schedule.models import Schedule
 from user_details.models import User, UserTokens, Banner, OTPStorage, Enquiry
 from user_details.permission import IsUserBlockedPermission
+from user_details.adminpermission import IsDoctorblockedPermission
 from user_details.serializers import BannerSerializer, UserSerializer, UserAdminSerializer
 from utils import custom_viewsets
 from utils.constants import custom_json_response, validate_non_empty_fields, USER_TYPE_ADMIN
@@ -660,6 +661,20 @@ class CreateDoctorPasswordAPIView(APIView):
 
     def post(self, request):
         username = request.data.get('username')
+        password = request.data.get('password')
+        doctor = Doctor.objects.filter(username=username).last()
+        if doctor:
+            doctor.password = make_password(password)
+            doctor.save()
+            return Response({"message": "Password Saved Successfully"}, status=status.HTTP_200_OK)
+        else:
+            return custom_json_response(message='Invalid username')
+
+class ResetDoctorPasswordAPIView(APIView):
+    permission_classes = [IsDoctorblockedPermission]
+
+    def post(self, request):
+        username = request.user.username
         password = request.data.get('password')
         doctor = Doctor.objects.filter(username=username).last()
         if doctor:
