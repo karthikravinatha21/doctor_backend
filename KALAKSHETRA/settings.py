@@ -77,6 +77,7 @@ DEBUG = True
 
 # Application definition
 PREDEFINED_APPS = [
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -113,6 +114,14 @@ CORE_APPS = [
 ]
 
 INSTALLED_APPS = PREDEFINED_APPS + CORE_APPS
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Health Admin",
+    "site_header": "Health Management System",
+    "welcome_sign": "Welcome to the Health Portal",
+    "show_ui_builder": True,
+}
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
