@@ -41,6 +41,12 @@ class DiagnosticCategoryViewSet(custom_viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) |
+                Q(code__icontains=search_query)
+            )
         return queryset.order_by('-id')
 
 
@@ -76,6 +82,14 @@ class DiagnosticTestsViewSet(custom_viewsets.ModelViewSet):
         category = self.request.query_params.get('category', None)
         if category:
             queryset = queryset.filter(main_diagnostic__id=category)
+            
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) |
+                Q(code__icontains=search_query) |
+                Q(main_diagnostic__name=search_query)
+            )
         return queryset.order_by('-id')
 
 
