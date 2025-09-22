@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from .models import City
 from apps.hospital.models import Hospital
 from apps.doctors.models import Doctor
 from apps.master_data.serializers import SpecialisationSpecificSerializer
@@ -28,3 +28,9 @@ class HospitalSerializer(serializers.ModelSerializer):
         if instance.city:
             response_object['city'] = instance.city.city_name
         return response_object
+
+class CitySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = City
+        exclude = ('updated_at','created_at')
