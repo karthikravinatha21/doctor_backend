@@ -30,35 +30,52 @@ from utils.constants import custom_json_response
 class DoctorAPIView(GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = DoctorSerializer
+    queryset = Doctor.objects.all()
 
-    def get(self, request):
-        queryset = Doctor.objects.all()
+    def get(self, request, pk=None):
+        # If pk is passed → detail view
+        if pk is not None:
+            doctor = self.get_object()
+            serializer = self.get_serializer(doctor, context={"request": request})
+            return Response(
+                {
+                    "status_code": 200,
+                    "data": serializer.data,
+                    "message": "Doctor details returned successfully!",
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        # Otherwise → list view
+        queryset = self.get_queryset()
 
         # Search query
-        search_query = request.query_params.get('search')
+        search_query = request.query_params.get("search")
         if search_query:
             queryset = queryset.filter(
-                Q(full_name__icontains=search_query) |
-                Q(gender__icontains=search_query) |
-                Q(speciality__title__icontains=search_query)
+                Q(full_name__icontains=search_query)
+                | Q(gender__icontains=search_query)
+                | Q(speciality__title__icontains=search_query)
             )
 
         # Specialisation filter
-        specialisation_ids = request.query_params.get('specialties')
+        specialisation_ids = request.query_params.get("specialties")
         if specialisation_ids:
-            specialisation_ids = specialisation_ids.split(',')
+            specialisation_ids = specialisation_ids.split(",")
             queryset = queryset.filter(speciality__id__in=specialisation_ids)
 
         # Hospital location filter
-        hospital_location = request.query_params.get('locations')
+        hospital_location = request.query_params.get("locations")
         if hospital_location:
-            queryset = queryset.filter(hospital__location_name__icontains=hospital_location)
+            queryset = queryset.filter(
+                hospital__location_name__icontains=hospital_location
+            )
 
         # Hospital IDs filter
-        hospital_ids = request.query_params.get('hospital_ids')
+        hospital_ids = request.query_params.get("hospital_ids")
         hospital_id_for_context = None
         if hospital_ids:
-            hospital_ids_list = hospital_ids.split(',')
+            hospital_ids_list = hospital_ids.split(",")
             queryset = queryset.filter(hospital__id__in=hospital_ids_list)
             # Take the first hospital ID for context
             try:
@@ -67,33 +84,34 @@ class DoctorAPIView(GenericAPIView):
                 hospital_id_for_context = None
 
         # Rating filter
-        rating = request.query_params.get('rating')
+        rating = request.query_params.get("rating")
         if rating:
             queryset = queryset.filter(ratings__icontains=rating)
 
         # Gender filter
-        gender = request.query_params.get('gender')
+        gender = request.query_params.get("gender")
         if gender:
             queryset = queryset.filter(gender__icontains=gender)
 
         # Pagination (if needed)
-        page = self.paginate_queryset(queryset.order_by('display_order'))
-        serializer_context = {
-            'request': request,
-            'hospital_id': hospital_id_for_context
-        }
+        page = self.paginate_queryset(queryset.order_by("display_order"))
+        serializer_context = {"request": request, "hospital_id": hospital_id_for_context}
 
         if page is not None:
-            serializer = self.get_serializer(page, many=True, context=serializer_context)
+            serializer = self.get_serializer(
+                page, many=True, context=serializer_context
+            )
             paginated_data = self.get_paginated_response(serializer.data)
         else:
-            serializer = self.get_serializer(queryset, many=True, context=serializer_context)
+            serializer = self.get_serializer(
+                queryset, many=True, context=serializer_context
+            )
             paginated_data = None
 
         data = {
             "status_code": 200,
             "data": serializer.data,
-            "message": "List returned successfully!"
+            "message": "List returned successfully!",
         }
 
         if paginated_data:
@@ -117,7 +135,7 @@ class DepartmentViewSet(custom_viewsets.ModelViewSet):
     filterset_fields = ['name', 'id']
 
     # Fields available for search (partial match, case-insensitive)
-    search_fields = ['name', 'description']
+    search_fields = ['name']
 
     def get_permissions(self):
         if self.action in ['list', 'get_dept_specialty']:

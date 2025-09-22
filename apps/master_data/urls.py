@@ -10,5 +10,6 @@ router.register('department', DepartmentViewSet)
 router.register('specialty', SpecialtyViewSet)
 urlpatterns = [
     path("doctors/", DoctorAPIView.as_view(), name='doctor'),
+    path("doctors/<int:pk>/", DoctorAPIView.as_view(), name="doctor-detail"),
     *router.urls
 ]
