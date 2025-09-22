@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from user_details.adminpermission import IsUserblockedPermission
 from utils import custom_viewsets
 from utils.utils import validate_non_empty_values
 from .models import Slot
@@ -22,7 +22,7 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
     model = Slot
     queryset = Slot.objects.all()
     serializer_class = SlotSerializer
-    create_success_message = 'Your registration completed successfully!'
+    create_success_message = 'Your slots created successfully!'
     list_success_message = 'list returned successfully!'
     retrieve_success_message = 'Information returned successfully!'
     update_success_message = 'Information updated successfully!'
@@ -39,7 +39,7 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
             permission_classes = [AllowAny]
             return [permission() for permission in permission_classes]
 
-        if self.action in ['retrieve', 'create', 'block', 'next_available_slot']:
+        if self.action in ['retrieve', 'create', 'update_slots', 'block', 'next_available_slot']:
             permission_classes = [AllowAny]
             return [permission() for permission in permission_classes]
 
@@ -109,6 +109,30 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['PATCH'])
+    def update_slots(self, request, *args, **kwargs):
+        """
+        Update an existing slot using slot id.
+        """
+        try:
+            slot_id = request.data.get("id")
+            slot = Slot.objects.filter(pk=slot_id).first()
+            if not slot:
+                return Response({"detail": "Slot not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            serializer = self.get_serializer(slot, data=request.data, partial=True)  
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response({
+                "message": self.update_success_message,
+                "slot": serializer.data
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
     def list(self, request):
         doctor_id = request.GET.get("doctor_id")

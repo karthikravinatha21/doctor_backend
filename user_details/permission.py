@@ -2,7 +2,7 @@ import jwt
 from django.conf import settings
 from pip._internal.resolution.resolvelib.base import Candidate
 from rest_framework import permissions
-
+from apps.doctors.models import Doctor
 from user_details.exceptions import UserAccountBlockedException
 from utils.user_sesssion import get_custom_session, set_custom_session
 
@@ -85,6 +85,13 @@ class IsUserBlockedPermission(permissions.BasePermission):
                 
             decode = jwt.decode(
                 usertoken, settings.SECRET_KEY, algorithms='HS256')
+            
+            if UserTokens.objects.filter(token=usertoken, doctor_user__id=decode['id']).exists():
+                if 'id' in decode and decode['id']:
+                    request.META['id'] = decode['id']
+                    request.id = decode['id']
+                    request.user = Doctor.objects.get(id=request.id)
+                    return True
 
             if UserTokens.objects.filter(token=usertoken, user__id=decode['id']).exists():
                 if 'id' in decode and decode['id']:

@@ -57,12 +57,11 @@ class IsUserblockedPermission(permissions.BasePermission):
             decode = jwt.decode(
                 usertoken, settings.SECRET_KEY, algorithms='HS256')
            
-            if 'access_type' in decode and decode['access_type'] == 'vendor' and UserTokens.objects.filter(token=usertoken, vendor_user__id=decode['id']).exists():
+            if UserTokens.objects.filter(token=usertoken, doctor_user__id=decode['id']).exists():
                 if 'id' in decode and decode['id']:
                     request.META['id'] = decode['id']
                     request.id = decode['id']
-                    request.access_type = decode['access_type']
-                    request.user = Vendor.objects.get(id=request.id)
+                    request.user = Doctor.objects.get(id=request.id)
                     return True
                 
             elif UserTokens.objects.filter(token=usertoken, user__id=decode['id']).exists():
