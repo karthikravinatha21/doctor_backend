@@ -9,10 +9,18 @@ from apps.payments.models import Transaction, Subscription
 
 @admin.register(Transaction)
 class AdminPaymentTransactions(admin.ModelAdmin):
-    list_display = ('id', 'razorpay_order_id', 'amount', 'currency', 'subscription')
+    list_display = ('id', 'name', 'mobile', 'razorpay_order_id', 'amount', 'currency', 'subscription')
     list_filter = ('id', 'razorpay_order_id', 'status')
     # search_fields = ('actor__first_name', 'movie__title', 'role')
     # autocomplete_fields = ('actor', 'movie')
+
+    def name(self, obj):
+        return obj.user.full_name
+    name.short_description = "Patient Name"
+
+    def mobile(self, obj):
+        return obj.user.mobile
+    mobile.short_description = "Patient Mobile"
 
 @admin.register(Subscription)
 class AdminSubscription(admin.ModelAdmin):

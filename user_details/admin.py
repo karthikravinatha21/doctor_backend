@@ -52,18 +52,21 @@ class UserAdmin(admin.ModelAdmin):
 
 class PatientAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'membership_id', 'mobile', 'full_name', 'age', 'gender',
-        'last_login', 'subscription_status', 'profile_image_tag'
+        'id', 'membership_id', 'mobile', 'full_name', 'gender',
+        'subscription_status','subscription_start_date', 'subscription_end_date', 
+        'profile_image_tag'
     )
     fields = (
         'membership_id', 'full_name', 'age', 'email', 'mobile', 'alternate_number', 'dob',
         'gender', 'aadhaar_number', 'pan_number', 'blood_group', 'address',
-        'pin_code', 'profile_image_preview', 'profile_image', 'subscription_status'
+        'pin_code', 'profile_image_preview', 'profile_image', 'subscription_status',
+        'subscription_start_date', 'subscription_end_date'
     )
 
     search_fields = ('membership_id', 'full_name', 'email', 'mobile')
 
-    readonly_fields = ('membership_id', 'profile_image_preview', 'subscription_status')
+    readonly_fields = ('membership_id', 'profile_image_preview', 'subscription_status',
+        'subscription_start_date', 'subscription_end_date')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -76,6 +79,20 @@ class PatientAdmin(admin.ModelAdmin):
             return "Active" if latest_sub.is_active else "Inactive"
         return "Inactive"
     subscription_status.short_description = "Subscription Status"
+
+    def subscription_start_date(self, obj):
+        latest_sub = UserSubscription.objects.filter(user=obj).order_by('-start_date').first()
+        if latest_sub:
+            return latest_sub.start_date
+        return "NA"
+    subscription_start_date.short_description = "Subscription Start Date"
+
+    def subscription_end_date(self, obj):
+        latest_sub = UserSubscription.objects.filter(user=obj).order_by('-start_date').first()
+        if latest_sub:
+            return latest_sub.end_date
+        return "NA"
+    subscription_end_date.short_description = "Subscription End Date"
 
     def profile_image_tag(self, obj):
         if obj.profile_image and hasattr(obj.profile_image, 'url'):
