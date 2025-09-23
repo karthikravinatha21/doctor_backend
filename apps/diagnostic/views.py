@@ -106,7 +106,7 @@ class DiagnosticCenterViewSet(custom_viewsets.ModelViewSet):
     # filterset_fields = ['name', 'id']
 
     # Fields available for search (partial match, case-insensitive)
-    search_fields = ['name', 'city__city_name']
+    # search_fields = ['name', 'city__city_name']
 
     def get_permissions(self):
         if self.action in ['list', 'get_dept_specialty']:
@@ -129,6 +129,7 @@ class DiagnosticCenterViewSet(custom_viewsets.ModelViewSet):
                 Q(name__icontains=search_query) |
                 Q(pincode__icontains=search_query) |
                 Q(city__city_name__icontains=search_query) |
-                Q(category__name__icontains=search_query)
+                Q(category__name__icontains=search_query) |
+                Q(category__main_diagnostic__name__icontains=search_query)
             )
         return queryset.order_by('-id')
