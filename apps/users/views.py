@@ -718,6 +718,8 @@ class DoctorLoginAPIView(APIView):
             UserTokens.objects.create(doctor_user=doctor, token=token)
 
             data = {
+                "doctor_id": doctor.id,
+                "hospital_id": doctor.hospital.first().id,
                 "token": token,
                 "refresh_token": refresh_token
             }
