@@ -33,10 +33,11 @@ class DoctorAdmin(admin.ModelAdmin):
 
     # Fields to display in the form view when adding/editing a doctor
     fields = (
-        'username', 'code', 'full_name', 'email', 'password', 'speciality', 'hospital', 'designation', 'title_text', 'qualification',
-        'educational_degrees', 'profile_image_preview', 'photo', 'content', 'notes', 'fellowship_membership', 'field_expertise',
-        'languages_spoken', 'awards_achievements', 'talks_publications', 'experience', 'meta_title',
-        'meta_description', 'meta_keywords', 'other_meta_tags', 'display_order', 'allow_website',
+        'username', 'code', 'full_name', 'email', 'password', 'speciality', 'department', 'hospital', 
+        'designation', 'title_text', 'qualification', 'educational_degrees', 'profile_image_preview', 
+        'photo', 'content', 'notes', 'fellowship_membership', 'field_expertise', 'languages_spoken', 
+        'awards_achievements', 'talks_publications', 'experience', 'meta_title', 'meta_description', 
+        'meta_keywords', 'other_meta_tags', 'display_order', 'allow_website', 
         'is_online_appointment_enable', 'slug', 'hv_consultation_charges', 'vc_consultation_charges',
         'pr_consultation_charges', 'start_date', 'end_date', 'is_primary_consultation_doctor',
     )
