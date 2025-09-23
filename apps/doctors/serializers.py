@@ -23,10 +23,17 @@ class DoctorSpecificSerializer(DynamicFieldsModelSerializer):
 
 class DoctorSerializer(serializers.ModelSerializer):
     hospital_name = serializers.SerializerMethodField()
+    department_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Doctor
         exclude = ('updated_at','created_at', 'password')
+    
+    def get_department_name(self, obj):
+        if obj.department:
+            return obj.department.name
+        else:
+            return None
 
     def get_hospital_name(self, obj):
         hospital_id = self.context.get('hospital_id')
