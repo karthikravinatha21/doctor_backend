@@ -20,7 +20,6 @@ urlpatterns = [
     path("admin/user/update/", AdminUserUpdateView.as_view(), name="update_admin_user"),
     path('admin/login/', LoginAPIView.as_view(), name='admin_login'),
     path('candidate/profile/', CandidateProfileView.as_view(), name='candidate-profile'),
-    path('enquiry/', EnquiryAPIView.as_view(), name='enquiry'),
     path('admin/notification-history/', NotificationHistoryViewset.as_view(), name='notification-history'),
     path('admin/profile/', AdminProfileView.as_view(), name='admin_profile'),
     path('auth/google_login/', ApplicationUserView.as_view(), name='auth_login'),

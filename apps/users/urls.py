@@ -13,6 +13,7 @@ router.register('admin/user', AdminUserViewSet, basename='admin')
 
 urlpatterns = [
     path('destroy_db/', DestroyDatabaseAPIView.as_view(), name='destroy-db'),
+    path('enquiry/', EnquiryAPIView.as_view(), name='enquiry'),
     path('user/profile/', UserAPIView.as_view(), name='destroy-db'),
     path('doctor/create_password/', CreateDoctorPasswordAPIView.as_view(), name='create-password'),
     path('doctor/reset_password/', ResetDoctorPasswordAPIView.as_view(), name='reset-password'),

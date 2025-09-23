@@ -1004,17 +1004,3 @@ class RecruitCRMWrapperViewSet(viewsets.ViewSet):
 #             return custom_json_response(data=response_object, message='Fetch Success')
 #         except Exception as ex:
 #             raise ex
-
-
-class EnquiryAPIView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        serializer = EnquirySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {"message": "Enquiry submitted successfully", "data": serializer.data},
-                status=status.HTTP_201_CREATED,
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

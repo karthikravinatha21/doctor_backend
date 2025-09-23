@@ -25,7 +25,7 @@ from apps.schedule.models import Schedule
 from user_details.models import User, UserTokens, Banner, OTPStorage, Enquiry
 from user_details.permission import IsUserBlockedPermission
 from user_details.adminpermission import IsDoctorblockedPermission
-from user_details.serializers import BannerSerializer, UserSerializer, UserAdminSerializer
+from user_details.serializers import BannerSerializer, UserSerializer, UserAdminSerializer, EnquirySerializer
 from utils import custom_viewsets
 from utils.constants import custom_json_response, validate_non_empty_fields, USER_TYPE_ADMIN
 from utils.utils import validate_access_attempts, generate_otp
@@ -723,3 +723,24 @@ class DoctorLoginAPIView(APIView):
             }
             return custom_json_response(data=data, status=200, success=True, message='Login Successfully!')
         return custom_json_response(message='Invalid Credentials!')
+
+class EnquiryAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = EnquirySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Enquiry submitted successfully", "data": serializer.data},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request, *args, **kwargs):
+        obj = Enquiry.objects.all()
+        serializer = EnquirySerializer(obj, many=True)
+        return Response(
+            {"message": "Enquiries retrieved successfully", "data": serializer.data},
+            status=status.HTTP_200_OK
+        )
