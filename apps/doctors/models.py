@@ -1,6 +1,6 @@
 from django.db import models
 from utils.custom_storages import MediaStorage
-from apps.hospital.models import Specialisation, Hospital
+from apps.hospital.models import Specialisation, Hospital, Department
 from apps.meta_app.models import MyBaseModel
 from django.contrib.auth.hashers import make_password
 
@@ -29,13 +29,11 @@ class Doctor(MyBaseModel):
 
     password = models.CharField(max_length=755, null=True, blank=True)
 
-    speciality = models.ManyToManyField(Specialisation,
-                                        blank=True,
-                                        related_name='doctor_specialisation')
+    speciality = models.ManyToManyField(Specialisation, blank=True, 
+                            related_name='doctor_specialisation')
 
-    # hospital_departments = models.ManyToManyField(HospitalDepartment,
-    #                                          blank=True,
-    #                                          related_name='doctor_hospital_department')
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, 
+                                null=True, blank=True, related_name='doctor_department')
 
     hospital = models.ManyToManyField(Hospital, blank=False)
 

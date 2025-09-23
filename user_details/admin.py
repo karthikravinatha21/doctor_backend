@@ -5,6 +5,7 @@ from django.contrib.auth.admin import UserAdmin as useradmin
 from django.utils.html import format_html
 from apps.payments.models import UserSubscription
 from .models import Banner, User, Enquiry, Patient, ContactUs
+from apps.users.models import Subscribe
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -122,6 +123,11 @@ class PatientAdmin(admin.ModelAdmin):
 # Register both in admin
 admin.site.register(User, UserAdmin)      # Shows only staff
 admin.site.register(Patient, PatientAdmin)  # Shows only non-staff
+
+
+@admin.register(Subscribe)  # Shows only non-staff
+class SubscribeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'email')
 
 @admin.register(Banner)
 class BannerAdmin(admin.ModelAdmin):
