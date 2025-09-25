@@ -15,7 +15,7 @@ class DiagnosticTestAdmin(admin.ModelAdmin):
 
 class DiagnosticCenterAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'address', 'pincode', 'city', 'image_tag')
-    search_fields = ('name', 'address', 'pincode', 'city__name')
+    search_fields = ('name', 'address', 'pincode', 'city__city_name')
     list_filter = ('city', 'category')
     filter_horizontal = ('category',)
 
