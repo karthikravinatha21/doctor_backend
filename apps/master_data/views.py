@@ -60,6 +60,19 @@ class DoctorAPIView(GenericAPIView):
                 | Q(hospital__name__icontains=search_query)
             )
 
+        # Specialisation filter
+        specialisation_ids = request.query_params.get("specialties")
+        if specialisation_ids:
+            specialisation_ids = specialisation_ids.split(",")
+            queryset = queryset.filter(speciality__id__in=specialisation_ids)
+
+        # Hospital location filter
+        hospital_location = request.query_params.get("locations")
+        if hospital_location:
+            queryset = queryset.filter(
+                hospital__location_name__icontains=hospital_location
+            )
+
         # Hospital IDs filter
         hospital_ids = request.query_params.get("hospital_ids")
         hospital_id_for_context = None
@@ -71,9 +84,11 @@ class DoctorAPIView(GenericAPIView):
                 hospital_id_for_context = int(hospital_ids_list[0])
             except ValueError:
                 hospital_id_for_context = None
-                
+
+        queryset = queryset.distinct().order_by("display_order")
+
         # Pagination (if needed)
-        page = self.paginate_queryset(queryset.order_by("display_order"))
+        page = self.paginate_queryset(queryset)
         serializer_context = {"request": request, "hospital_id": hospital_id_for_context}
 
         if page is not None:
