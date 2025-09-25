@@ -7,9 +7,9 @@ app_name = 'master_data'
 
 router = DefaultRouter()
 router.register('department', DepartmentViewSet)
-router.register('specialty', SpecialtyViewSet)
 urlpatterns = [
     path("doctors/", DoctorAPIView.as_view(), name='doctor'),
+    path("specialty/", SpecialtyViewSet.as_view(), name='speciality'),
     path("doctors/<int:pk>/", DoctorAPIView.as_view(), name="doctor-detail"),
     *router.urls
 ]
