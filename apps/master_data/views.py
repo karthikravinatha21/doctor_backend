@@ -154,40 +154,18 @@ class DepartmentViewSet(custom_viewsets.ModelViewSet):
         return custom_json_response(data=dept_object.data, status=200)
 
 
-class SpecialtyViewSet(custom_viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    model = Specialisation
+class SpecialtyViewSet(GenericAPIView):
+    permission_classes = [AllowAny]
     queryset = Specialisation.objects.all()
     serializer_class = SpecialisationSpecificSerializer
-    create_success_message = 'Your registration completed successfully!'
-    list_success_message = 'list returned successfully!'
-    retrieve_success_message = 'Information returned successfully!'
-    update_success_message = 'Information updated successfully!'
-    status_code = 200
-    # filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    # filterset_fields = ['name', 'id']
 
-    # Fields available for search (partial match, case-insensitive)
-    search_fields = ['code', 'title']
-
-    def get_permissions(self):
-
-        if self.action == 'list':
-            permission_classes = [AllowAny]
-            return [permission() for permission in permission_classes]
-
-        if self.action == 'retrieve':
-            permission_classes = [AllowAny]
-            return [permission() for permission in permission_classes]
-
-        return super().get_permissions()
-
-    def get_queryset(self):
-        queryset = self.queryset
-        department_id = self.request.query_params.get('department')
+    def get(self, request):
+        queryset = self.get_queryset()
+        department_id = request.query_params.get('department')
         if department_id:
             queryset = queryset.filter(department__id=department_id)
-        return queryset
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({"message": "Retrieved", "data": serializer.data}, status=status.HTTP_200_OK)
 
 
 class AppointmentViewSet(custom_viewsets.ModelViewSet):
