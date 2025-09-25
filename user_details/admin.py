@@ -140,7 +140,7 @@ class EnquiryAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.filter(subject__isnull=True, message__isnull=True)
+        return qs.filter(subject__isnull=True)
 
 @admin.register(ContactUs)
 class ContactUsAdmin(admin.ModelAdmin):
