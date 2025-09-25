@@ -71,7 +71,7 @@ class DoctorAPIView(GenericAPIView):
         if city:
             city_ids = city.split(",")
             queryset = queryset.filter(
-                city__city_name__icontains=city_ids
+                city__id__in=city_ids
             )
 
         # Hospital IDs filter
