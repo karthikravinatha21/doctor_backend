@@ -54,7 +54,7 @@ class DoctorAPIView(GenericAPIView):
         if search_query:
             queryset = queryset.filter(
                 Q(full_name__icontains=search_query)
-                | Q(city__city_name__icontains=search_query)
+                | Q(hospital__city__city_name__icontains=search_query)
                 | Q(gender__icontains=search_query)
                 | Q(speciality__title__icontains=search_query)
                 | Q(department__name__icontains=search_query)
@@ -72,7 +72,7 @@ class DoctorAPIView(GenericAPIView):
         if city:
             city_ids = city.split(",")
             queryset = queryset.filter(
-                city__id__in=city_ids
+                hospital__city__id__in=city_ids
             )
 
         # Hospital IDs filter
