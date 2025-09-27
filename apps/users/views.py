@@ -720,6 +720,7 @@ class DoctorLoginAPIView(APIView):
             data = {
                 "doctor_id": doctor.id,
                 "hospital_id": doctor.hospital.first().id,
+                "hospital_name": doctor.hospital.first().name,
                 "token": token,
                 "refresh_token": refresh_token
             }

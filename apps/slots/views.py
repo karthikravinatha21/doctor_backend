@@ -10,6 +10,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from user_details.adminpermission import IsUserblockedPermission
+from user_details.adminpermission import IsDoctorblockedPermission
 from utils import custom_viewsets
 from utils.utils import validate_non_empty_values
 from .models import Slot
@@ -36,11 +37,11 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['list', 'get_dept_specialty']:
-            permission_classes = [AllowAny]
+            permission_classes = [IsDoctorblockedPermission]
             return [permission() for permission in permission_classes]
 
         if self.action in ['retrieve', 'create', 'update_slots', 'block', 'next_available_slot']:
-            permission_classes = [AllowAny]
+            permission_classes = [IsDoctorblockedPermission]
             return [permission() for permission in permission_classes]
 
         return super().get_permissions()
@@ -55,8 +56,8 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
         Creates slots from start_time to end_time with a given slot_duration.
         """
         try:
-            doctor = request.data.get("doctor")
-            hospital = request.data.get("hospital")
+            doctor = request.user.id
+            hospital = request.user.hospital.first().id
             start_time = parse_time(request.data.get("start_time"))
             end_time = parse_time(request.data.get("end_time"))
             start_date = parse_date(request.data.get("start_date"))
@@ -91,6 +92,7 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
                         "end_date": current_date,
                         "slot_duration": slot_duration,
                     }
+                    print(slot_data)
 
                     serializer = self.get_serializer(data=slot_data)
                     serializer.is_valid(raise_exception=True)
@@ -116,6 +118,8 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
         """
         Update an existing slot using slot id.
         """
+        request.data['doctor'] = request.user.id
+        request.data['hospital'] = request.user.hospital.first().id
         try:
             slot_id = request.data.get("id")
             slot = Slot.objects.filter(pk=slot_id).first()
@@ -136,8 +140,8 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
 
 
     def list(self, request):
-        doctor_id = request.GET.get("doctor_id")
-        hospital_id = request.GET.get("hospital_id")
+        doctor_id = request.user.id
+        hospital_id = request.user.hospital.first().id
         start_date = parse_date(request.GET.get("start_date"))
         end_date = parse_date(request.GET.get("end_date"))
         is_slot_blocked = request.GET.get("is_blocked", None)
@@ -179,8 +183,8 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def next_available_slot(self, request):
-        doctor_id = request.GET.get("doctor_id")
-        hospital_id = request.GET.get("hospital_id")
+        doctor_id = request.user.id
+        hospital_id = request.user.hospital.first().id
         current_date = request.GET.get("start_date")
 
         today = timezone.now().date()

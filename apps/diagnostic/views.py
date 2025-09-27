@@ -123,6 +123,8 @@ class DiagnosticCenterViewSet(custom_viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         search_query = self.request.query_params.get('search', None)
+        city = self.request.query_params.get('city', None)
+        category = self.request.query_params.get('category', None)
         if search_query:
             # Searching across multiple fields with OR conditions using Q objects
             queryset = queryset.filter(
@@ -132,4 +134,10 @@ class DiagnosticCenterViewSet(custom_viewsets.ModelViewSet):
                 Q(category__name__icontains=search_query) |
                 Q(category__main_diagnostic__name__icontains=search_query)
             )
+        if city:
+            city_ids = city.split(",")
+            queryset = queryset.filter(city__id__in=city_ids)
+        if category:
+            category_ids = category.split(",")
+            queryset = queryset.filter(category__id__in=category_ids) 
         return queryset.order_by('-id')
