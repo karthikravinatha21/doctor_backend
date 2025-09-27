@@ -20,6 +20,7 @@ from django.db.models import Q
 
 
 class SlotsViewSet(custom_viewsets.ModelViewSet):
+    permission_classes = [IsDoctorblockedPermission]
     model = Slot
     queryset = Slot.objects.all()
     serializer_class = SlotSerializer
@@ -28,23 +29,6 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
     retrieve_success_message = 'Information returned successfully!'
     update_success_message = 'Information updated successfully!'
     status_code = 200
-
-    # filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    # filterset_fields = ['name', 'id']
-
-    # Fields available for search (partial match, case-insensitive)
-    # search_fields = ['name', 'description']
-
-    def get_permissions(self):
-        if self.action in ['list', 'get_dept_specialty']:
-            permission_classes = [IsDoctorblockedPermission]
-            return [permission() for permission in permission_classes]
-
-        if self.action in ['retrieve', 'create', 'update_slots', 'block', 'next_available_slot']:
-            permission_classes = [IsDoctorblockedPermission]
-            return [permission() for permission in permission_classes]
-
-        return super().get_permissions()
 
     def get_queryset(self):
         queryset = self.queryset
