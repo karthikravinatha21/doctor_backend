@@ -104,7 +104,8 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
 
             return Response({
                 "message": self.create_success_message,
-                "slots": slots_created
+                "slots": slots_created,
+                "status": 201
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
