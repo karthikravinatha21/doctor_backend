@@ -14,7 +14,7 @@ from .forms import ManagerUserForm
 
 
 class UserAdmin(admin.ModelAdmin):
-    change_list_template = "admin/change_list.html"
+    change_list_template = "admin/user_details/user/change_list.html"
 
     list_display = (
         'id', 'mobile', 'full_name', 'user_type', 'age', 'gender',
@@ -62,8 +62,12 @@ class UserAdmin(admin.ModelAdmin):
     # ✅ Add custom URL for creating management users
     def get_urls(self):
         urls = super().get_urls()
-        custom_urls = [ 
-            path("create-manager/", self.admin_site.admin_view(self.create_manager_view), name="create-manager"), 
+        custom_urls = [
+            path(
+                "create-manager/",
+                self.admin_site.admin_view(self.create_manager_view),
+                name="user_details_user_create_manager"
+            ),
         ]
         return custom_urls + urls
 
