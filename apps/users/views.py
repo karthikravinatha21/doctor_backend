@@ -4,7 +4,7 @@ import boto3
 from botocore.exceptions import ClientError
 import jwt, requests
 from django.conf import settings
-from django.contrib.auth.models import update_last_login
+from django.contrib.auth.models import Group, update_last_login
 from django.db.models import Q
 from django.utils.crypto import get_random_string
 from rest_framework import status
@@ -24,7 +24,7 @@ from apps.production_house.models import ProductionHouse
 from apps.schedule.models import Schedule
 from user_details.models import User, UserTokens, Banner, OTPStorage, Enquiry
 from user_details.permission import IsUserBlockedPermission
-from user_details.adminpermission import IsDoctorblockedPermission
+from user_details.adminpermission import IsUserblockedPermission, IsDoctorblockedPermission
 from user_details.serializers import BannerSerializer, UserSerializer, UserAdminSerializer, EnquirySerializer
 from utils import custom_viewsets
 from utils.constants import custom_json_response, validate_non_empty_fields, USER_TYPE_ADMIN
@@ -747,3 +747,61 @@ class EnquiryAPIView(APIView):
             {"message": "Enquiries retrieved successfully", "data": serializer.data},
             status=status.HTTP_200_OK
         )
+
+class CreateManagerAPIView(APIView):
+    permission_classes = [IsUserblockedPermission]
+    """
+    API to create a management user and assign them to the 'Manager' group.
+    """
+
+    def post(self, request, *args, **kwargs):
+        try:
+            username = request.data.get("username")
+            password = request.data.get("password")
+            mobile = request.data.get("mobile")
+            full_name = request.data.get("full_name")
+
+            if not username or not password:
+                return Response(
+                    {"error": "username and password are required"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if User.objects.filter(username=username).exists():
+                return Response(
+                    {"error": "User with this username already exists"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Create user
+            user = User.objects.create(
+                username=username,
+                password=password,
+                mobile=mobile,
+                full_name=full_name,
+                is_staff=True,       # required to access admin
+                is_superuser=False   # not superuser
+            )
+
+            # Add to Manager group
+            try:
+                manager_group = Group.objects.get(name="Manager")
+            except Group.DoesNotExist:
+                return Response(
+                    {"error": "Manager group does not exist"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+            user.groups.add(manager_group)
+            user.save()
+
+            return Response(
+                {"message": "Management user created successfully", "user_id": user.id},
+                status=status.HTTP_201_CREATED
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

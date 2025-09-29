@@ -65,8 +65,12 @@ class User(AbstractUser, PermissionsMixin):
     designation = models.CharField(max_length=255, null=True, blank=True)
     address = models.CharField(max_length=355, null=True, blank=True)
     pin_code = models.CharField(max_length=10, null=True, blank=True)  # NEW FIELD
-
-    is_staff = models.BooleanField(default=True)
+    hospital = models.ForeignKey('hospital.Hospital',
+                                    on_delete=models.CASCADE,
+                                    blank=True,
+                                    null=True,
+                                )
+    is_staff = models.BooleanField(default=False)
 
     profile_image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
 
@@ -179,10 +183,16 @@ class Patient(User):
 
 class MyBaseModel(models.Model):
     id = models.AutoField(primary_key=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
-
     updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='%(class)s_updated_by'
+    )
+
 
     class Meta:
         abstract = True
@@ -253,7 +263,7 @@ class UserTokens(MyBaseModel):
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
                              blank=True,
-                             null=True,
+                             null=True, related_name='token_user'
                              )
 
     doctor_user = models.ForeignKey("doctors.Doctor",

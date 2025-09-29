@@ -15,6 +15,7 @@ urlpatterns = [
     path('destroy_db/', DestroyDatabaseAPIView.as_view(), name='destroy-db'),
     path('enquiry/', EnquiryAPIView.as_view(), name='enquiry'),
     path('user/profile/', UserAPIView.as_view(), name='destroy-db'),
+    path('create/manager/', CreateManagerAPIView.as_view(), name='create-manager'),
     path('doctor/create_password/', CreateDoctorPasswordAPIView.as_view(), name='create-password'),
     path('doctor/reset_password/', ResetDoctorPasswordAPIView.as_view(), name='reset-password'),
     path('doctor/login/', DoctorLoginAPIView.as_view(), name='doctor-login'),

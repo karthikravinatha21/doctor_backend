@@ -6,9 +6,16 @@ from django.utils.html import format_html
 from apps.payments.models import UserSubscription
 from .models import Banner, User, Enquiry, Patient, ContactUs
 from apps.users.models import Subscribe
+from django.contrib import admin, messages
+from django.contrib.auth.models import Group
+from django.urls import path
+from django.shortcuts import render, redirect
+from .forms import ManagerUserForm
 
 
 class UserAdmin(admin.ModelAdmin):
+    change_list_template = "admin/change_list.html"
+
     list_display = (
         'id', 'mobile', 'full_name', 'user_type', 'age', 'gender',
         'last_login', 'is_active', 'profile_image_tag'
@@ -23,9 +30,10 @@ class UserAdmin(admin.ModelAdmin):
 
     readonly_fields = ('profile_image_preview',)
 
+    # ✅ Only show staff users who are in Manager group
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.filter(is_staff=True)
+        return qs.filter(is_staff=True, groups__name="Manager")
 
     def profile_image_tag(self, obj):
         if obj.profile_image and hasattr(obj.profile_image, 'url'):
@@ -50,6 +58,45 @@ class UserAdmin(admin.ModelAdmin):
             )
         return "No image uploaded"
     profile_image_preview.short_description = "Profile Image Preview"
+
+    # ✅ Add custom URL for creating management users
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [ 
+            path("create-manager/", self.admin_site.admin_view(self.create_manager_view), name="create-manager"), 
+        ]
+        return custom_urls + urls
+
+    def create_manager_view(self, request):
+        if request.method == "POST":
+            form = ManagerUserForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                user = User.objects.create(
+                    username=data["username"],
+                    password=data["password"],
+                    full_name=data.get("full_name"),
+                    mobile=data.get("mobile"),
+                    is_staff=True,
+                    is_superuser=False,
+                )
+                manager_group, _ = Group.objects.get_or_create(name="Manager")
+                user.groups.add(manager_group)
+                user.save()
+                messages.success(request, "Management user created successfully!")
+                return redirect("admin:user_details_user_changelist")
+        else:
+            form = ManagerUserForm()
+
+        context = dict(
+            self.admin_site.each_context(request),  # important
+            form=form,
+            opts=self.model._meta,
+            app_label=self.model._meta.app_label,  # add app_label
+        )
+
+        return render(request, "admin/create_manager_form.html", context)
+
 
 class PatientAdmin(admin.ModelAdmin):
     list_display = (
