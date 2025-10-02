@@ -54,6 +54,7 @@ class User(AbstractUser, PermissionsMixin):
     USER_TYPES = (
         ('User', 'user'),
         ('Admin', 'admin'),
+        ('Front_Desk', 'front_desk'),
     )
     membership_id = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(max_length=455, null=True, blank=True)

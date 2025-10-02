@@ -690,42 +690,82 @@ class DoctorLoginAPIView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        # email = self.request.data.get("email")
+        mobile = self.request.data.get("mobile")
 
-        doctor = Doctor.objects.filter(username=username).last()
+        if username and password:
+            doctor = Doctor.objects.filter(username=username).last()
 
-        if not doctor:
-            return custom_json_response(message='Invalid username')
+            if not doctor:
+                return custom_json_response(message='Invalid username')
 
-        if check_password(password, doctor.password):
+            if check_password(password, doctor.password):
 
-            jwt_payload = {
-                'id': doctor.id,
-                "email": doctor.email,
-                'first_name': doctor.full_name,
-                'user_role': 'doctor',
-                'access_type': 'crm',
-                'created_time': str(datetime.utcnow()),
-                "iat": datetime.now(tz=timezone.utc),
-                "exp": datetime.now(tz=timezone.utc) + settings.JWT_AUTH['JWT_EXPIRATION_DELTA']
-            }
-            token = jwt.encode(jwt_payload, settings.SECRET_KEY, algorithm="HS256")
+                jwt_payload = {
+                    'id': doctor.id,
+                    "email": doctor.email,
+                    'first_name': doctor.full_name,
+                    'user_role': 'doctor',
+                    'access_type': 'crm',
+                    'created_time': str(datetime.utcnow()),
+                    "iat": datetime.now(tz=timezone.utc),
+                    "exp": datetime.now(tz=timezone.utc) + settings.JWT_AUTH['JWT_EXPIRATION_DELTA']
+                }
+                token = jwt.encode(jwt_payload, settings.SECRET_KEY, algorithm="HS256")
 
-            refresh = RefreshToken.for_user(doctor)
-            refresh_token = str(refresh)
+                refresh = RefreshToken.for_user(doctor)
+                refresh_token = str(refresh)
 
-            UserTokens.objects.filter(doctor_user=doctor).delete()
-            UserTokens.objects.create(doctor_user=doctor, token=token)
+                UserTokens.objects.filter(doctor_user=doctor).delete()
+                UserTokens.objects.create(doctor_user=doctor, token=token)
 
-            data = {
-                "doctor_id": doctor.id,
-                "hospital_id": doctor.hospital.first().id,
-                "hospital_name": doctor.hospital.first().name,
-                "token": token,
-                "refresh_token": refresh_token
-            }
-            return custom_json_response(data=data, status=200, success=True, message='Login Successfully!')
-        return custom_json_response(message='Invalid Credentials!')
+                data = {
+                    "doctor_id": doctor.id,
+                    "hospital_id": doctor.hospital.first().id,
+                    "hospital_name": doctor.hospital.first().name,
+                    'user_type': 'doctor',
+                    "token": token,
+                    "refresh_token": refresh_token
+                }
+                return custom_json_response(data=data, status=200, success=True, message='Login Successfully!')
+            return custom_json_response(message='Invalid Credentials!')
+        else:
+            user = User.objects.filter(mobile=mobile).last()
+
+            if not user:
+                return custom_json_response(message='Invalid mobile')
+
+            if check_password(password, user.password):
+
+                jwt_payload = {
+                    'id': user.id,
+                    "email": user.mobile,
+                    'first_name': user.full_name,
+                    'user_role': 'front_desk',
+                    'access_type': 'front_desk',
+                    'created_time': str(datetime.utcnow()),
+                    "iat": datetime.now(tz=timezone.utc),
+                    "exp": datetime.now(tz=timezone.utc) + settings.JWT_AUTH['JWT_EXPIRATION_DELTA']
+                }
+                token = jwt.encode(jwt_payload, settings.SECRET_KEY, algorithm="HS256")
+
+                refresh = RefreshToken.for_user(user)
+                refresh_token = str(refresh)
+
+                UserTokens.objects.filter(user=user).delete()
+                UserTokens.objects.create(user=user, token=token)
+
+                data = {
+                    "user_id": user.id,
+                    "hospital_id": user.hospital.id,
+                    "hospital_name": user.hospital.name,
+                    'user_type': 'front_desk',
+                    "token": token,
+                    "refresh_token": refresh_token
+                }
+                return custom_json_response(data=data, status=200, success=True, message='Login Successfully!')
+            return custom_json_response(message='Invalid Credentials!')
+
+        
 
 class EnquiryAPIView(APIView):
     permission_classes = [AllowAny]
@@ -748,55 +788,43 @@ class EnquiryAPIView(APIView):
             status=status.HTTP_200_OK
         )
 
-class CreateManagerAPIView(APIView):
+class CreateFrontDeskUserAPIView(APIView):
     permission_classes = [IsUserblockedPermission]
     """
-    API to create a management user and assign them to the 'Manager' group.
+    API to create a front desk user and assign them to the 'hospital'.
     """
 
     def post(self, request, *args, **kwargs):
         try:
-            username = request.data.get("username")
+            full_name = request.data.get("full_name")
             password = request.data.get("password")
             mobile = request.data.get("mobile")
-            full_name = request.data.get("full_name")
+            hospital = request.data.get("hospital")
 
-            if not username or not password:
+            if not mobile or not password:
                 return Response(
-                    {"error": "username and password are required"},
+                    {"error": "mobile and password are required"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            if User.objects.filter(username=username).exists():
+            if User.objects.filter(mobile=mobile).exists():
                 return Response(
-                    {"error": "User with this username already exists"},
+                    {"error": "User with this mobile already exists"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
             # Create user
             user = User.objects.create(
-                username=username,
+                full_name=full_name,
                 password=password,
                 mobile=mobile,
-                full_name=full_name,
-                is_staff=True,       # required to access admin
-                is_superuser=False   # not superuser
+                hospital=hospital,
+                is_staff=False,
+                is_superuser=False,
             )
 
-            # Add to Manager group
-            try:
-                manager_group = Group.objects.get(name="Manager")
-            except Group.DoesNotExist:
-                return Response(
-                    {"error": "Manager group does not exist"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-
-            user.groups.add(manager_group)
-            user.save()
-
             return Response(
-                {"message": "Management user created successfully", "user_id": user.id},
+                {"message": "Front Desk user created successfully", "user_id": user.id},
                 status=status.HTTP_201_CREATED
             )
 

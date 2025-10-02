@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as useradmin
@@ -10,7 +11,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.models import Group
 from django.urls import path
 from django.shortcuts import render, redirect
-from .forms import ManagerUserForm
+from .forms import ManagerUserForm, FrontDeskUserForm
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -33,7 +34,7 @@ class UserAdmin(admin.ModelAdmin):
     # ✅ Only show staff users who are in Manager group
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.filter(is_staff=True, groups__name="Manager")
+        return qs.filter(Q(is_staff=True) | Q(user_type ='front_desk'))
 
     def profile_image_tag(self, obj):
         if obj.profile_image and hasattr(obj.profile_image, 'url'):
@@ -68,16 +69,22 @@ class UserAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.create_manager_view),
                 name="user_details_user_create_manager"
             ),
+            path(
+                "create-frontdesk/",
+                self.admin_site.admin_view(self.create_frontdesk_view),
+                name="user_details_user_create_frontdesk"
+            ),
         ]
         return custom_urls + urls
 
+    # ✅ Manager creation
     def create_manager_view(self, request):
         if request.method == "POST":
             form = ManagerUserForm(request.POST)
             if form.is_valid():
                 data = form.cleaned_data
                 user = User.objects.create(
-                    username=data["username"],
+                    username=data.get("mobile"),
                     password=data["password"],
                     full_name=data.get("full_name"),
                     mobile=data.get("mobile"),
@@ -93,13 +100,41 @@ class UserAdmin(admin.ModelAdmin):
             form = ManagerUserForm()
 
         context = dict(
-            self.admin_site.each_context(request),  # important
+            self.admin_site.each_context(request),
             form=form,
             opts=self.model._meta,
-            app_label=self.model._meta.app_label,  # add app_label
+            app_label=self.model._meta.app_label,
         )
-
         return render(request, "admin/create_manager_form.html", context)
+
+    # ✅ FrontDesk creation
+    def create_frontdesk_view(self, request):
+        if request.method == "POST":
+            form = FrontDeskUserForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                user = User.objects.create(
+                    full_name=data.get("full_name"),
+                    mobile=data.get("mobile"),
+                    username=data.get("mobile"),
+                    password=data.get("password"),
+                    hospital=data.get("hospital"),
+                    user_type='front_desk',
+                    is_staff=False,
+                    is_superuser=False,
+                )
+                messages.success(request, "Front Desk user created successfully!")
+                return redirect("admin:user_details_user_changelist")
+        else:
+            form = FrontDeskUserForm()
+
+        context = dict(
+            self.admin_site.each_context(request),
+            form=form,
+            opts=self.model._meta,
+            app_label=self.model._meta.app_label,
+        )
+        return render(request, "admin/create_frontdesk_form.html", context)
 
 
 class PatientAdmin(admin.ModelAdmin):
@@ -123,7 +158,7 @@ class PatientAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         # Prefetch subscriptions to avoid N+1 queries
-        return qs.filter(is_staff=False).prefetch_related("subscriptions")
+        return qs.filter(is_staff=False, user_type='user').prefetch_related("subscriptions")
 
     def subscription_status(self, obj):
         latest_sub = UserSubscription.objects.filter(user=obj).order_by('-start_date').first()

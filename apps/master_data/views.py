@@ -4,7 +4,8 @@ from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-
+from user_details.models import User
+from apps.users.serializers import UserDataSerializer
 from apps.doctors.models import Doctor, Appointment
 from apps.doctors.serializers import DoctorSerializer, AppointmentSerializer
 from apps.hospital.models import Hospital, Department, Specialisation
@@ -169,28 +170,15 @@ class SpecialtyViewSet(GenericAPIView):
 
 
 class AppointmentViewSet(custom_viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUserblockedPermission]
     model = Appointment
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
-
     create_success_message = 'Your appointment registration completed successfully!'
     list_success_message = 'List returned successfully!'
     retrieve_success_message = 'Information returned successfully!'
     update_success_message = 'Information updated successfully!'
     status_code = 200
-
-    def get_permissions(self):
-
-        if self.action == 'list':
-            permission_classes = [IsUserblockedPermission]
-            return [permission() for permission in permission_classes]
-
-        if self.action in ['retrieve', 'create', 'update', 'partial_update']:
-            permission_classes = [IsUserblockedPermission]
-            return [permission() for permission in permission_classes]
-
-        return super().get_permissions()
 
     def create(self, request, *args, **kwargs):
         """
@@ -243,16 +231,46 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
     def list(self, request):
         # Allowing only the SuperUser to fetch the admin users
         queryset = self.get_queryset()
-        if request.user.is_superuser:
+        if request.user.user_type == 'user':
+            queryset = queryset.filter(user=request.user)
             serializer = AppointmentSerializer(queryset, many=True)
             return Response({
                 "message": self.list_success_message,
                 "slots": serializer.data
             }, status=status.HTTP_200_OK)
-        elif request.user.user_type == 'doctor':
+        elif request.user.user_type == 'front_desk':
+            queryset = queryset.filter(doctor__hospital=request.user.hospital)
+            serializer = AppointmentSerializer(queryset, many=True)
+            return Response({
+                "message": self.list_success_message,
+                "slots": serializer.data
+            }, status=status.HTTP_200_OK)
+        else:
             queryset = queryset.filter(doctor=request.user)
             serializer = AppointmentSerializer(queryset, many=True)
             return Response({
                 "message": self.list_success_message,
                 "slots": serializer.data
             }, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'])
+    def patient_list(self, request):
+        queryset = self.get_queryset()
+        user_ids = queryset.filter(hospital=request.user.hospital).values_list('user', flat=True)
+        users = User.objects.filter(id__in=user_ids)
+        serializer = UserDataSerializer(users, many=True)
+        return Response({
+            "message": "Patient List retrieved successfully",
+            "slots": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def appointment_history(self, request):
+        user = request.query_params.get('user')
+        queryset = self.get_queryset()
+        queryset = queryset.filter(user_id=user)
+        serializer = AppointmentSerializer(queryset, many=True)
+        return Response({
+            "message": self.list_success_message,
+            "slots": serializer.data
+        }, status=status.HTTP_200_OK)
