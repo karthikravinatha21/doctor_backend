@@ -217,15 +217,22 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
         except Exception as ex:
             print(ex)
 
-    def update(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         """
         Creates slots from start_time to end_time with a given slot_duration.
         """
-        # try:
-        update_status = request.data.get("status")
+        try:
+            appointment_id = request.query_params.get('appointment_id')
+            appointment = self.get_queryset().get(id=appointment_id)
+        except Exception as e:
+            return Response({
+                "message": "Invalid Appointment ID",
+            }, status=400)
+        appointment.status = request.data.get("status")
+        appointment.save()
         return Response({
                 "message": self.update_success_message,
-                # "slots": serializer.data
+                "status": appointment.status
             }, status=status.HTTP_200_OK)
 
     def list(self, request):
