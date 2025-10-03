@@ -188,7 +188,7 @@ DATABASES = {
         'NAME': 'vaidya',
         'USER': 'vaidya_postgres',
         'PASSWORD': 'Bandhu@Vaidya@2025',
-        'HOST': '52.66.199.115',
+        'HOST': '13.233.24.95',
         'PORT': '5432',
     }
 }
