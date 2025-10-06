@@ -1,5 +1,5 @@
 import json
-
+from apps.payments.models import UserSubscription
 from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -236,16 +236,16 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
             }, status=status.HTTP_200_OK)
 
     def list(self, request):
-        # Allowing only the SuperUser to fetch the admin users
+        user_type = getattr(request.user, 'user_type', None)
         queryset = self.get_queryset()
-        if request.user.user_type == 'user':
+        if user_type == 'user':
             queryset = queryset.filter(user=request.user)
             serializer = AppointmentSerializer(queryset, many=True)
             return Response({
                 "message": self.list_success_message,
                 "slots": serializer.data
             }, status=status.HTTP_200_OK)
-        elif request.user.user_type == 'front_desk':
+        elif user_type == 'front_desk':
             queryset = queryset.filter(doctor__hospital=request.user.hospital)
             serializer = AppointmentSerializer(queryset, many=True)
             return Response({
@@ -262,14 +262,23 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def patient_list(self, request):
+        key = request.query_params.get('key')
         queryset = self.get_queryset()
-        user_ids = queryset.filter(hospital=request.user.hospital).values_list('user', flat=True)
-        users = User.objects.filter(id__in=user_ids)
+        user_type = getattr(request.user, 'user_type', None)
+        
+        if user_type == 'front_desk' and key == 'appointment':
+            user_ids = queryset.filter.all().values_list('user', flat=True)
+            users = User.objects.filter(id__in=user_ids)
+        else:
+            user_ids = UserSubscription.objects.filter(is_active=True).values_list('user', flat=True).distinct()
+            users = User.objects.filter(id__in=user_ids)
         serializer = UserDataSerializer(users, many=True)
+        
         return Response({
             "message": "Patient List retrieved successfully",
             "slots": serializer.data
         }, status=status.HTTP_200_OK)
+
 
     @action(detail=False, methods=['get'])
     def appointment_history(self, request):
