@@ -756,8 +756,8 @@ class DoctorLoginAPIView(APIView):
 
                 data = {
                     "user_id": user.id,
-                    "hospital_id": user.hospital.id,
-                    "hospital_name": user.hospital.name,
+                    "hospital_id": user.hospital.first().id if user.hospital.first() else None,
+                    "hospital_name": user.hospital.first().name if user.hospital.first() else None,
                     'user_type': 'front_desk',
                     "token": token,
                     "refresh_token": refresh_token
