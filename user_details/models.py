@@ -66,11 +66,9 @@ class User(AbstractUser, PermissionsMixin):
     designation = models.CharField(max_length=255, null=True, blank=True)
     address = models.CharField(max_length=355, null=True, blank=True)
     pin_code = models.CharField(max_length=10, null=True, blank=True)  # NEW FIELD
-    hospital = models.ForeignKey('hospital.Hospital',
-                                    on_delete=models.CASCADE,
-                                    blank=True,
-                                    null=True,
-                                )
+    hospitals = models.ManyToManyField('hospital.Hospital',
+                                   blank=True)
+
     is_staff = models.BooleanField(default=False)
 
     profile_image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)

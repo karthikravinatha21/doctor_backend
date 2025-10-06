@@ -107,7 +107,6 @@ class UserAdmin(admin.ModelAdmin):
         )
         return render(request, "admin/create_manager_form.html", context)
 
-    # ✅ FrontDesk creation
     def create_frontdesk_view(self, request):
         if request.method == "POST":
             form = FrontDeskUserForm(request.POST)
@@ -118,11 +117,12 @@ class UserAdmin(admin.ModelAdmin):
                     mobile=data.get("mobile"),
                     username=data.get("mobile"),
                     password=data.get("password"),
-                    hospital=data.get("hospital"),
                     user_type='front_desk',
                     is_staff=False,
                     is_superuser=False,
                 )
+                user.hospitals.set(data.get("hospitals"))  # Add the hospitals to the ManyToMany relationship
+                user.save()
                 messages.success(request, "Front Desk user created successfully!")
                 return redirect("admin:user_details_user_changelist")
         else:
