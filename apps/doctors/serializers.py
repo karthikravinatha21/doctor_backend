@@ -44,8 +44,11 @@ class DoctorSerializer(serializers.ModelSerializer):
             except Hospital.DoesNotExist:
                 return None
         else:
-            hospital = obj.hospital.first()
-        return hospital.name
+            if obj.hospital.first():
+                hospital = obj.hospital.first()
+                return hospital.name
+            else:
+                None
 
     def to_representation(self, instance):
         response_object = super().to_representation(instance)
