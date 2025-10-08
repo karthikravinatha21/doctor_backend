@@ -60,7 +60,8 @@ class DoctorAPIView(GenericAPIView):
                 | Q(gender__icontains=search_query)
                 | Q(speciality__title__icontains=search_query)
                 | Q(department__name__icontains=search_query)
-                 | Q(hospital__name__icontains=search_query)
+                | Q(hospital__name__icontains=search_query)
+                | Q(hospital__address__icontains=search_query)
             )
 
         # Specialisation filter
