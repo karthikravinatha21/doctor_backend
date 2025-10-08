@@ -55,6 +55,7 @@ class DoctorAPIView(GenericAPIView):
         if search_query:
             queryset = queryset.filter(
                 Q(full_name__icontains=search_query)
+                | Q(designation__icontains=search_query)
                 | Q(hospital__city__city_name__icontains=search_query)
                 | Q(gender__icontains=search_query)
                 | Q(speciality__title__icontains=search_query)
