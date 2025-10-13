@@ -269,7 +269,7 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
         user_type = getattr(request.user, 'user_type', None)
         
         if user_type == 'front_desk' and key == 'appointment':
-            user_ids = queryset.filter.all().values_list('user', flat=True)
+            user_ids = queryset.values_list('user', flat=True)
             users = User.objects.filter(id__in=user_ids)
         else:
             user_ids = UserSubscription.objects.filter(is_active=True).values_list('user', flat=True).distinct()
