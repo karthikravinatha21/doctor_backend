@@ -27,6 +27,10 @@ from user_details.permission import IsUserBlockedPermission
 from user_details.adminpermission import IsUserblockedPermission, IsDoctorblockedPermission
 from user_details.serializers import BannerSerializer, UserSerializer, UserAdminSerializer, EnquirySerializer
 from utils import custom_viewsets
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from django.http import HttpResponse
+import tempfile
 from utils.constants import custom_json_response, validate_non_empty_fields, USER_TYPE_ADMIN
 from utils.utils import validate_access_attempts, generate_otp
 from rest_framework.views import APIView
@@ -73,6 +77,44 @@ class UserAPIView(APIView):
                 status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class MembershipCardPDFView(APIView):
+    permission_classes = [IsUserBlockedPermission]
+
+    def get(self, request):
+        """Generate Vaidya Bandhu Membership Card PDF"""
+        user = get_object_or_404(User, pk=request.user.id)
+        serializer = UserDataSerializer(user)
+        user_data = serializer.data
+
+        # Context for templates (mapping API fields)
+        context = {
+            "membership_id": user_data.get("membership_id", ""),
+            "full_name": user_data.get("full_name", ""),
+            "mobile": user_data.get("mobile", ""),
+            "blood_group": user_data.get("blood_group", ""),
+            "address": user_data.get("address", ""),
+            "pin_code": user_data.get("pin_code", ""),
+            "profile_image": user_data.get("profile_image", ""),
+            "start_date": user_data.get("start_date", ""),
+            "end_date": user_data.get("end_date", ""),
+        }
+
+        # Render both sides
+        front_html = render_to_string("card_front.html", context)
+        back_html = render_to_string("card_back.html", context)
+
+        # Combine into one PDF
+        combined_html = front_html + "<div style='page-break-after: always;'></div>" + back_html
+
+        with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
+            HTML(string=combined_html, base_url=request.build_absolute_uri()).write_pdf(tmp_file.name)
+            tmp_file.seek(0)
+            pdf_data = tmp_file.read()
+
+        response = HttpResponse(pdf_data, content_type="application/pdf")
+        response["Content-Disposition"] = f'inline; filename="membership_card_{user_data["membership_id"]}.pdf"'
+        return response
 
 
 class UserViewSet(custom_viewsets.ModelViewSet):
@@ -164,7 +206,6 @@ class UserViewSet(custom_viewsets.ModelViewSet):
             f"Login OTP: {random_password} Valid for 10 minutes. Please do not share this code with anyone. - Team VB"
             f"&data4=1701175655959526722,1702173216915572636"
         )
-        print(sms_url)
 
         if not self.get_queryset().filter(mobile=mobile, is_active=True).exists():
             # New user flow

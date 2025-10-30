@@ -108,7 +108,7 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
             slot_id = request.data.get("id")
             slot = Slot.objects.filter(pk=slot_id).first()
             if not slot:
-                return Response({"detail": "Slot not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"detail": "Slot not found"}, status=400)
 
             serializer = self.get_serializer(slot, data=request.data, partial=True)  
             serializer.is_valid(raise_exception=True)
