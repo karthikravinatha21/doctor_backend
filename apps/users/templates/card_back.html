@@ -2,22 +2,142 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Vaidya Bandhu Membership Card (Back)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaidya Bandhu Card - Back</title>
 <style>
-body {
-  margin: 0;
-  padding: 0;
-}
-.card-back {
-  width: 100%;
-  height: 600px;
-  background-image: url("https://vaidya-bhandhu-prod.s3.ap-south-1.amazonaws.com/media/Frame+58.png");
-  background-size: cover;
-  background-repeat: no-repeat;
-}
+  body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background-color: #f3f8fa;
+  }
+
+  .card {
+    width: 700px;
+    height: 400px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    position: relative;
+    padding: 25px 30px;
+  }
+
+  h3 {
+    color: #007a8f;
+    font-size: 18px;
+    margin-top: 0;
+  }
+
+  ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  ul li {
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+
+  ul li::before {
+    content: "✔️";
+    margin-right: 8px;
+    color: #007a8f;
+  }
+
+  .section {
+    margin-bottom: 10px;
+  }
+
+  .terms {
+    font-size: 13px;
+    margin-top: 10px;
+  }
+
+  .terms ul li::before {
+    content: "●";
+    font-size: 10px;
+    color: #007a8f;
+  }
+
+  .cashback {
+    position: absolute;
+    right: 30px;
+    top: 40px;
+    background: #007a8f;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 12px;
+  }
+
+  .footer {
+    background-color: #007a8f;
+    color: white;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 12px 0;
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .price {
+    position: absolute;
+    bottom: 60px;
+    right: 40px;
+    color: #007a8f;
+    font-size: 36px;
+    font-weight: 700;
+  }
 </style>
 </head>
 <body>
-<div class="card-back"></div>
+<div class="card">
+  <div class="section">
+    <h3>BENEFITS OF THIS CARD</h3>
+    <ul>
+      <li>Save 10% to 40% on surgeries, treatments, and diagnostics services.</li>
+      <li>Get 10% Cashback: Send your bill to Vaidya Bandhu via WhatsApp or Email.</li>
+      <li>Free surgeries available for those in need through our social programs.</li>
+      <li>Call our helpline for free medical advice.</li>
+      <li>We help you choose the right doctor, hospital, or diagnostic center.</li>
+    </ul>
+  </div>
+
+  <div class="cashback">10% CASHBACK ON YOUR TOTAL HOSPITAL BILL<br><small>EXCLUDING PHARMACY AND IMPLANTS</small></div>
+
+  <div class="section">
+    <h3>TERMS & CONDITIONS</h3>
+    <ul class="terms">
+      <li>Card valid for 1 year from the date of issue.</li>
+      <li>Non-transferable, limited to the registered user only.</li>
+      <li>Discounts: 10%–40% at partner centers.</li>
+      <li>Booking required before visiting facility.</li>
+      <li>Duplicate card reissue available with a small fee.</li>
+      <li>Offers valid only at partner hospitals, doctors, and labs.</li>
+      <li>Non-redeemable for cash.</li>
+      <li>Misuse may lead to membership cancellation.</li>
+      <li>Does not cover emergency services unless pre-approved.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h3>INSTRUCTIONS TO USE</h3>
+    <ul class="terms">
+      <li>Call or WhatsApp at <strong>+91 8535853589</strong></li>
+      <li>Share your membership ID and issue</li>
+      <li>Get instant help from the Vaidya Bandhu team</li>
+    </ul>
+  </div>
+
+  <div class="price">49/-</div>
+
+  <div class="footer">
+    VAIDYA BANDHU (A UNIT OF MY COMPANYON HEALTHCARE PRIVATE LIMITED)<br>
+    “SERVING WITH CARE & COMMITMENT”
+  </div>
+</div>
 </body>
 </html>
