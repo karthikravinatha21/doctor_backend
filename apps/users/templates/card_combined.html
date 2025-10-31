@@ -12,20 +12,20 @@ body {
   font-family: 'Poppins', sans-serif;
   background: #f5f7f9;
 }
+
 .wrapper {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
+  flex-direction: column;       /* stack vertically */
+  align-items: center;
+  gap: 12px;                    /* small spacing between front/back */
   width: 100%;
-  height: 100%;
+  height: auto;
   box-sizing: border-box;
 }
 
 /* Common card style */
 .card {
-  flex: 1;
-  height: 100%;
+  width: 90%;
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 0 6px rgba(0,0,0,0.15);
@@ -67,7 +67,6 @@ body {
   font-size: 13px;
   color: #444;
 }
-
 .front .content {
   display: flex;
   justify-content: space-between;
@@ -110,6 +109,9 @@ body {
 }
 
 /* BACK SIDE */
+.back {
+  margin-top: 5px;
+}
 .back h3 {
   color: #007a8f;
   font-size: 14px;
