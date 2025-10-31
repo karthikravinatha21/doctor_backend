@@ -1,126 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vaidya Bandhu Card - Front</title>
+<meta charset="utf-8">
 <style>
-  body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    background-color: #f3f8fa;
-  }
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #f5f7f9;
+}
+.card {
+  width: 700px;
+  height: 420px;
+  background: linear-gradient(to bottom right, #e3f6f5, #ffffff);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  position: relative;
+  padding: 25px 35px;
+}
 
-  .card {
-    width: 700px;
-    height: 400px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    overflow: hidden;
-    position: relative;
-  }
+.header {
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #007a8f;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
 
-  .header {
-    display: flex;
-    align-items: center;
-    padding: 20px 30px;
-  }
+.logo {
+  background: #007a8f;
+  color: #fff;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 22px;
+  text-align: center;
+  line-height: 65px;
+  margin-right: 15px;
+}
 
-  .header img {
-    height: 50px;
-    margin-right: 15px;
-  }
+.title {
+  color: #007a8f;
+}
+.title h2 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+}
+.title p {
+  margin: 0;
+  color: #444;
+  font-size: 14px;
+}
 
-  .header h2 {
-    color: #007a8f;
-    margin: 0;
-    font-size: 26px;
-    font-weight: 700;
-  }
+.main {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
 
-  .header p {
-    color: #777;
-    font-size: 14px;
-    margin: 0;
-  }
+.info {
+  flex: 1;
+  font-size: 15px;
+  color: #222;
+  line-height: 1.8;
+}
+.info strong {
+  color: #007a8f;
+}
 
-  .content {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px 30px;
-  }
+.photo {
+  width: 150px;
+  height: 150px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #007a8f;
+}
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.name {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #004a56;
+}
 
-  .info {
-    font-size: 15px;
-    line-height: 1.8;
-  }
-
-  .info strong {
-    color: #007a8f;
-  }
-
-  .photo {
-    width: 150px;
-    height: 150px;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .name {
-    font-size: 18px;
-    font-weight: 600;
-    margin-top: 10px;
-    text-align: center;
-    color: #003f4c;
-  }
-
-  .footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    background-color: #007a8f;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    padding: 15px 30px;
-    font-size: 14px;
-  }
-
-  .footer a {
-    color: white;
-    text-decoration: none;
-  }
-
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #007a8f;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 10px 25px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
 </style>
 </head>
 <body>
 <div class="card">
   <div class="header">
-    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Logo">
-    <div>
+    <div class="logo">VB</div>
+    <div class="title">
       <h2>VAIDYA BANDHU</h2>
       <p>HEALTHCARE MEMBERSHIP CARD</p>
     </div>
   </div>
 
-  <div class="content">
+  <div class="main">
     <div class="info">
-      <p><strong>MEMBERSHIP ID :</strong> {{ membership_id }}</p>
-      <p><strong>VALID TILL :</strong> {{ valid_till }}</p>
-      <p><strong>CONTACT :</strong> {{ contact }}</p>
-      <p><strong>BLOOD GROUP :</strong> {{ blood_group }}</p>
-      <p><strong>ADDRESS :</strong> {{ address }}</p>
+      <p><strong>MEMBERSHIP ID:</strong> {{ membership_id }}</p>
+      <p><strong>VALID TILL:</strong> {{ valid_till }}</p>
+      <p><strong>CONTACT:</strong> {{ contact }}</p>
+      <p><strong>BLOOD GROUP:</strong> {{ blood_group }}</p>
+      <p><strong>ADDRESS:</strong> {{ address }}</p>
     </div>
 
-    <div class="photo">
-      <img src="{{ photo_url }}" alt="Member Photo">
+    <div>
+      <div class="photo">
+        <img src="{{ photo_url }}" alt="User Photo">
+      </div>
       <div class="name">{{ name }}</div>
     </div>
   </div>
