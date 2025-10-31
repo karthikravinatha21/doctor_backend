@@ -82,11 +82,12 @@ class MembershipCardPDFView(APIView):
     permission_classes = [IsUserBlockedPermission]
 
     def get(self, request):
-        """Generate a PDF with user front & back card"""
+        """Generate user membership card PDF (front + back) on one page"""
         user = get_object_or_404(User, pk=request.user.id)
         serializer = UserDataSerializer(user)
         user_data = serializer.data
 
+        # Prepare context for the dynamic front card
         context = {
             "membership_id": user_data.get("membership_id", ""),
             "name": user_data.get("full_name", ""),
@@ -94,38 +95,24 @@ class MembershipCardPDFView(APIView):
             "blood_group": user_data.get("blood_group", ""),
             "address": user_data.get("address", ""),
             "pin_code": user_data.get("pin_code", ""),
-            "photo_url": user_data.get("profile_image", ""),
+            "photo_url": user_data.get("profile_image") or "https://cdn-icons-png.flaticon.com/512/847/847969.png",
             "start_date": user_data.get("start_date", ""),
             "end_date": user_data.get("end_date", ""),
         }
 
-        # -------- FRONT SIDE (Dynamic) --------
-        front_html = render_to_string("card_front.html", context)
+        # Render front and back card templates
+        combined_html = render_to_string("card_combined.html", context)
 
-        # -------- BACK SIDE (Hardcoded) --------
-        back_html = render_to_string("card_back.html")
-
-        # Combine both HTMLs vertically in one PDF
-        combined_html = f"""
-        <html>
-        <body style="margin:0;padding:0;">
-            <div style="page-break-after: always;">{front_html}</div>
-            <div>{back_html}</div>
-        </body>
-        </html>
-        """
-
-        # Generate PDF in temp file
+        # Generate PDF safely in a temporary file
         with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as tmp_file:
             HTML(string=combined_html).write_pdf(target=tmp_file.name)
-
-            # Read the generated file
             tmp_file.seek(0)
             pdf_data = tmp_file.read()
 
-        # Send as HTTP response
+        # Return the generated PDF file
         response = HttpResponse(pdf_data, content_type="application/pdf")
-        response["Content-Disposition"] = f'attachment; filename="{user_data.get("full_name", "user")}_card.pdf"'
+        filename = f'{user_data.get("full_name", "user")}_card.pdf'
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
         return response
 
 
