@@ -21,7 +21,7 @@ body {
   border-radius: 12px;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   overflow: hidden;
-  border: 1px solid #e5e5e5;
+  border: 1px solid #dcdcdc;
 }
 
 /* FRONT CARD SECTION */
@@ -31,18 +31,40 @@ body {
 }
 .front-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid #007a8f;
+  padding-bottom: 8px;
 }
-.front-header h2 {
+.front-header .logo img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+.front-header .divider {
+  width: 2px;
+  height: 50px;
+  background: #007a8f;
+}
+.front-header .title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 10px;
+}
+.front-header .title h2 {
   color: #007a8f;
   margin: 0;
-  font-size: 24px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
-.front-header p {
-  color: #666;
+.front-header .title p {
+  color: #444;
   margin: 0;
   font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 .details {
@@ -104,6 +126,8 @@ body {
   color: #007a8f;
   font-size: 16px;
   margin-bottom: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 .section ul {
   list-style: none;
@@ -120,16 +144,24 @@ body {
   color: #007a8f;
 }
 
-.cashback {
-  float: right;
-  background: #007a8f;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 25px;
-  font-size: 11px;
-  margin-top: -10px;
+/* Partition Line Between Sections */
+.partition-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 2px solid #007a8f;
+  margin: 20px 0 15px;
+  padding-top: 5px;
+}
+.partition-line .cashback-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #007a8f;
+  text-align: right;
+  text-transform: uppercase;
 }
 
+/* Footer / Price */
 .footer {
   background: #007a8f;
   color: white;
@@ -140,7 +172,6 @@ body {
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 }
-
 .price {
   color: #007a8f;
   text-align: right;
@@ -156,16 +187,23 @@ body {
   <!-- FRONT CARD -->
   <div class="front">
     <div class="front-header">
-      <div>
+      <div class="logo">
+        <img src="https://vaidya-bhandhu-prod.s3.ap-south-1.amazonaws.com/media/LOGO.jpg" alt="Vaidya Bandhu Logo">
+      </div>
+      <div class="divider"></div>
+      <div class="title">
         <h2>VAIDYA BANDHU</h2>
         <p>HEALTHCARE MEMBERSHIP CARD</p>
       </div>
-      <div class="photo">
-        {% if photo_url %}
-          <img src="{{ photo_url }}" alt="Profile">
-        {% else %}
-          <p>No Photo</p>
-        {% endif %}
+      <div style="margin-left:auto;">
+        <div class="photo">
+          {% if photo_url %}
+            <img src="{{ photo_url }}" alt="Profile">
+          {% else %}
+            <p>No Photo</p>
+          {% endif %}
+        </div>
+        <div class="name">{{ name }}</div>
       </div>
     </div>
 
@@ -177,7 +215,6 @@ body {
         <p><strong>BLOOD GROUP:</strong> <span style="color:red; font-weight:600;">{{ blood_group }}</span></p>
         <p><strong>ADDRESS:</strong> {{ address }}</p>
       </div>
-      <div class="name">{{ name }}</div>
     </div>
 
     <div class="front-footer">
@@ -190,7 +227,6 @@ body {
   <div class="back">
     <div class="section">
       <h3>BENEFITS OF THIS CARD</h3>
-      <div class="cashback">10% CASHBACK ON YOUR TOTAL HOSPITAL BILL<br><small>EXCLUDING PHARMACY AND IMPLANTS</small></div>
       <ul>
         <li>Save 10% to 40% on surgeries, treatments, and diagnostics services.</li>
         <li>Get 10% Cashback by sending your bill via WhatsApp or Email within 7 working days.</li>
@@ -198,6 +234,12 @@ body {
         <li>Call our helpline from 9 AM to 6 PM for free medical advice.</li>
         <li>We help you choose the right doctor, hospital, or diagnostic center.</li>
       </ul>
+    </div>
+
+    <!-- Partition Line -->
+    <div class="partition-line">
+      <div></div>
+      <div class="cashback-text">10% CASHBACK ON YOUR TOTAL HOSPITAL BILL (EXCLUDING PHARMACY AND IMPLANTS)</div>
     </div>
 
     <div class="section">
