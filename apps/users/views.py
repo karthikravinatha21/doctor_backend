@@ -101,11 +101,11 @@ class MembershipCardPDFView(APIView):
         }
 
         # Render front and back card templates
-        combined_html = render_to_string("card_combined.html", context)
+        combined_html = render_to_string("health_card.html", context)
 
         # Generate PDF safely in a temporary file
         with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as tmp_file:
-            HTML(string=combined_html).write_pdf(target=tmp_file.name)
+            HTML(string=html).write_pdf(target=tmp_file.name)
             tmp_file.seek(0)
             pdf_data = tmp_file.read()
 
