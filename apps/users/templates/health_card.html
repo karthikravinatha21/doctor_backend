@@ -48,10 +48,11 @@ body {
   background: #007a8f;
 }
 .front-header .title {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  margin-left: 10px;
 }
 .front-header .title h2 {
   color: #007a8f;
@@ -149,30 +150,32 @@ body {
   color: #007a8f;
 }
 
-/* Partition Line Between Sections */
+/* Partition Line with Horizontal Oval Cashback */
 .partition-line {
   position: relative;
   border-top: 2px solid #007a8f;
-  margin: 20px 0 15px;
+  margin: 25px 0 15px;
+  height: 0;
 }
-.partition-line .cashback-circle {
+.partition-line .cashback-oval {
   position: absolute;
-  right: -5px;
-  top: -18px;
+  right: 15px;
+  top: -25px;
   background: #007a8f;
   color: white;
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
+  width: 310px;
+  height: 55px;
+  border-radius: 55px / 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
   text-align: center;
+  text-transform: uppercase;
+  padding: 0 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   line-height: 1.4;
-  padding: 10px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.15);
 }
 
 /* Footer / Price */
@@ -250,10 +253,10 @@ body {
       </ul>
     </div>
 
-    <!-- Partition Line with Cashback Circle -->
+    <!-- Partition Line with Horizontal Cashback Oval -->
     <div class="partition-line">
-      <div class="cashback-circle">
-        10% CASHBACK<br>ON YOUR TOTAL<br>HOSPITAL BILL<br><small>(EXCLUDING PHARMACY<br>AND IMPLANTS)</small>
+      <div class="cashback-oval">
+        10% CASHBACK ON YOUR TOTAL HOSPITAL BILL (EXCLUDING PHARMACY AND IMPLANTS)
       </div>
     </div>
 
