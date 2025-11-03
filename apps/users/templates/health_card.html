@@ -169,18 +169,18 @@ body {
 .partition-line {
   position: relative;
   border-top: 2px solid #007a8f;
-  margin: 25px 0 15px;
+  margin: 35px 0 15px;
   height: 0;
 }
 .partition-line .cashback-oval {
   position: absolute;
   right: 20px;
-  top: -50px;
+  top: -38px;               /* lowered to avoid overlap */
   background: #007a8f;
   color: white;
-  width: 370px;
-  height: 85px;
-  border-radius: 85px / 42px;
+  width: 340px;
+  height: 70px;             /* reduced height */
+  border-radius: 70px / 35px; /* adjusted oval proportions */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -190,8 +190,8 @@ body {
   text-align: center;
   text-transform: uppercase;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  line-height: 1.4;
-  padding: 6px 12px;
+  line-height: 1.3;
+  padding: 4px 10px;
 }
 
 /* Extra Horizontal Line Before Instructions */
