@@ -108,9 +108,11 @@ body {
   margin-top: 5px;
 }
 
+/* FRONT FOOTER WITH VERTICAL LINE */
 .front-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   background: #007a8f;
   color: white;
   font-size: 12px;
@@ -119,6 +121,19 @@ body {
   margin-top: 15px;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
+}
+.front-footer .footer-item {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  flex: 1;
+}
+.front-footer .divider-vertical {
+  width: 1.5px;
+  height: 25px;
+  background: white;
+  margin: 0 15px;
 }
 
 /* BACK CARD SECTION */
@@ -159,23 +174,30 @@ body {
 }
 .partition-line .cashback-oval {
   position: absolute;
-  right: 15px;
-  top: -25px;
+  right: 20px;
+  top: -50px;
   background: #007a8f;
   color: white;
-  width: 310px;
-  height: 55px;
-  border-radius: 55px / 28px;
+  width: 370px;
+  height: 85px;
+  border-radius: 85px / 42px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   font-size: 11px;
   font-weight: 600;
   text-align: center;
   text-transform: uppercase;
-  padding: 0 12px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   line-height: 1.4;
+  padding: 6px 12px;
+}
+
+/* Extra Horizontal Line Before Instructions */
+.partition-before-instructions {
+  border-top: 1.5px solid #007a8f;
+  margin: 15px 0;
 }
 
 /* Footer / Price */
@@ -235,8 +257,13 @@ body {
     </div>
 
     <div class="front-footer">
-      <div>WHATSAPP HELPLINE<br>+91 8535 8535 89</div>
-      <div>EMAIL ID<br>support@vaidyabandhu.com</div>
+      <div class="footer-item">
+        <div>WHATSAPP HELPLINE<br>+91 8535 8535 89</div>
+      </div>
+      <div class="divider-vertical"></div>
+      <div class="footer-item">
+        <div>EMAIL ID<br>support@vaidyabandhu.com</div>
+      </div>
     </div>
   </div>
 
@@ -256,7 +283,9 @@ body {
     <!-- Partition Line with Horizontal Cashback Oval -->
     <div class="partition-line">
       <div class="cashback-oval">
-        10% CASHBACK ON YOUR TOTAL HOSPITAL BILL (EXCLUDING PHARMACY AND IMPLANTS)
+        <div>10% CASHBACK ON YOUR</div>
+        <div>TOTAL HOSPITAL BILL</div>
+        <div>EXCLUDING PHARMACY AND IMPLANTS</div>
       </div>
     </div>
 
@@ -274,6 +303,9 @@ body {
         <li>Does not cover emergency services unless pre-approved.</li>
       </ul>
     </div>
+
+    <!-- Horizontal line before instructions -->
+    <div class="partition-before-instructions"></div>
 
     <div class="section">
       <h3>INSTRUCTIONS TO USE</h3>
