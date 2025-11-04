@@ -262,48 +262,61 @@ class UserViewSet(custom_viewsets.ModelViewSet):
         email = self.request.data.get("email")
         source = self.request.headers.get("X-App-Type")
 
-        if not User.objects.filter(mobile=username, is_active=True).first():
-            return custom_json_response(message='Account Deactivated')
+        # 1️⃣ Check if user exists and is active
+        user_obj = User.objects.filter(mobile=username, is_active=True).first()
+        if not user_obj:
+            return custom_json_response(message="Account Deactivated", status=status.HTTP_400_BAD_REQUEST)
 
-        authenticated_patient = validate_access_attempts(username, password, request)
-
+        # 2️⃣ Validate OTP existence
         otp_storage = OTPStorage.objects.filter(mobile=username, is_active=True).first()
-        if datetime.now().timestamp() > otp_storage.otp_expiration_time.timestamp():
-            raise Exception("OTPExpiredException")
-        message = "Login successful!"
+        if not otp_storage:
+            return custom_json_response(message="Invalid OTP", status=status.HTTP_400_BAD_REQUEST)
 
+        # 3️⃣ Check if OTP expired
+        if datetime.now().timestamp() > otp_storage.otp_expiration_time.timestamp():
+            otp_storage.is_active = False
+            otp_storage.save(update_fields=["is_active"])
+            return custom_json_response(message="OTP expired", status=status.HTTP_400_BAD_REQUEST)
+
+        # 4️⃣ Verify the OTP
+        try:
+            authenticated_patient = validate_access_attempts(username, password, request)
+        except Exception:
+            return custom_json_response(message="Invalid OTP", status=status.HTTP_400_BAD_REQUEST)
+
+        # 5️⃣ Mark OTP as used
+        otp_storage.is_active = False
+        otp_storage.save(update_fields=["is_active"])
+
+        # 6️⃣ Continue with login flow
         update_last_login(None, authenticated_patient)
         random_password = generate_otp(isRandom=True)
-
-        # if not settings.IS_PRODUCTION:
-        #     random_password = settings.HARDCODED_MOBILE_OTP
-        # else:
-        #     random_password = get_random_string(length=settings.OTP_LENGTH, allowed_chars=settings.OTP_CHARACTERS)
-
-        # if not is_family_member:
         authenticated_patient.set_password(random_password)
         authenticated_patient.save()
+
         serializer = self.get_serializer(authenticated_patient)
+        message = "Login successful!"
 
         if not authenticated_patient.mobile_verified:
             authenticated_patient.mobile_verified = True
+            authenticated_patient.save(update_fields=["mobile_verified"])
             message = "Your account is activated successfully!"
 
+        # 7️⃣ Generate JWT tokens
         jwt_payload = {
-            'id': authenticated_patient.id,
+            "id": authenticated_patient.id,
             "email": authenticated_patient.email,
             "mobile": authenticated_patient.mobile,
-            'first_name': authenticated_patient.first_name,
-            'user_role': [],
-            'access_type': 'crm',
-            'created_time': str(datetime.utcnow()),
+            "first_name": authenticated_patient.first_name,
+            "user_role": [],
+            "access_type": "crm",
+            "created_time": str(datetime.utcnow()),
             "iat": datetime.now(tz=timezone.utc),
-            "exp": datetime.now(tz=timezone.utc) + settings.JWT_AUTH['JWT_EXPIRATION_DELTA']
+            "exp": datetime.now(tz=timezone.utc) + settings.JWT_AUTH["JWT_EXPIRATION_DELTA"],
         }
-        token = jwt.encode(jwt_payload, settings.SECRET_KEY, algorithm="HS256")
 
+        token = jwt.encode(jwt_payload, settings.SECRET_KEY, algorithm="HS256")
         refresh = RefreshToken.for_user(authenticated_patient)
-        refresh_token = str(refresh)
 
         UserTokens.objects.filter(user=authenticated_patient).delete()
         UserTokens.objects.create(user=authenticated_patient, token=token)
@@ -311,9 +324,15 @@ class UserViewSet(custom_viewsets.ModelViewSet):
         data = {
             "profile_data": serializer.data,
             "token": token,
-            "refresh_token": refresh_token
+            "refresh_token": str(refresh),
         }
-        return custom_json_response(data=data, status=status.HTTP_200_OK, success=True, message=message)
+
+        return custom_json_response(
+            data=data,
+            status=status.HTTP_200_OK,
+            success=True,
+            message=message
+        )
 
     @action(detail=False, methods=['POST'], url_path='resend-otp')
     def resend_otp(self, request):
