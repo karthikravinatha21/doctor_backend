@@ -3,10 +3,7 @@
 <head>
 <meta charset="utf-8">
 <style>
-@page {
-  size: A4 portrait;
-  margin: 0;
-}
+@page { size: A4 portrait; margin: 0; }
 body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
@@ -17,11 +14,11 @@ body {
   padding: 24px 0;
 }
 
-/* COMMON CARD STYLE */
+/* COMMON CARD */
 .card {
   width: 680px;
-  height: 520px;              /* increased height */
-  background: #ffffff;
+  height: 520px;
+  background: #fff;
   border-radius: 14px;
   box-shadow: 0 0 10px rgba(0,0,0,0.08);
   border: 1px solid #dcdcdc;
@@ -35,7 +32,7 @@ body {
 
 /* FRONT CARD */
 .front {
-  padding: 20px 30px 15px 30px;
+  padding: 22px 32px 16px 32px;
   box-sizing: border-box;
 }
 .front-header {
@@ -43,16 +40,16 @@ body {
   align-items: center;
   gap: 10px;
   border-bottom: 2px solid #007a8f;
-  padding-bottom: 8px;
+  padding-bottom: 10px;
 }
 .front-header .logo img {
-  width: 55px;
-  height: 55px;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
 }
 .front-header .divider {
   width: 2px;
-  height: 45px;
+  height: 50px;
   background: #007a8f;
 }
 .front-header .title {
@@ -64,17 +61,20 @@ body {
 .front-header .title h2 {
   color: #007a8f;
   margin: 0;
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 23px; /* Increased */
+  font-weight: 800;
 }
 .front-header .title p {
-  color: #444;
+  color: #333;
   margin: 0;
-  font-size: 12.5px;
+  font-size: 14px; /* Increased */
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
+/* DETAILS */
 .details {
-  margin-top: 18px;
+  margin-top: 20px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -82,23 +82,19 @@ body {
 }
 .info {
   flex: 1;
-  font-size: 12.5px;
-  line-height: 1.55;
+  font-size: 13.5px; /* Increased */
+  line-height: 1.7;
   color: #333;
 }
-.info strong {
-  color: #007a8f;
-}
+.info strong { color: #007a8f; }
 .photo {
-  width: 100px;
-  height: 120px;
+  width: 110px;
+  height: 130px;
   border: 1.5px solid #007a8f;
   border-radius: 8px;
   overflow: hidden;
-  text-align: center;
-  font-size: 11px;
-  color: #999;
   margin-left: 18px;
+  flex-shrink: 0;
 }
 .photo img {
   width: 100%;
@@ -109,8 +105,8 @@ body {
   text-align: center;
   color: #007a8f;
   font-weight: 600;
-  font-size: 13px;
-  margin-top: 5px;
+  font-size: 13.5px;
+  margin-top: 6px;
 }
 
 /* FRONT FOOTER */
@@ -120,16 +116,13 @@ body {
   align-items: center;
   background: #007a8f;
   color: white;
-  font-size: 11.5px;
+  font-size: 12.5px; /* Slightly larger */
   font-weight: 500;
   padding: 8px 15px;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 }
 .front-footer .footer-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex: 1;
   text-align: center;
 }
@@ -142,19 +135,19 @@ body {
 
 /* BACK CARD */
 .back {
-  padding: 20px 30px 15px 30px;
+  padding: 18px 30px 14px 30px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 .section {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .section h3 {
   color: #007a8f;
-  font-size: 13.5px;
-  margin-bottom: 6px;
+  font-size: 12px; /* Reduced */
+  margin-bottom: 4px;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -164,7 +157,7 @@ body {
   margin: 0;
 }
 .section ul li {
-  font-size: 12px;
+  font-size: 10.5px; /* Reduced */
   color: #333;
   margin-bottom: 3px;
   line-height: 1.3;
@@ -178,29 +171,29 @@ body {
 .partition-line {
   position: relative;
   border-top: 2px solid #007a8f;
-  margin: 22px 0 15px;
+  margin: 18px 0 12px;
   height: 0;
 }
 .partition-line .cashback-oval {
   position: absolute;
   right: 20px;
-  top: -26px;
+  top: -25px;
   background: #007a8f;
   color: white;
-  width: 260px;
-  height: 55px;
-  border-radius: 55px / 27px;
+  width: 250px;
+  height: 50px;
+  border-radius: 50px / 25px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
   text-align: center;
   text-transform: uppercase;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   line-height: 1.2;
-  padding: 4px 10px;
+  padding: 3px 8px;
 }
 
 /* Divider before Instructions */
@@ -214,7 +207,7 @@ body {
   color: #007a8f;
   text-align: right;
   font-weight: 700;
-  font-size: 20px;
+  font-size: 18px;
   margin-top: -5px;
 }
 .footer {
@@ -222,8 +215,8 @@ body {
   color: white;
   text-align: center;
   font-weight: 600;
-  font-size: 11.5px;
-  padding: 8px 0;
+  font-size: 11px;
+  padding: 7px 0;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 }
