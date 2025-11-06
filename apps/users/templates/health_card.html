@@ -2,270 +2,350 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Membership Card</title>
 <style>
-/* ---- PAGE ---- */
 @page { size: A4 portrait; margin: 0; }
-:root{
-  --teal:#007a8f;
-  --text:#333;
-  --muted:#e6e9ec;
-  --shadow: rgba(0,0,0,.10);
-}
-
-/* Base */
-html,body{margin:0;padding:0;font-family:'Poppins',sans-serif;background:#f5f7f9;}
-.wrapper{
-  width: 100%;
-  min-height: 100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  background: #f5f7f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 24px 0;
-  box-sizing:border-box;
 }
 
-/* ---- CARD PROPORTION (ID-1 debit card ratio) ----
-   Ratio ≈ 85.60mm : 53.98mm ≈ 1.586 : 1
-   We scale to fit two on one page comfortably.
-*/
-.card{
-  width: 720px;                /* scaled debit-card width */
-  height: 454px;               /* 720 / 1.586 ≈ 454 */
-  background:#fff;
-  border-radius: 18px;
-  border: 1px solid var(--muted);
-  box-shadow: 0 8px 20px var(--shadow);
+/* COMMON CARD */
+.card {
+  width: 680px;
+  height: 520px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.08);
+  border: 1px solid #dcdcdc;
+  margin-bottom: 24px;
   overflow: hidden;
-  margin-bottom: 22px;         /* gap between front & back */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
   position: relative;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
 }
 
-/* Common paddings */
-.card-inner{
-  padding: 22px 30px 16px 30px;
-  box-sizing:border-box;
-  display:flex;
-  flex-direction:column;
+/* FRONT CARD */
+.front {
+  padding: 24px 34px 16px 34px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+}
+
+/* BACKGROUND LOGO for FRONT CARD */
+.front::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 360px;
+  height: 360px;
+  background: url('https://vaidya-bhandhu-prod.s3.ap-south-1.amazonaws.com/media/WhatsApp+Image+2025-11-03+at+8.16.46+PM.jpeg') no-repeat center center;
+  background-size: contain;
+  opacity: 0.08;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+}
+.front > * { position: relative; z-index: 1; }
+
+/* FRONT HEADER */
+.front-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid #007a8f;
+  padding-bottom: 12px;
+}
+.front-header .logo img { width: 62px; height: 62px; object-fit: contain; }
+.front-header .divider { width: 2px; height: 52px; background: #007a8f; }
+.front-header .title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.front-header .title h2 {
+  color: #007a8f;
+  margin: 0;
+  font-size: 25px;
+  font-weight: 800;
+}
+.front-header .title p {
+  color: #333;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* FRONT DETAILS */
+.details {
+  margin-top: 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 18px;
 }
-
-/* ---------------- FRONT ---------------- */
-.front .card-inner{ position:relative; z-index:1; }
-
-/* Watermark */
-.front .card-inner::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  margin:auto;
-  width: 58%;
-  height: 58%;
-  background: url('https://vaidya-bhandhu-prod.s3.ap-south-1.amazonaws.com/media/WhatsApp+Image+2025-11-03+at+8.16.46+PM.jpeg') center/contain no-repeat;
-  opacity:.085;          /* subtle like reference */
-  z-index:0;
-  pointer-events:none;
+.info {
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.75;
+  color: #333;
 }
+.info p { margin-bottom: 10px; }
+.info strong { color: #007a8f; }
 
-/* Header */
-.header{
-  display:flex; align-items:center; gap:12px;
-  padding-bottom:10px;
-  border-bottom:2px solid var(--teal);
+.photo {
+  width: 110px;
+  height: 135px;
+  border: 1.5px solid #007a8f;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
-.header .logo img{width:58px;height:58px;object-fit:contain;}
-.header .vdiv{width:2px;height:48px;background:var(--teal);}
-.header .title{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;}
-.header .title h1{
-  margin:0; color:var(--teal); font-weight:800; letter-spacing:.2px;
-  font-size: 26px;               /* larger like screenshot */
-}
-.header .title .sub{
-  margin:0; color:#2f2f2f; font-weight:500; letter-spacing:.2px;
-  font-size: 14.5px;
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.name {
+  text-align: center;
+  color: #007a8f;
+  font-weight: 600;
+  font-size: 14px;
+  margin-top: 8px;
 }
 
-/* Body */
-.row{display:flex; justify-content:space-between; align-items:flex-start; gap:16px;}
-.info{
-  z-index:1; flex:1; color:var(--text);
-  font-size: 14.5px;             /* fills space cleanly */
-  line-height: 1.65;             /* matches reference rhythm */
+/* FRONT FOOTER */
+.front-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #007a8f;
+  color: white;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 10px 15px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
-.info p{margin:0 0 8px 0;}
-.info strong{color:var(--teal); font-weight:700;}
-.photo-block{display:flex; flex-direction:column; align-items:center; gap:8px;}
-.photo{
-  width:112px; height:136px; border:1.5px solid var(--teal);
-  border-radius:10px; overflow:hidden; flex-shrink:0; background:#f3f6f8;
-}
-.photo img{width:100%; height:100%; object-fit:cover;}
-.name{color:var(--teal); font-weight:600; font-size:13.5px}
-
-/* Footer strip */
-.front .footer-strip{
-  display:flex; align-items:center; justify-content:center;
-  background:var(--teal); color:#fff;
-  padding: 10px 16px;
-  font-size: 12.5px; font-weight:500;
-  border-bottom-left-radius: 14px; border-bottom-right-radius: 14px;
-}
-.front .footer-strip .item{flex:1; text-align:center;}
-.front .footer-strip .divider{width:1.6px; height:24px; background:#fff; margin:0 14px;}
-
-/* ---------------- BACK ---------------- */
-.back .card-inner{ gap:16px; }
-
-/* Section headings */
-.section h3{
-  margin:0 0 6px 0; color:var(--teal); font-weight:800;
-  font-size: 13px; text-transform:uppercase; letter-spacing:.3px;
+.front-footer .footer-item { flex: 1; text-align: center; }
+.front-footer .divider-vertical {
+  width: 1.5px;
+  height: 25px;
+  background: white;
+  margin: 0 15px;
 }
 
-/* BENEFITS: tick bullets */
-.section.benefits ul{list-style:none; margin:0; padding:0;}
-.section.benefits li{
-  position:relative; padding-left:18px;
-  font-size: 11.2px; color:var(--text); line-height:1.35; margin: 3px 0;
+/* BACK CARD */
+.back {
+  padding: 18px 30px 14px 30px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
-.section.benefits li::before{
-  content:"✔"; color:var(--teal); font-weight:700; position:absolute; left:0; top:0;
-}
-
-/* Divider line with oval */
-.partition{
-  position:relative; border-top:2px solid var(--teal); height:0; margin: 20px 0 10px;
-}
-.cashback{
-  position:absolute; right: 22px; top: -22px;
-  width: 215px; height: 40px; border-radius: 40px/20px;
-  background: var(--teal); color:#fff;
-  display:flex; align-items:center; justify-content:center; text-align:center;
-  flex-direction:column; line-height:1.15; font-weight:700; text-transform:uppercase;
-  font-size: 9px; padding: 3px 10px; box-shadow:0 2px 6px var(--shadow);
+.section { margin-bottom: 12px; }
+.section h3 {
+  color: #007a8f;
+  font-size: 12px;
+  margin-bottom: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
-/* TERMS & INSTRUCTIONS: dots */
-.section.terms ul, .section.instructions ul{list-style: disc; padding-left: 18px; margin:0;}
-.section.terms li, .section.instructions li{
-  font-size: 10.8px; color:var(--text); line-height:1.3; margin: 3px 0;
+/* ✅ BENEFITS section - KEEP tick ✔ */
+.section.benefits ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+.section.benefits ul li {
+  font-size: 10.5px;
+  color: #333;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.section.benefits ul li::before {
+  content: "✔ ";
+  color: #007a8f;
+  font-weight: bold;
 }
 
-/* Thin divider before instructions */
-.hdiv{border-top:1.5px solid var(--teal); margin: 10px 0;}
+/* ✅ TERMS & INSTRUCTIONS - use dots ● */
+.section.terms ul,
+.section.instructions ul {
+  list-style: disc;
+  padding-left: 18px;
+  margin: 0;
+}
+.section.terms ul li,
+.section.instructions ul li {
+  font-size: 10.5px;
+  color: #333;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
 
-/* Price + bottom footer bar */
-.price{color:var(--teal); font-weight:800; font-size: 20px; text-align:right;}
-.bottom-bar{
-  background:var(--teal); color:#fff; text-align:center; font-weight:700;
-  padding: 8px 0; font-size:11.5px; border-bottom-left-radius:14px; border-bottom-right-radius:14px;
+/* Partition Line and Cashback Oval */
+.partition-line {
+  position: relative;
+  border-top: 2px solid #007a8f;
+  margin: 20px 0 12px;
+}
+.partition-line .cashback-oval {
+  position: absolute;
+  right: 20px;
+  top: -22px;
+  background: #007a8f;
+  color: white;
+  width: 220px;
+  height: 42px;
+  border-radius: 42px / 21px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  line-height: 1.2;
+  padding: 3px 8px;
+}
+
+/* Divider before Instructions */
+.partition-before-instructions {
+  border-top: 1.5px solid #007a8f;
+  margin: 10px 0;
+}
+
+/* Footer / Price */
+.price {
+  color: #007a8f;
+  text-align: right;
+  font-weight: 700;
+  font-size: 18px;
+  margin-top: -5px;
+}
+.footer {
+  background: #007a8f;
+  color: white;
+  text-align: center;
+  font-weight: 600;
+  font-size: 11.5px;
+  padding: 8px 0;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 </style>
 </head>
 <body>
-<div class="wrapper">
 
-  <!-- FRONT -->
-  <section class="card front">
-    <div class="card-inner">
-      <div class="header">
-        <div class="logo">
-          <img src="https://vaidya-bhandhu-prod.s3.ap-south-1.amazonaws.com/media/LOGO.jpg" alt="Logo">
-        </div>
-        <div class="vdiv"></div>
-        <div class="title">
-          <h1>VAIDYA BANDHU</h1>
-          <p class="sub">HEALTHCARE MEMBERSHIP CARD</p>
-        </div>
+<!-- FRONT CARD -->
+<div class="card front">
+  <div>
+    <div class="front-header">
+      <div class="logo">
+        <img src="https://vaidya-bhandhu-prod.s3.ap-south-1.amazonaws.com/media/LOGO.jpg" alt="Logo">
       </div>
-
-      <div class="row">
-        <div class="info">
-          <p><strong>MEMBERSHIP ID:</strong> {{ membership_id }}</p>
-          <p><strong>VALIDITY:</strong> {{ start_date|date:"d-m-Y" }} to {{ end_date|date:"d-m-Y" }}</p>
-          <p><strong>CONTACT:</strong> {{ contact }}</p>
-          <p><strong>BLOOD GROUP:</strong> <span style="color:#d30000;font-weight:700">{{ blood_group }}</span></p>
-          <p><strong>ADDRESS:</strong> {{ address }}</p>
-        </div>
-
-        <div class="photo-block">
-          <div class="photo">
-            {% if photo_url %}
-              <img src="{{ photo_url }}" alt="Profile">
-            {% endif %}
-          </div>
-          <div class="name">{{ name }}</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer-strip">
-      <div class="item">WHATSAPP HELPLINE<br>+91 8535 8535 89</div>
       <div class="divider"></div>
-      <div class="item">EMAIL ID<br>support@vaidyabandhu.com</div>
+      <div class="title">
+        <h2>VAIDYA BANDHU</h2>
+        <p>HEALTHCARE MEMBERSHIP CARD</p>
+      </div>
     </div>
-  </section>
 
-  <!-- BACK -->
-  <section class="card back">
-    <div class="card-inner">
-      <div class="section benefits">
-        <h3>Benefits Of This Card</h3>
-        <ul>
-          <li>Save 10% to 40% on surgeries, treatments, and diagnostics services.</li>
-          <li>Get 10% Cashback by sending your bill via WhatsApp or Email within 7 working days.</li>
-          <li>Free surgeries available for those in need through social programs.</li>
-          <li>Call our helpline from 9 AM to 6 PM for free medical advice.</li>
-          <li>We help you choose the right doctor, hospital, or diagnostic center.</li>
-        </ul>
+    <div class="details">
+      <div class="info">
+        <p><strong>MEMBERSHIP ID:</strong> {{ membership_id }}</p>
+        <p><strong>VALIDITY:</strong> {{ start_date|date:"d-m-Y" }} to {{ end_date|date:"d-m-Y" }}</p>
+        <p><strong>CONTACT:</strong> {{ contact }}</p>
+        <p><strong>BLOOD GROUP:</strong> <span style="color:red; font-weight:600;">{{ blood_group }}</span></p>
+        <p><strong>ADDRESS:</strong> {{ address }}</p>
       </div>
 
-      <div class="partition">
-        <div class="cashback">
-          <div>10% CASHBACK ON YOUR</div>
-          <div>TOTAL HOSPITAL BILL</div>
-          <div>EXCLUDING PHARMACY AND IMPLANTS</div>
+      <div>
+        <div class="photo">
+          {% if photo_url %}
+            <img src="{{ photo_url }}" alt="Profile">
+          {% else %}
+            <p>No Photo</p>
+          {% endif %}
         </div>
+        <div class="name">{{ name }}</div>
       </div>
+    </div>
+  </div>
 
-      <div class="section terms">
-        <h3>Terms & Conditions</h3>
-        <ul>
-          <li>Card valid for 1 year from the date of issue.</li>
-          <li>Use limited to registered individual only.</li>
-          <li>Discounts available on treatments, surgeries, diagnostics, and more.</li>
-          <li>Booking required before visiting facility to avail benefits.</li>
-          <li>Duplicate card can be issued with a small reissue fee.</li>
-          <li>Offers valid only at partner hospitals, doctors, and labs.</li>
-          <li>Benefits non-redeemable for cash.</li>
-          <li>Misuse may result in membership cancellation.</li>
-          <li>Does not cover emergency services unless pre-approved.</li>
-        </ul>
-      </div>
+  <div class="front-footer">
+    <div class="footer-item">WHATSAPP HELPLINE<br>+91 8535 8535 89</div>
+    <div class="divider-vertical"></div>
+    <div class="footer-item">EMAIL ID<br>support@vaidyabandhu.com</div>
+  </div>
+</div>
 
-      <div class="hdiv"></div>
-
-      <div class="section instructions">
-        <h3>Instructions To Use</h3>
-        <ul>
-          <li>Call or WhatsApp +91 8535853589</li>
-          <li>Share your Membership ID and issue</li>
-          <li>Get instant help from the Vaidya Bandhu Team</li>
-        </ul>
-      </div>
-
-      <div class="price">49/-</div>
+<!-- BACK CARD -->
+<div class="card back">
+  <div>
+    <div class="section benefits">
+      <h3>BENEFITS OF THIS CARD</h3>
+      <ul>
+        <li>Save 10% to 40% on surgeries, treatments, and diagnostics services.</li>
+        <li>Get 10% Cashback by sending your bill via WhatsApp or Email within 7 working days.</li>
+        <li>Free surgeries available for those in need through social programs.</li>
+        <li>Call our helpline from 9 AM to 6 PM for free medical advice.</li>
+        <li>We help you choose the right doctor, hospital, or diagnostic center.</li>
+      </ul>
     </div>
 
-    <div class="bottom-bar">
+    <div class="partition-line">
+      <div class="cashback-oval">
+        <div>10% CASHBACK ON YOUR</div>
+        <div>TOTAL HOSPITAL BILL</div>
+        <div>EXCLUDING PHARMACY AND IMPLANTS</div>
+      </div>
+    </div>
+
+    <div class="section terms">
+      <h3>TERMS & CONDITIONS</h3>
+      <ul>
+        <li>Card valid for 1 year from the date of issue.</li>
+        <li>Use limited to registered individual only.</li>
+        <li>Discounts available on treatments, surgeries, diagnostics, and more.</li>
+        <li>Booking required before visiting facility to avail benefits.</li>
+        <li>Duplicate card can be issued with a small reissue fee.</li>
+        <li>Offers valid only at partner hospitals, doctors, and labs.</li>
+        <li>Benefits non-redeemable for cash.</li>
+        <li>Misuse may result in membership cancellation.</li>
+        <li>Does not cover emergency services unless pre-approved.</li>
+      </ul>
+    </div>
+
+    <div class="partition-before-instructions"></div>
+
+    <div class="section instructions">
+      <h3>INSTRUCTIONS TO USE</h3>
+      <ul>
+        <li>Call or WhatsApp +91 8535853589</li>
+        <li>Share your Membership ID and issue</li>
+        <li>Get instant help from the Vaidya Bandhu Team</li>
+      </ul>
+    </div>
+  </div>
+
+  <div>
+    <div class="price">49/-</div>
+    <div class="footer">
       VAIDYA BANDHU (A UNIT OF MY COMPANYON HEALTHCARE PRIVATE LIMITED)<br>
       “SERVING WITH CARE & COMMITMENT”
     </div>
-  </section>
-
+  </div>
 </div>
+
 </body>
 </html>
