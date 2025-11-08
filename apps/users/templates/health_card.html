@@ -33,7 +33,7 @@ body {
 
 /* FRONT CARD */
 .front {
-  padding: 10px 16px 6px 16px;
+  padding: 10px 16px 6px 16px; /* Reduced padding */
   box-sizing: border-box;
   position: relative;
   z-index: 1;
@@ -42,18 +42,17 @@ body {
   justify-content: space-between;
 }
 
-/* BACKGROUND LOGO */
+/* BACKGROUND LOGO for FRONT CARD */
 .front::before {
   content: "";
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 180px;
-  height: 180px;
-  background: url('https://vaidya-bhandhu-prod.s3.ap-south-1.amazonaws.com/media/WhatsApp+Image+2025-11-03+at+8.16.46+PM.jpeg')
-              no-repeat center center;
+  width: 180px; /* Reduced size */
+  height: 180px; /* Reduced size */
+  background: url('https://vaidya-bhandhu-prod.s3.ap-south-1.amazonaws.com/media/WhatsApp+Image+2025-11-03+at+8.16.46+PM.jpeg') no-repeat center center;
   background-size: contain;
-  opacity: 0.05;
+  opacity: 0.05; /* Reduced opacity */
   transform: translate(-50%, -50%);
   z-index: 0;
   pointer-events: none;
@@ -80,7 +79,7 @@ body {
 .front-header .divider { 
   width: 1px; 
   height: 26px; 
-  background: #00000038; 
+  background:  #00000038; 
 }
 .front-header .title {
   flex: 1;
@@ -175,7 +174,7 @@ body {
   justify-content: space-between;
 }
 .section { 
-  margin-bottom: 6px; /* Increased spacing to prevent overlap */
+  margin-bottom: 4px;
 }
 .section h3 {
   color: #007a8f;
@@ -185,7 +184,7 @@ body {
   text-transform: uppercase;
 }
 
-/* BENEFITS */
+/* BENEFITS section */
 .section.benefits ul {
   list-style: none;
   margin: 0;
@@ -194,8 +193,8 @@ body {
 .section.benefits ul li {
   font-size: 7.5px;
   color: #333;
-  margin-bottom: 2px;       /* slightly increased */
-  line-height: 1.15;
+  margin-bottom: 1px;
+  line-height: 1.1;
 }
 .section.benefits ul li::before {
   content: "✔ ";
@@ -203,36 +202,7 @@ body {
   font-weight: bold;
 }
 
-/* CIRCLE DIVIDER */
-.partition-line {
-  position: relative;
-  border-top: 1px solid #00000038;
-  margin: 8px -16px 3px;  /* pushed down slightly */
-  padding: 0 16px;
-}
-.partition-line .cashback-oval {
-  position: absolute;
-  right: 8px;
-  top: -10px;   /* moved slightly lower */
-  background: #007a8f;
-  color: white;
-  width: 110px;  /* reduced */
-  height: 20px;  /* reduced height */
-  border-radius: 20px / 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 4.6px;
-  font-weight: 600;
-  text-align: center;
-  text-transform: uppercase;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.18);
-  line-height: 1;
-  padding: 1px 2px;
-}
-
-/* TERMS + INSTRUCTIONS */
+/* TERMS & INSTRUCTIONS */
 .section.terms ul,
 .section.instructions ul {
   list-style: disc;
@@ -247,6 +217,35 @@ body {
   line-height: 1.1;
 }
 
+/* Partition Line and Cashback Oval */
+.partition-line {
+  position: relative;
+  border-top: 1px solid #00000038;
+  margin: 5px -16px 3px;
+  padding: 0 16px;
+}
+.partition-line .cashback-oval {
+  position: absolute;
+  right: 2px;
+  top: -12px;
+  background: #007a8f;
+  color: white;
+  width: 120px;
+  height: 24px;
+  border-radius: 24px / 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 5px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  line-height: 1;
+  padding: 1px 3px;
+}
+
 /* Divider before Instructions */
 .partition-before-instructions {
   border-top: 1px solid #00000038;
@@ -259,6 +258,7 @@ body {
   position: relative;
   margin: 0 -16px -6px -16px;
 }
+
 .back-footer {
   background: #007a8f;
   color: white;
@@ -267,13 +267,14 @@ body {
   border-bottom-right-radius: 10px;
   text-align: center;
 }
+
 .back-footer .company-info {
   font-weight: 600;
   font-size: 7px;
   line-height: 1.1;
 }
 
-/* Price */
+/* Price tag */
 .price-tag {
   position: absolute;
   top: -18px;
