@@ -217,7 +217,7 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
                 "slots": serializer.data
             }, status=status.HTTP_201_CREATED)
         except Exception as ex:
-            print(ex)
+            return Response({"error": str(ex)}, status=400)
 
     def patch(self, request, *args, **kwargs):
         """
