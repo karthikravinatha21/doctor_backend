@@ -62,11 +62,6 @@ class UserDataSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Mobile number must be at least 10 digits long.")
         return value
 
-    def create(self, validated_data):
-        # You can handle password separately if required
-        user = User.objects.create(**validated_data)
-        return user
-
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
