@@ -61,6 +61,7 @@ class IsUserblockedPermission(permissions.BasePermission):
                 if 'id' in decode and decode['id']:
                     request.META['id'] = decode['id']
                     request.id = decode['id']
+                    request.access_type = 'doctor'
                     request.user = Doctor.objects.get(id=request.id)
                     return True
                 
@@ -68,6 +69,7 @@ class IsUserblockedPermission(permissions.BasePermission):
                 if 'id' in decode and decode['id']:
                     request.META['id'] = decode['id']
                     request.id = decode['id']
+                    request.access_type = 'user'
                     request.user = User.objects.get(id=request.id)
                     return True
             raise UserAccountBlockedException

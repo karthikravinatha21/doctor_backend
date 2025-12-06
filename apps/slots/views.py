@@ -124,8 +124,12 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
 
 
     def list(self, request):
-        doctor_id = request.user.id
-        hospital_id = request.user.hospital.first().id
+        if request.access_type == 'doctor':
+            doctor_id = request.user.id
+            hospital_id = request.user.hospital.first().id
+        else:
+            doctor_id = request.GET.get('doctor_id')
+            hospital_id = request.GET.get('hospital_id')
         start_date = parse_date(request.GET.get("start_date"))
         end_date = parse_date(request.GET.get("end_date"))
         is_slot_blocked = request.GET.get("is_blocked", None)
