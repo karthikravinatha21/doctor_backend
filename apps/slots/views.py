@@ -20,7 +20,7 @@ from django.db.models import Q
 
 
 class SlotsViewSet(custom_viewsets.ModelViewSet):
-    permission_classes = [IsDoctorblockedPermission]
+    permission_classes = [IsUserblockedPermission]
     model = Slot
     queryset = Slot.objects.all()
     serializer_class = SlotSerializer
