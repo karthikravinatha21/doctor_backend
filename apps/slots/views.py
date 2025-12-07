@@ -167,7 +167,7 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
             for date, slots in grouped_slots.items()
         ]
 
-        return Response(data=response_data)
+        return Response({"data": response_data}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['GET'])
     def next_available_slot(self, request):

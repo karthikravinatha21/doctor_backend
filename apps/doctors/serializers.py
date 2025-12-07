@@ -23,6 +23,7 @@ class DoctorSpecificSerializer(DynamicFieldsModelSerializer):
 
 class DoctorSerializer(serializers.ModelSerializer):
     hospital_name = serializers.SerializerMethodField()
+    hospital_id = serializers.SerializerMethodField()
     department_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -47,6 +48,17 @@ class DoctorSerializer(serializers.ModelSerializer):
             if obj.hospital.first():
                 hospital = obj.hospital.first()
                 return hospital.name
+            else:
+                None
+    
+    def get_hospital_id(self, obj):
+        hospital_id = self.context.get('hospital_id')
+        if hospital_id:
+            return hospital_id
+        else:
+            if obj.hospital.first():
+                hospital = obj.hospital.first()
+                return hospital.id
             else:
                 None
 
