@@ -171,7 +171,7 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def next_available_slot(self, request):
-        if user.access_type == 'doctor':
+        if request.access_type == 'doctor':
             doctor_id = request.user.id
             hospital_id = request.user.hospital.first().id
         else:
