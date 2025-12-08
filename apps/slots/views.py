@@ -171,8 +171,12 @@ class SlotsViewSet(custom_viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def next_available_slot(self, request):
-        doctor_id = request.user.id
-        hospital_id = request.user.hospital.first().id
+        if user.access_type == 'doctor':
+            doctor_id = request.user.id
+            hospital_id = request.user.hospital.first().id
+        else:
+            doctor_id = request.GET.get('doctor_id')
+            hospital_id = request.GET.get('hospital_id')
         current_date = request.GET.get("start_date")
 
         today = timezone.now().date()
