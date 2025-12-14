@@ -205,7 +205,7 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
                 "slot": slot,
                 "hospital": hospital,
                 "doctor": doctor,
-                "status": 'booked',
+                "status": 'pending',
                 "notes": notes,
                 "reason": reason
             }

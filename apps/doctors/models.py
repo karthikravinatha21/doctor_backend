@@ -164,10 +164,10 @@ class Appointment(MyBaseModel):
     from apps.slots.models import Slot
     from user_details.models import User
     STATUS_CHOICES = [
-        ('booked', 'Booked'),
-        ('cancelled', 'Cancelled'),
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('rejected', 'Rejected'),
         ('completed', 'Completed'),
-        ('no_show', 'No Show'),
     ]
     """
     Represents a booked appointment by a user for a slot.
