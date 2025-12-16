@@ -266,7 +266,7 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
                 "Doctor_Name": appointment.doctor.full_name,
                 "Appointment_Date": appointment.slot.start_time.strftime("%d %b %Y"),
                 "Appointment_Time": appointment.slot.start_time.strftime("%I:%M %p"),
-                "Clinic_Name": appointment.hospital.hospital_name,
+                "Clinic_Name": appointment.hospital.location_name,
                 "Hospital_Name": appointment.hospital.hospital_name,
             }
 
@@ -294,7 +294,7 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
                 "Doctor_Name": appointment.doctor.full_name,
                 "Appointment_Date": appointment.slot.start_time.strftime("%d %b %Y"),
                 "Appointment_Time": appointment.slot.start_time.strftime("%I:%M %p"),
-                "Clinic_Name": appointment.hospital.location_name,
+                "Clinic_Name": appointment.hospital.hospital_name,
                 "Year": now().year,
                 "Reason": request.data.get("reason"),
             }
