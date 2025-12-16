@@ -1,4 +1,9 @@
 import json
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.utils.timezone import now
+from django.conf import settings
 from apps.payments.models import UserSubscription
 from django.db.models import Q
 from rest_framework.decorators import action
@@ -221,21 +226,100 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
 
     def patch(self, request, *args, **kwargs):
         """
-        Creates slots from start_time to end_time with a given slot_duration.
+        Approve or reject an appointment and notify the user via email.
         """
+
+        appointment_status = request.data.get("status")
+        appointment_id = request.query_params.get("appointment_id")
+
+        if not appointment_status or not appointment_id:
+            return Response(
+                {"message": "status and appointment_id is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
-            appointment_id = request.query_params.get('appointment_id')
             appointment = self.get_queryset().get(id=appointment_id)
-        except Exception as e:
-            return Response({
-                "message": "Invalid Appointment ID",
-            }, status=400)
-        appointment.status = request.data.get("status")
+        except Exception:
+            return Response(
+                {"message": "Invalid Appointment ID"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Update appointment status
+        appointment.status = appointment_status
         appointment.save()
-        return Response({
+
+        user = appointment.user
+        doctor = appointment.doctor
+        clinic = appointment.hospital
+
+        recipient_email = user.email
+
+        # ============================
+        # APPOINTMENT APPROVED
+        # ============================
+        if appointment_status == "confirmed":
+
+            context = {
+                "Patient_Name": appointment.user.full_name,
+                "Doctor_Name": appointment.doctor.full_name,
+                "Appointment_Date": appointment.slot.start_time.strftime("%d %b %Y"),
+                "Appointment_Time": appointment.slot.start_time.strftime("%I:%M %p"),
+                "Clinic_Name": appointment.hospital.hospital_name,
+                "Hospital_Name": appointment.hospital.hospital_name,
+            }
+
+            html_message = render_to_string(
+                "admin/appointment_confirmation.html", context
+            )
+            plain_message = strip_tags(html_message)
+
+            send_mail(
+                subject="Appointment Confirmed - Vaidyabandhu",
+                message=plain_message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[recipient_email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+
+        # ============================
+        # APPOINTMENT REJECTED
+        # ============================
+        elif appointment_status == "rejected":
+
+            context = {
+                "Patient_Name": appointment.user.full_name,
+                "Doctor_Name": appointment.doctor.full_name,
+                "Appointment_Date": appointment.slot.start_time.strftime("%d %b %Y"),
+                "Appointment_Time": appointment.slot.start_time.strftime("%I:%M %p"),
+                "Clinic_Name": appointment.hospital.name,
+                "Year": now().year,
+                "Reason": request.data.get("reason"),
+            }
+
+            html_message = render_to_string(
+                "admin/appointment_rejection.html", context
+            )
+            plain_message = strip_tags(html_message)
+
+            send_mail(
+                subject="Appointment Update - Vaidyabandhu",
+                message=plain_message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[recipient_email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+
+        return Response(
+            {
                 "message": self.update_success_message,
-                "status": appointment.status
-            }, status=status.HTTP_200_OK)
+                "status": appointment.status,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def list(self, request):
         user_type = getattr(request.user, 'user_type', None)
@@ -269,12 +353,11 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
         user_type = getattr(request.user, 'user_type', None)
         
         if user_type == 'front_desk' and key == 'appointment':
-            user_ids = queryset.values_list('user', flat=True)
-            users = User.objects.filter(id__in=user_ids)
+            serializer = AppointmentSerializer(queryset, many=True)
         else:
             user_ids = UserSubscription.objects.filter(is_active=True).values_list('user', flat=True).distinct()
             users = User.objects.filter(id__in=user_ids)
-        serializer = UserDataSerializer(users, many=True)
+            serializer = UserDataSerializer(users, many=True)
         
         return Response({
             "message": "Patient List retrieved successfully",

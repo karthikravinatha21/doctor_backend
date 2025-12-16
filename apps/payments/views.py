@@ -8,6 +8,10 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.utils.timezone import now
 
 from user_details.permission import IsUserBlockedPermission
 from utils import custom_viewsets
@@ -78,37 +82,42 @@ class RazorpayView(custom_viewsets.ModelViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
-    @action(detail=False, methods=['POST'])
+    @action(detail=False, methods=["POST"])
     def callback(self, request):
         data = request.data
+
         order_id = data.get("razorpay_order_id")
         payment_id = data.get("razorpay_payment_id")
         signature = data.get("razorpay_signature")
 
-        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-
         if not order_id or not payment_id or not signature:
             return Response({"error": "Missing parameters"}, status=400)
 
-        # Get the transaction
+        client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+
+        # Fetch transaction
         try:
             transaction = Transaction.objects.get(razorpay_order_id=order_id)
         except Transaction.DoesNotExist:
-            return Response({"error": "Transaction not found."}, status=404)
+            return Response({"error": "Transaction not found"}, status=404)
 
-        # Verify signature
+        # Verify Razorpay signature
         try:
-            client.utility.verify_payment_signature({
-                "razorpay_order_id": order_id,
-                "razorpay_payment_id": payment_id,
-                "razorpay_signature": signature,
-            })
+            client.utility.verify_payment_signature(
+                {
+                    "razorpay_order_id": order_id,
+                    "razorpay_payment_id": payment_id,
+                    "razorpay_signature": signature,
+                }
+            )
         except razorpay.errors.SignatureVerificationError:
             transaction.status = "failed"
             transaction.save()
             return Response({"error": "Invalid signature"}, status=400)
 
-        # Fetch payment details from Razorpay
+        # Fetch payment details
         try:
             payment = client.payment.fetch(payment_id)
         except razorpay.errors.RazorpayError as e:
@@ -118,7 +127,7 @@ class RazorpayView(custom_viewsets.ModelViewSet):
 
         actual_status = payment.get("status")
 
-        # Capture if authorized
+        # Capture payment if authorized
         if actual_status == "authorized":
             try:
                 capture_response = client.payment.capture(
@@ -130,33 +139,68 @@ class RazorpayView(custom_viewsets.ModelViewSet):
                 transaction.save()
                 return Response({"error": f"Payment capture failed: {str(e)}"}, status=400)
 
-        # If captured, create subscription
+        # Handle successful payment
         if actual_status == "captured":
-            actual_status = "success"
-            start_date = datetime.datetime.now()
+            transaction.status = "success"
 
-            if transaction.subscription.duration == "Yearly":
+            start_date = now()
+            subscription = transaction.subscription
+
+            if subscription.duration == "Yearly":
                 end_date = start_date + relativedelta(years=1)
-            elif transaction.subscription.duration == "Monthly":
+            elif subscription.duration == "Monthly":
                 end_date = start_date + relativedelta(months=1)
             else:
                 end_date = start_date + relativedelta(years=1)
 
-            # Avoid duplicate subscription creation
-            if not UserSubscription.objects.filter(
-                user=transaction.user, subscription=transaction.subscription
-            ).exists():
-                UserSubscription.objects.create(
-                    user=transaction.user,
-                    start_date=start_date,
-                    end_date=end_date,
-                    subscription=transaction.subscription,
-                )
+            # Prevent duplicate subscription
+            UserSubscription.objects.get_or_create(
+                user=transaction.user,
+                subscription=subscription,
+                defaults={
+                    "start_date": start_date,
+                    "end_date": end_date,
+                },
+            )
 
-        # Update transaction record
+            # ==========================
+            # SEND SUCCESS EMAIL
+            # ==========================
+            context = {
+                "user_name": transaction.user.full_name,
+                "membership_id": transaction.id,
+                "start_date": start_date.strftime("%d %b %Y"),
+                "end_date": end_date.strftime("%d %b %Y"),
+                "amount": transaction.amount,
+                "DashboardURL": "https://vaidyabandhu.com/",
+                "Year": now().year,
+                "CompanyName": "Vaidyabandhu",
+            }
+
+            html_message = render_to_string(
+                "admin/membership_purchase.html", context
+            )
+            plain_message = strip_tags(html_message)
+
+            try:
+                send_mail(
+                    subject="Membership Purchase Successful - Vaidyabandhu",
+                    message=plain_message,
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[transaction.user.email],
+                    html_message=html_message,
+                    fail_silently=False,
+                )
+            except Exception as e:
+                # Email failure should not affect payment success
+                print(f"Email sending failed: {str(e)}")
+
+        else:
+            transaction.status = actual_status
+
+        # Update transaction fields
         transaction.razorpay_payment_id = payment_id
         transaction.razorpay_signature = signature
-        transaction.status = "success" if actual_status == "captured" else actual_status
         transaction.save()
 
         return Response(
@@ -164,7 +208,8 @@ class RazorpayView(custom_viewsets.ModelViewSet):
                 "status": f"Payment {transaction.status}",
                 "payment_id": payment_id,
                 "order_id": order_id,
-            }
+            },
+            status=200,
         )
 
     @action(detail=False, methods=['GET'])

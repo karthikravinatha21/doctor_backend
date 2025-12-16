@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Appointment Status</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, sans-serif;">
+
+  <!-- ================= APPOINTMENT CONFIRMATION ================= -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; padding:20px;">
+          
+          <tr>
+            <td style="text-align:center; padding-bottom:15px;">
+              <h2 style="margin:0; color:#2E7D32;">Appointment Confirmed</h2>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#333; font-size:14px; line-height:22px;">
+              <p>Dear <strong>{{Patient_Name}}</strong>,</p>
+
+              <p>Your appointment with <strong>{{Doctor_Name}}</strong> has been successfully confirmed.</p>
+
+              <table width="100%" cellpadding="8" cellspacing="0" style="background:#f9f9f9; border-radius:6px;">
+                <tr>
+                  <td><strong>Date:</strong></td>
+                  <td>{{Appointment_Date}}</td>
+                </tr>
+                <tr>
+                  <td><strong>Time:</strong></td>
+                  <td>{{Appointment_Time}}</td>
+                </tr>
+                <tr>
+                  <td><strong>Location:</strong></td>
+                  <td>{{Clinic_Name}}</td>
+                </tr>
+              </table>
+
+              <p style="margin-top:15px;">
+                Please arrive at least <strong>10 minutes early</strong>. If you need to reschedule, contact us in advance.
+              </p>
+
+              <p>
+                Regards,<br>
+                <strong>{{Hospital_Name}}</strong>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

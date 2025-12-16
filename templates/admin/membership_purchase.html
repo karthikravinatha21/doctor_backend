@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Membership Purchase Successful</title>
+</head>
+
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:20px;">
+    <tr>
+      <td align="center">
+
+        <table width="600" cellpadding="0" cellspacing="0"
+               style="background-color:#ffffff; border-radius:8px; overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#4CAF50; padding:20px; text-align:center;">
+              <h1 style="margin:0; color:#ffffff; font-size:22px;">
+                Membership Purchase Successful 🎉
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:30px; color:#333333;">
+
+              <p style="font-size:15px; margin:0 0 12px 0;">
+                Dear <strong>{{ user_name }}</strong>,
+              </p>
+
+              <p style="font-size:14px; margin:0 0 16px 0; line-height:1.6;">
+                Thank you for purchasing the <strong>Vaidyabandhu Membership Card</strong>.
+                Your payment has been successfully processed and your membership is now active.
+              </p>
+
+              <!-- Membership Details -->
+              <table width="100%" cellpadding="8" cellspacing="0"
+                     style="background-color:#f9f9f9; border-radius:6px; margin-bottom:20px;">
+                <tr>
+                  <td style="font-size:14px;"><strong>Membership ID</strong></td>
+                  <td style="font-size:14px;">{{ membership_id }}</td>
+                </tr>
+                <tr>
+                  <td style="font-size:14px;"><strong>Purchase Date</strong></td>
+                  <td style="font-size:14px;">{{ start_date }}</td>
+                </tr>
+                <tr>
+                  <td style="font-size:14px;"><strong>Valid Till</strong></td>
+                  <td style="font-size:14px;">{{ end_date }}</td>
+                </tr>
+                <tr>
+                  <td style="font-size:14px;"><strong>Amount Paid</strong></td>
+                  <td style="font-size:14px;">₹{{ amount }}</td>
+                </tr>
+              </table>
+
+              <p style="font-size:14px; line-height:1.6; margin-bottom:20px;">
+                You can now enjoy exclusive healthcare benefits, priority services,
+                and special offers associated with your membership.
+              </p>
+
+              <!-- CTA -->
+              <div style="text-align:center; margin-bottom:24px;">
+                <a href="{{ DashboardURL }}"
+                   style="background-color:#4CAF50; color:#ffffff; text-decoration:none;
+                          padding:12px 28px; font-size:14px; border-radius:4px;
+                          display:inline-block;">
+                  View Membership
+                </a>
+              </div>
+
+              <p style="font-size:13px; color:#555555; margin-bottom:20px;">
+                If you have any questions or need assistance, our support team will be happy to help you.
+              </p>
+
+              <p style="font-size:14px; margin:0;">
+                Regards,<br />
+                <strong>Team Vaidyabandhu</strong>
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#eeeeee; padding:12px; text-align:center;
+                       font-size:12px; color:#777777;">
+              © {{ Year }} {{ CompanyName }}. All rights reserved.
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

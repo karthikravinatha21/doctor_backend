@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Appointment Update</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding:20px;">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:8px; overflow:hidden;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#e63946; padding:20px; text-align:center; color:#ffffff;">
+              <h2 style="margin:0; font-size:22px;">Appointment Not Available</h2>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding:25px; color:#333333;">
+              <p style="font-size:14px; margin:0 0 12px;">Dear <strong>{{Patient_Name}}</strong>,</p>
+
+              <p style="font-size:14px; margin:0 0 15px;">
+                We regret to inform you that your requested appointment could not be scheduled.
+              </p>
+
+              <table width="100%" cellpadding="8" cellspacing="0" style="background-color:#fef2f2; border:1px solid #fecaca; border-radius:6px; font-size:14px;">
+                <tr>
+                  <td><strong>Doctor</strong></td>
+                  <td>{{Doctor_Name}}</td>
+                </tr>
+                <tr>
+                  <td><strong>Requested Date</strong></td>
+                  <td>{{Appointment_Date}}</td>
+                </tr>
+                <tr>
+                  <td><strong>Reason</strong></td>
+                  <td>{{Rejection_Reason}}</td>
+                </tr>
+              </table>
+
+              <p style="font-size:14px; margin:15px 0;">
+                Please feel free to book another slot or contact us for assistance.
+              </p>
+
+              <p style="font-size:14px; margin:0;">
+                Thank you for your understanding.<br>
+                <strong>{{Clinic_Name}}</strong>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f1f5f9; padding:12px; text-align:center; font-size:12px; color:#6b7280;">
+              © {{Year}} {{Clinic_Name}}. All rights reserved.
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
