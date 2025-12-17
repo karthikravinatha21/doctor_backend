@@ -168,7 +168,7 @@ class RazorpayView(custom_viewsets.ModelViewSet):
             # ==========================
             context = {
                 "user_name": transaction.user.full_name,
-                "membership_id": transaction.id,
+                "membership_id": transaction.user.membership_id,
                 "start_date": start_date.strftime("%d %b %Y"),
                 "end_date": end_date.strftime("%d %b %Y"),
                 "amount": transaction.amount,
