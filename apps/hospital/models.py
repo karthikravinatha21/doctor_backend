@@ -170,7 +170,7 @@ class Department(MyBaseModel):
 
     # image = models.CharField(blank=True, null=True)
 
-    image = models.ImageField(upload_to='department/',null=True,blank=True,)
+    image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
 
