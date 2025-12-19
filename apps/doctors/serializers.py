@@ -80,6 +80,7 @@ class AppointmentSerializer(DynamicFieldsModelSerializer):
     def to_representation(self, instance):
         response_object = super().to_representation(instance)
         response_object['name'] = instance.user.full_name
+        response_object['email'] = instance.user.email
         response_object['profile_image'] = instance.user.profile_image.url \
             if instance.user.profile_image else ""
         response_object['address'] = instance.user.address
