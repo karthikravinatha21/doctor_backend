@@ -181,19 +181,19 @@ class RazorpayView(custom_viewsets.ModelViewSet):
                 "admin/membership_purchase.html", context
             )
             plain_message = strip_tags(html_message)
-
-            try:
-                send_mail(
-                    subject="Membership Purchase Successful - Vaidyabandhu",
-                    message=plain_message,
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[transaction.user.email],
-                    html_message=html_message,
-                    fail_silently=False,
-                )
-            except Exception as e:
-                # Email failure should not affect payment success
-                print(f"Email sending failed: {str(e)}")
+            if transaction.user.email:
+                try:
+                    send_mail(
+                        subject="Membership Purchase Successful - Vaidyabandhu",
+                        message=plain_message,
+                        from_email=settings.EMAIL_HOST_USER,
+                        recipient_list=[transaction.user.email],
+                        html_message=html_message,
+                        fail_silently=False,
+                    )
+                except Exception as e:
+                    # Email failure should not affect payment success
+                    print(f"Email sending failed: {str(e)}")
 
         else:
             transaction.status = actual_status

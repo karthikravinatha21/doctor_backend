@@ -274,15 +274,15 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
                 "admin/appointment_confirmation.html", context
             )
             plain_message = strip_tags(html_message)
-
-            send_mail(
-                subject="Appointment Confirmed - Vaidyabandhu",
-                message=plain_message,
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[recipient_email],
-                html_message=html_message,
-                fail_silently=False,
-            )
+            if recipient_email:
+                send_mail(
+                    subject="Appointment Confirmed - Vaidyabandhu",
+                    message=plain_message,
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[recipient_email],
+                    html_message=html_message,
+                    fail_silently=False,
+                )
 
         # ============================
         # APPOINTMENT REJECTED
@@ -303,15 +303,15 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
                 "admin/appointment_rejection.html", context
             )
             plain_message = strip_tags(html_message)
-
-            send_mail(
-                subject="Appointment Update - Vaidyabandhu",
-                message=plain_message,
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[recipient_email],
-                html_message=html_message,
-                fail_silently=False,
-            )
+            if recipient_email:
+                send_mail(
+                    subject="Appointment Update - Vaidyabandhu",
+                    message=plain_message,
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[recipient_email],
+                    html_message=html_message,
+                    fail_silently=False,
+                )
 
         return Response(
             {
