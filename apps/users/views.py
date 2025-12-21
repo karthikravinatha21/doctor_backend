@@ -45,9 +45,8 @@ class UserAPIView(APIView):
 
     def post(self, request):
         """Create a new user"""
-        print(request.user)
         user = get_object_or_404(User, pk=request.user.id)
-        serializer = UserDataSerializer(user, data=request.data)
+        serializer = UserDataSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(
