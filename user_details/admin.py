@@ -1,3 +1,5 @@
+from django.utils import timezone
+from datetime import timedelta
 from django import forms
 from django.db.models import Q
 from django.conf import settings
@@ -6,10 +8,11 @@ from django.contrib.auth.admin import UserAdmin as useradmin
 from django.utils.html import format_html
 from apps.payments.models import UserSubscription
 from .models import Banner, User, Enquiry, Patient, ContactUs
+from apps.payments.models import UserSubscription, Subscription
 from apps.users.models import Subscribe
 from django.contrib import admin, messages
 from django.contrib.auth.models import Group
-from django.urls import path
+from django.urls import path, reverse
 from django.shortcuts import render, redirect
 from .forms import ManagerUserForm, FrontDeskUserForm
 
@@ -136,57 +139,160 @@ class UserAdmin(admin.ModelAdmin):
         )
         return render(request, "admin/create_frontdesk_form.html", context)
 
-
 class PatientAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'membership_id', 'mobile', 'full_name', 'gender',
-        'subscription_status','subscription_start_date', 'subscription_end_date', 
+        'subscription_status', 'subscription_start_date',
+        'subscription_end_date', 'activate_subscription_button',
         'profile_image_tag'
     )
+
     fields = (
-        'membership_id', 'full_name', 'age', 'email', 'mobile', 'alternate_number', 'dob',
-        'gender', 'aadhaar_number', 'pan_number', 'blood_group', 'address',
-        'pin_code', 'profile_image_preview', 'profile_image', 'subscription_status',
-        'subscription_start_date', 'subscription_end_date'
+        'membership_id', 'full_name', 'age', 'email', 'mobile',
+        'alternate_number', 'dob', 'gender', 'aadhaar_number',
+        'pan_number', 'blood_group', 'address', 'pin_code',
+        'profile_image_preview', 'profile_image',
+        'subscription_status', 'subscription_start_date',
+        'subscription_end_date'
     )
 
     search_fields = ('membership_id', 'full_name', 'email', 'mobile')
 
-    readonly_fields = ('membership_id', 'profile_image_preview', 'subscription_status',
-        'subscription_start_date', 'subscription_end_date')
+    readonly_fields = (
+        'membership_id', 'profile_image_preview',
+        'subscription_status', 'subscription_start_date',
+        'subscription_end_date'
+    )
 
+    # ---------------------------------------------------------
+    # Queryset
+    # ---------------------------------------------------------
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        # Prefetch subscriptions to avoid N+1 queries
-        return qs.filter(is_staff=False, user_type='user').prefetch_related("subscriptions")
+        return qs.filter(
+            is_staff=False,
+            user_type='user'
+        ).prefetch_related('subscriptions')
+
+    # ---------------------------------------------------------
+    # Subscription helpers
+    # ---------------------------------------------------------
+    def _latest_subscription(self, obj):
+        return obj.subscriptions.order_by('-start_date').first()
 
     def subscription_status(self, obj):
-        latest_sub = UserSubscription.objects.filter(user=obj).order_by('-start_date').first()
-        if latest_sub:
-            return "Active" if latest_sub.is_active else "Inactive"
-        return "Inactive"
+        sub = self._latest_subscription(obj)
+        return "Active" if sub and sub.is_active else "Inactive"
     subscription_status.short_description = "Subscription Status"
 
     def subscription_start_date(self, obj):
-        latest_sub = UserSubscription.objects.filter(user=obj).order_by('-start_date').first()
-        if latest_sub:
-            return latest_sub.start_date
-        return "NA"
-    subscription_start_date.short_description = "Subscription Start Date"
+        sub = self._latest_subscription(obj)
+        return sub.start_date if sub else "NA"
+    subscription_start_date.short_description = "Start Date"
 
     def subscription_end_date(self, obj):
-        latest_sub = UserSubscription.objects.filter(user=obj).order_by('-start_date').first()
-        if latest_sub:
-            return latest_sub.end_date
-        return "NA"
-    subscription_end_date.short_description = "Subscription End Date"
+        sub = self._latest_subscription(obj)
+        return sub.end_date if sub else "NA"
+    subscription_end_date.short_description = "End Date"
 
+    # ---------------------------------------------------------
+    # Activate Subscription Button
+    # ---------------------------------------------------------
+    def activate_subscription_button(self, obj):
+        sub = self._latest_subscription(obj)
+
+        if sub and sub.is_active:
+            return format_html(
+                '<span style="color:green;font-weight:600;">Active</span>'
+            )
+
+        url = reverse('admin:activate-subscription', args=[obj.id])
+        return format_html(
+            '<a href="{}" class="button" '
+            'style="background:#28a745;color:white;padding:4px 8px;'
+            'border-radius:4px;text-decoration:none;">Activate</a>',
+            url
+        )
+    activate_subscription_button.short_description = "Subscription Action"
+
+    # ---------------------------------------------------------
+    # Admin URLs
+    # ---------------------------------------------------------
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                'activate-subscription/<int:user_id>/',
+                self.admin_site.admin_view(self.activate_subscription),
+                name='activate-subscription'
+            ),
+        ]
+        return custom_urls + urls
+
+    # ---------------------------------------------------------
+    # Subscription Activation Logic (FIXED)
+    # ---------------------------------------------------------
+    def activate_subscription(self, request, user_id):
+        user = User.objects.get(id=user_id)
+
+        # Deactivate existing active subscriptions
+        UserSubscription.objects.filter(
+            user=user,
+            is_active=True
+        ).update(is_active=False)
+
+        subscription = Subscription.objects.first()
+        if not subscription:
+            self.message_user(
+                request,
+                "No subscription plan found.",
+                level=messages.ERROR
+            )
+            return redirect(request.META.get('HTTP_REFERER'))
+
+        # 🔥 FIX: map duration string → days
+        duration_map = {
+            'monthly': 30,
+            'yearly': 365,
+        }
+
+        duration_days = duration_map.get(subscription.duration)
+        if not duration_days:
+            self.message_user(
+                request,
+                "Invalid subscription duration.",
+                level=messages.ERROR
+            )
+            return redirect(request.META.get('HTTP_REFERER'))
+
+        start_date = timezone.now()
+        end_date = start_date + timedelta(days=duration_days)
+
+        UserSubscription.objects.create(
+            user=user,
+            subscription=subscription,
+            start_date=start_date,
+            end_date=end_date,
+            is_active=True
+        )
+
+        self.message_user(
+            request,
+            f"Subscription activated for {user.full_name}.",
+            level=messages.SUCCESS
+        )
+
+        return redirect(request.META.get('HTTP_REFERER'))
+
+    # ---------------------------------------------------------
+    # Profile image display
+    # ---------------------------------------------------------
     def profile_image_tag(self, obj):
         if obj.profile_image and hasattr(obj.profile_image, 'url'):
             return format_html(
                 '<a href="{0}" target="_blank">'
                 '<img src="{0}" width="50" height="50" '
-                'style="object-fit:cover; border-radius:50%;" />'
+                'style="object-fit:cover;border-radius:50%;" />'
                 '</a>',
                 obj.profile_image.url
             )
@@ -198,7 +304,7 @@ class PatientAdmin(admin.ModelAdmin):
             return format_html(
                 '<a href="{0}" target="_blank">'
                 '<img src="{0}" width="150" height="150" '
-                'style="object-fit:cover; border-radius:8px;" />'
+                'style="object-fit:cover;border-radius:8px;" />'
                 '</a>',
                 obj.profile_image.url
             )
