@@ -325,21 +325,21 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
         user_type = getattr(request.user, 'user_type', None)
         queryset = self.get_queryset()
         if user_type == 'user':
-            queryset = queryset.filter(user=request.user)
+            queryset = queryset.filter(user=request.user).order_by('-slot__start_time')
             serializer = AppointmentSerializer(queryset, many=True)
             return Response({
                 "message": self.list_success_message,
                 "slots": serializer.data
             }, status=status.HTTP_200_OK)
         elif user_type == 'front_desk':
-            queryset = queryset.filter(doctor__hospital=request.user.hospital)
+            queryset = queryset.filter(doctor__hospital=request.user.hospital).order_by('-slot__start_time')
             serializer = AppointmentSerializer(queryset, many=True)
             return Response({
                 "message": self.list_success_message,
                 "slots": serializer.data
             }, status=status.HTTP_200_OK)
         else:
-            queryset = queryset.filter(doctor=request.user)
+            queryset = queryset.filter(doctor=request.user).order_by('-slot__start_time')
             serializer = AppointmentSerializer(queryset, many=True)
             return Response({
                 "message": self.list_success_message,
@@ -349,7 +349,7 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def patient_list(self, request):
         key = request.query_params.get('key')
-        queryset = self.get_queryset()
+        queryset = self.get_queryset().order_by('-slot__start_time')
         user_type = getattr(request.user, 'user_type', None)
         
         if user_type == 'front_desk' and key == 'appointment':
@@ -369,7 +369,7 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
     def appointment_history(self, request):
         user = request.query_params.get('user')
         queryset = self.get_queryset()
-        queryset = queryset.filter(user_id=user)
+        queryset = queryset.filter(user_id=user).order_by('-slot__start_time')
         serializer = AppointmentSerializer(queryset, many=True)
         return Response({
             "message": self.list_success_message,
