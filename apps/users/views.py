@@ -90,6 +90,7 @@ class MembershipCardPDFView(APIView):
         context = {
             "membership_id": user_data.get("membership_id", ""),
             "name": user_data.get("full_name", ""),
+            "age": user_data.get("age", ""),
             "contact": user_data.get("mobile", ""),
             "blood_group": user_data.get("blood_group", ""),
             "address": user_data.get("address", ""),
