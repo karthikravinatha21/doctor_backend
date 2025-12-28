@@ -48,7 +48,8 @@ class RazorpayView(custom_viewsets.ModelViewSet):
         pricing = Subscription.objects.filter(id=subscription).first()
         if not pricing:
             raise ValueError("Pricing not available for this subscription.")
-        amount = pricing.price
+        member_count = 1 + request.user.family_members.count()
+        amount = member_count * pricing.price
         currency = pricing.currency
         existing_subscription = UserSubscription.objects.filter(user=request.user,
                                                                 start_date__lte=datetime.datetime.now(),
@@ -146,9 +147,9 @@ class RazorpayView(custom_viewsets.ModelViewSet):
             start_date = now()
             subscription = transaction.subscription
 
-            if subscription.duration == "Yearly":
+            if subscription.duration == "yearly":
                 end_date = start_date + relativedelta(years=1)
-            elif subscription.duration == "Monthly":
+            elif subscription.duration == "monthly":
                 end_date = start_date + relativedelta(months=1)
             else:
                 end_date = start_date + relativedelta(years=1)

@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta, timezone
+from dateutil.relativedelta import relativedelta
 import boto3
 from botocore.exceptions import ClientError
 import jwt, requests
@@ -22,7 +23,7 @@ from apps.movies.models import Movie
 from apps.movies.serializers import MovieSerializer
 from apps.production_house.models import ProductionHouse
 from apps.schedule.models import Schedule
-from user_details.models import User, UserTokens, Banner, OTPStorage, Enquiry
+from user_details.models import User, UserTokens, Banner, OTPStorage, Enquiry, FamilyMember
 from user_details.permission import IsUserBlockedPermission
 from user_details.adminpermission import IsUserblockedPermission, IsDoctorblockedPermission
 from user_details.serializers import BannerSerializer, UserSerializer, UserAdminSerializer, EnquirySerializer
@@ -30,7 +31,7 @@ from utils import custom_viewsets
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from django.http import HttpResponse
-import tempfile
+import tempfile, json
 from utils.constants import custom_json_response, validate_non_empty_fields, USER_TYPE_ADMIN
 from utils.utils import validate_access_attempts, generate_otp
 from rest_framework.views import APIView
@@ -49,10 +50,35 @@ class UserAPIView(APIView):
         serializer = UserDataSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(
-                {"message": "User created successfully", "data": serializer.data},
-                status=status.HTTP_201_CREATED
-            )
+            family_members_raw = request.data.get("family_members", "[]")
+
+            try:
+                family_members = json.loads(family_members_raw)
+            except json.JSONDecodeError:
+                return Response(
+                    {"error": "Invalid family_members format"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            count = 0
+            for member in family_members:
+                count += 1
+                fm = FamilyMember.objects.create(
+                    primary_user=user,
+                    full_name=member["full_name"],
+                    age=member["age"],
+                    profile_image=request.data.get(f"member_image{count}"),
+                    gender=member["gender"],
+                    relationship=member["relationship"],
+                    aadhaar_number=member.get("aadhaar_number"),
+                    pan_number=member.get("pan_number"),
+                )
+
+            return Response({
+                "message": "User and family membership form submitted",
+                "data": serializer.data,
+                "family_members": family_members,
+                "member_count": len(family_members)
+            })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
@@ -77,43 +103,113 @@ class UserAPIView(APIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class AddFamilyMemberAPIView(APIView):
+    permission_classes = [IsUserBlockedPermission]
+
+    def post(self, request):
+        user = request.user
+
+        # Must have active subscription
+        if not user.subscriptions.filter(
+            start_date__lte=now(),
+            end_date__gte=now(),
+            is_active=True
+        ).exists():
+            return Response(
+                {"error": "Active membership required"},
+                status=400
+            )
+
+        member = FamilyMember.objects.create(
+            primary_user=user,
+            full_name=member["full_name"],
+            age=member["age"],
+            profile_image=member["profile_image"],
+            gender=member["gender"],
+            relationship=member["relationship"],
+            aadhaar_number=member.get("aadhaar_number"),
+            pan_number=member.get("pan_number"),
+        )
+
+        return Response({
+            "message": "Family member added",
+            "membership_id": member.membership_id
+        })
+
+
 class MembershipCardPDFView(APIView):
     permission_classes = [IsUserBlockedPermission]
 
     def get(self, request):
         """Generate user membership card PDF (front + back) on one page"""
-        user = get_object_or_404(User, pk=request.user.id)
-        serializer = UserDataSerializer(user)
-        user_data = serializer.data
+        membership_id = request.query_params.get('membership_id')
+        if not membership_id:
+            user = get_object_or_404(User, pk=request.user.id)
+            serializer = UserDataSerializer(user)
+            user_data = serializer.data
+            # Prepare context for the dynamic front card
+            context = {
+                "membership_id": user_data.get("membership_id", ""),
+                "name": user_data.get("full_name", ""),
+                "age": user_data.get("age", ""),
+                "contact": user_data.get("mobile", ""),
+                "blood_group": user_data.get("blood_group", ""),
+                "address": user_data.get("address", ""),
+                "pin_code": user_data.get("pin_code", ""),
+                "photo_url": user_data.get("profile_image") or "https://cdn-icons-png.flaticon.com/512/847/847969.png",
+                "start_date": user_data.get("start_date", ""),
+                "end_date": user_data.get("end_date", ""),
+            }
 
-        # Prepare context for the dynamic front card
-        context = {
-            "membership_id": user_data.get("membership_id", ""),
-            "name": user_data.get("full_name", ""),
-            "age": user_data.get("age", ""),
-            "contact": user_data.get("mobile", ""),
-            "blood_group": user_data.get("blood_group", ""),
-            "address": user_data.get("address", ""),
-            "pin_code": user_data.get("pin_code", ""),
-            "photo_url": user_data.get("profile_image") or "https://cdn-icons-png.flaticon.com/512/847/847969.png",
-            "start_date": user_data.get("start_date", ""),
-            "end_date": user_data.get("end_date", ""),
-        }
+            # Render front and back card templates
+            html = render_to_string("health_card.html", context)
 
-        # Render front and back card templates
-        html = render_to_string("health_card.html", context)
+            # Generate PDF safely in a temporary file
+            with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as tmp_file:
+                HTML(string=html).write_pdf(target=tmp_file.name)
+                tmp_file.seek(0)
+                pdf_data = tmp_file.read()
 
-        # Generate PDF safely in a temporary file
-        with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as tmp_file:
-            HTML(string=html).write_pdf(target=tmp_file.name)
-            tmp_file.seek(0)
-            pdf_data = tmp_file.read()
+            # Return the generated PDF file
+            response = HttpResponse(pdf_data, content_type="application/pdf")
+            filename = f'{user_data.get("full_name", "user")}_card.pdf'
+            response["Content-Disposition"] = f'attachment; filename="{filename}"'
+            return response
+        else:
+            user = get_object_or_404(FamilyMember, membership_id=membership_id)
+            serializer = FamilyMemberSerializer(user)
+            user_data = serializer.data
 
-        # Return the generated PDF file
-        response = HttpResponse(pdf_data, content_type="application/pdf")
-        filename = f'{user_data.get("full_name", "user")}_card.pdf'
-        response["Content-Disposition"] = f'attachment; filename="{filename}"'
-        return response
+            # Prepare context for the dynamic front card
+            context = {
+                "membership_id": user_data.get("membership_id", ""),
+                "name": user_data.get("full_name", ""),
+                "age": user_data.get("age", ""),
+                "relationship": user_data.get("relationship", ""),
+                "contact": user.primary_user.mobile,
+                "blood_group": user_data.get("blood_group", ""),
+                "address": user.primary_user.address,
+                "pin_code": user.primary_user.pin_code,
+                "photo_url": user_data.get("profile_image") or "https://cdn-icons-png.flaticon.com/512/847/847969.png",
+                "start_date": user.created_at,
+                "end_date": user.created_at + relativedelta(years=1),
+            }
+
+            # Render front and back card templates
+            html = render_to_string("family_health_card.html", context)
+
+            # Generate PDF safely in a temporary file
+            with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as tmp_file:
+                HTML(string=html).write_pdf(target=tmp_file.name)
+                tmp_file.seek(0)
+                pdf_data = tmp_file.read()
+
+            # Return the generated PDF file
+            response = HttpResponse(pdf_data, content_type="application/pdf")
+            filename = f'{user_data.get("full_name", "user")}_card.pdf'
+            response["Content-Disposition"] = f'attachment; filename="{filename}"'
+            return response
 
 
 class UserViewSet(custom_viewsets.ModelViewSet):

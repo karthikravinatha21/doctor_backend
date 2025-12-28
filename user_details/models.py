@@ -173,6 +173,53 @@ class User(AbstractUser, PermissionsMixin):
         """Check if the given password matches the stored hashed password."""
         return check_password(raw_password, self.password)
 
+class FamilyMember(models.Model):
+    RELATIONSHIP_CHOICES = [
+        ('spouse', 'Spouse'),
+        ('son', 'Son'),
+        ('daughter', 'Daughter'),
+        ('father', 'Father'),
+        ('mother', 'Mother'),
+        ('grandfather', 'Grand Father'),
+        ('grandmother', 'Grand Mother'),
+    ]
+
+    primary_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="family_members"
+    )
+
+    full_name = models.CharField(max_length=255)
+    age = models.PositiveIntegerField()
+    gender = models.CharField(max_length=20)
+    relationship = models.CharField(max_length=20, choices=RELATIONSHIP_CHOICES)
+
+    aadhaar_number = models.CharField(max_length=24, null=True, blank=True)
+    pan_number = models.CharField(max_length=24, null=True, blank=True)
+    blood_group = models.CharField(max_length=24, null=True, blank=True)
+
+    profile_image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
+
+    membership_id = models.CharField(max_length=20, unique=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.membership_id:
+            last_user = FamilyMember.objects.order_by("-id").first()
+            if last_user and last_user.membership_id:
+                last_number = int(last_user.membership_id.replace("VBHK", ""))
+                new_number = last_number + 1
+            else:
+                new_number = 4999
+            self.membership_id = "VBHK" + str(new_number).zfill(8)
+        super(FamilyMember, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.full_name} ({self.relationship})"
+
+
 class Patient(User):
     class Meta:
         proxy = True

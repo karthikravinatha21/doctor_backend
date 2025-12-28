@@ -4,7 +4,7 @@ from apps.movies.models import ActorPayment, ActorPortfolio, ActorAudition, Acto
 from apps.movies.serializers import ActorPaymentSerializer, ActorPortfolioSerializer, ActorAuditionSerializer, \
     ActorAwardSerializer
 from apps.payments.models import UserSubscription
-from user_details.models import User
+from user_details.models import User, FamilyMember
 
 class UserDataSerializer(serializers.ModelSerializer):
     start_date = serializers.SerializerMethodField('get_start_date')
@@ -68,6 +68,11 @@ class UserDataSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class FamilyMemberSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = FamilyMember
+        fields = "__all__"
 
 class ActorSerializer(serializers.ModelSerializer):
     class Meta:
