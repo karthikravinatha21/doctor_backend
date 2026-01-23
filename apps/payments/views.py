@@ -12,7 +12,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils.timezone import now
-
+from user_details.models import FamilyMember
 from user_details.permission import IsUserBlockedPermission
 from utils import custom_viewsets
 from .models import Transaction, Subscription, UserSubscription
@@ -48,7 +48,10 @@ class RazorpayView(custom_viewsets.ModelViewSet):
         pricing = Subscription.objects.filter(id=subscription).first()
         if not pricing:
             raise ValueError("Pricing not available for this subscription.")
-        member_count = 1 + request.user.family_members.count()
+        if UserSubscription.objects.filter(user=request.user, is_active=True):
+            member_count = FamilyMember.objects.filter(primary_user=request.user, is_active=False).count()
+        else:
+            member_count = 1 + FamilyMember.objects.filter(primary_user=request.user, is_active=False).count()
         amount = member_count * pricing.price
         currency = pricing.currency
         existing_subscription = UserSubscription.objects.filter(user=request.user,
@@ -155,14 +158,17 @@ class RazorpayView(custom_viewsets.ModelViewSet):
                 end_date = start_date + relativedelta(years=1)
 
             # Prevent duplicate subscription
-            UserSubscription.objects.get_or_create(
-                user=transaction.user,
-                subscription=subscription,
-                defaults={
-                    "start_date": start_date,
-                    "end_date": end_date,
-                },
-            )
+            if not UserSubscription.objects.filter(user=request.user, is_active=True):
+                UserSubscription.objects.get_or_create(
+                    user=transaction.user,
+                    subscription=subscription,
+                    defaults={
+                        "start_date": start_date,
+                        "end_date": end_date,
+                    },
+                )
+            family_members = FamilyMember.objects.filter(primary_user=request.user)
+            family_members.update(is_active=True)
 
             # ==========================
             # SEND SUCCESS EMAIL

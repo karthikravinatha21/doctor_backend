@@ -202,6 +202,7 @@ class FamilyMember(models.Model):
     profile_image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
 
     membership_id = models.CharField(max_length=20, unique=True)
+    is_active = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
