@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as useradmin
 from django.utils.html import format_html
 from apps.payments.models import UserSubscription
-from .models import Banner, User, Enquiry, Patient, ContactUs
+from .models import Banner, User, Enquiry, Patient, ContactUs, FamilyMember
 from apps.payments.models import UserSubscription, Subscription
 from apps.users.models import Subscribe
 from django.contrib import admin, messages
@@ -138,6 +138,9 @@ class UserAdmin(admin.ModelAdmin):
             app_label=self.model._meta.app_label,
         )
         return render(request, "admin/create_frontdesk_form.html", context)
+
+class FamilyMemberAdmin(admin.ModelAdmin):
+    list_display = ('membership_id', 'full_name', 'age', 'blood_group')
 
 class PatientAdmin(admin.ModelAdmin):
     list_display = (
@@ -314,6 +317,7 @@ class PatientAdmin(admin.ModelAdmin):
 
 # Register both in admin
 admin.site.register(User, UserAdmin)      # Shows only staff
+admin.site.register(FamilyMember, FamilyMemberAdmin)      # Shows only family member
 admin.site.register(Patient, PatientAdmin)  # Shows only non-staff
 
 

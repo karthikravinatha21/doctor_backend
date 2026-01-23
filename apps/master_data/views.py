@@ -1,7 +1,8 @@
-import json
+import json, requests, logging
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from urllib.parse import quote
 from django.utils.timezone import now
 from django.conf import settings
 from apps.payments.models import UserSubscription
@@ -32,6 +33,7 @@ from django.contrib.auth.models import Group
 
 from utils.constants import custom_json_response
 
+logger = logging.getLogger('django')
 
 class DoctorAPIView(GenericAPIView):
     permission_classes = [AllowAny]
@@ -175,6 +177,32 @@ class SpecialtyViewSet(GenericAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response({"message": "Retrieved", "data": serializer.data}, status=status.HTTP_200_OK)
 
+def send_sms(mobile_number, message):
+    if not mobile_number:
+        return
+
+    # Ensure mobile is without +91
+    mobile_number = str(mobile_number).replace("+91", "").strip()
+
+    sms_text = quote(message)
+
+    sms_url = (
+        "https://apibulksms.way2mint.com/pushsms?"
+        f"username={settings.SMS_USERNAME}"
+        f"&password={settings.SMS_PASSWORD}"
+        f"&to=91{mobile_number}"
+        f"&from={settings.SMS_SENDER}"
+        f"&text={sms_text}"
+        f"&data4=1701175655959526722,1702173216915572636"
+    )
+
+    try:
+        response = requests.get(sms_url, timeout=10)
+        response.raise_for_status()
+        logger.info(f"SMS sent successfully: {response.text}")
+    except Exception as e:
+        # SMS failure should not break API
+        print(f"SMS sending failed: {str(e)}")
 
 class AppointmentViewSet(custom_viewsets.ModelViewSet):
     permission_classes = [IsUserblockedPermission]
@@ -226,7 +254,7 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
 
     def patch(self, request, *args, **kwargs):
         """
-        Approve or reject an appointment and notify the user via email.
+        Approve or reject an appointment and notify the user via email + SMS.
         """
 
         appointment_status = request.data.get("status")
@@ -255,25 +283,29 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
         clinic = appointment.hospital
 
         recipient_email = user.email
+        mobile = user.mobile  # Patient mobile number
 
         # ============================
         # APPOINTMENT APPROVED
         # ============================
         if appointment_status == "confirmed":
 
+            appointment_date = appointment.slot.start_time.strftime("%d %b %Y")
+            appointment_time = appointment.slot.start_time.strftime("%I:%M %p")
+
             context = {
-                "Patient_Name": appointment.user.full_name,
-                "Doctor_Name": appointment.doctor.full_name,
-                "Appointment_Date": appointment.slot.start_time.strftime("%d %b %Y"),
-                "Appointment_Time": appointment.slot.start_time.strftime("%I:%M %p"),
-                "Clinic_Name": appointment.hospital.location_name,
-                "Hospital_Name": appointment.hospital.hospital_name,
+                "Patient_Name": user.full_name,
+                "Doctor_Name": doctor.full_name,
+                "Appointment_Date": appointment_date,
+                "Appointment_Time": appointment_time,
+                "Clinic_Name": clinic.location_name,
+                "Hospital_Name": clinic.hospital_name,
             }
 
-            html_message = render_to_string(
-                "admin/appointment_confirmation.html", context
-            )
+            # ---- EMAIL ----
+            html_message = render_to_string("admin/appointment_confirmation.html", context)
             plain_message = strip_tags(html_message)
+
             if recipient_email:
                 send_mail(
                     subject="Appointment Confirmed - Vaidyabandhu",
@@ -284,25 +316,42 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
                     fail_silently=False,
                 )
 
+            # ---- SMS ----
+            sms_message = (
+                f"Vaidya Bandhu: Appointment Confirmed!\n"
+                f"Patient: {user.full_name}\n"
+                f"Doctor: {doctor.full_name}\n"
+                f"Date: {appointment_date}\n"
+                f"Time: {appointment_time}\n"
+                f"Hospital: {clinic.hospital_name}\n"
+                f"Clinic: {clinic.location_name}\n"
+                f"- Team VB"
+            )
+            send_sms(mobile, sms_message)
+
         # ============================
         # APPOINTMENT REJECTED
         # ============================
         elif appointment_status == "rejected":
 
+            appointment_date = appointment.slot.start_time.strftime("%d %b %Y")
+            appointment_time = appointment.slot.start_time.strftime("%I:%M %p")
+            reason = request.data.get("reason", "Not specified")
+
             context = {
-                "Patient_Name": appointment.user.full_name,
-                "Doctor_Name": appointment.doctor.full_name,
-                "Appointment_Date": appointment.slot.start_time.strftime("%d %b %Y"),
-                "Appointment_Time": appointment.slot.start_time.strftime("%I:%M %p"),
-                "Clinic_Name": appointment.hospital.hospital_name,
+                "Patient_Name": user.full_name,
+                "Doctor_Name": doctor.full_name,
+                "Appointment_Date": appointment_date,
+                "Appointment_Time": appointment_time,
+                "Clinic_Name": clinic.hospital_name,
                 "Year": now().year,
-                "Reason": request.data.get("reason"),
+                "Reason": reason,
             }
 
-            html_message = render_to_string(
-                "admin/appointment_rejection.html", context
-            )
+            # ---- EMAIL ----
+            html_message = render_to_string("admin/appointment_rejection.html", context)
             plain_message = strip_tags(html_message)
+
             if recipient_email:
                 send_mail(
                     subject="Appointment Update - Vaidyabandhu",
@@ -313,6 +362,18 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
                     fail_silently=False,
                 )
 
+            # ---- SMS ----
+            sms_message = (
+                f"Vaidya Bandhu: Appointment Rejected.\n"
+                f"Patient: {user.full_name}\n"
+                f"Doctor: {doctor.full_name}\n"
+                f"Date: {appointment_date}\n"
+                f"Time: {appointment_time}\n"
+                f"Reason: {reason}\n"
+                f"- Team VB"
+            )
+            send_sms(mobile, sms_message)
+
         return Response(
             {
                 "message": self.update_success_message,
@@ -320,7 +381,6 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
-
     def list(self, request):
         user_type = getattr(request.user, 'user_type', None)
         queryset = self.get_queryset()
