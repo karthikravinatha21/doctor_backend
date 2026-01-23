@@ -107,10 +107,10 @@ class FamilyMemberProfile(APIView):
     permission_classes = [IsUserBlockedPermission]
 
     def get(self, request):
-        """Retrieve user details (single or list)"""
+        """Retrieve member details (list)"""
         members = FamilyMember.objects.filter(primary_user=request.user)
         serializer = FamilyMemberSerializer(members, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"data": serializer.data}, status=status.HTTP_200_OK)
 
 
 class AddFamilyMemberAPIView(APIView):

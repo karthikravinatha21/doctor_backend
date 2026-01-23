@@ -10,6 +10,7 @@ class UserDataSerializer(serializers.ModelSerializer):
     start_date = serializers.SerializerMethodField('get_start_date')
     end_date = serializers.SerializerMethodField('get_end_date')
     is_active = serializers.SerializerMethodField('get_is_active')
+    family_members = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -31,6 +32,7 @@ class UserDataSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
             "is_active",
+            "family_members",
         ]
     
     def get_start_date(self, instance):
@@ -53,6 +55,13 @@ class UserDataSerializer(serializers.ModelSerializer):
             return subscription.last().is_active
         else:
             return False
+    
+    def get_family_members(self, instance):
+        members = FamilyMember.objects.filter(primary_user=instance)
+        if members:
+            return FamilyMemberSerializer(members, many=True).data
+        else:
+            return []
 
     def validate_mobile(self, value):
         """Custom validation for mobile number"""
