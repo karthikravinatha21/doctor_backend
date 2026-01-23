@@ -318,14 +318,10 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
 
             # ---- SMS ----
             sms_message = (
-                f"Vaidya Bandhu: Appointment Confirmed!\n"
-                f"Patient: {user.full_name}\n"
-                f"Doctor: {doctor.full_name}\n"
-                f"Date: {appointment_date}\n"
-                f"Time: {appointment_time}\n"
-                f"Hospital: {clinic.hospital_name}\n"
-                f"Clinic: {clinic.location_name}\n"
-                f"- Team VB"
+                f"Dear {user.full_name} your appointment with {doctor.full_name} is confirmed "
+                f"on {appointment_date} at {appointment_time} "
+                f"Please arrive 10 minutes early. For changes, contact us on +918535853589 "
+                f"Regards, Team Vaidhya Bandhu."
             )
             send_sms(mobile, sms_message)
 
@@ -362,18 +358,6 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
                     fail_silently=False,
                 )
 
-            # ---- SMS ----
-            sms_message = (
-                f"Vaidya Bandhu: Appointment Rejected.\n"
-                f"Patient: {user.full_name}\n"
-                f"Doctor: {doctor.full_name}\n"
-                f"Date: {appointment_date}\n"
-                f"Time: {appointment_time}\n"
-                f"Reason: {reason}\n"
-                f"- Team VB"
-            )
-            send_sms(mobile, sms_message)
-
         return Response(
             {
                 "message": self.update_success_message,
@@ -381,6 +365,7 @@ class AppointmentViewSet(custom_viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
+
     def list(self, request):
         user_type = getattr(request.user, 'user_type', None)
         queryset = self.get_queryset()
