@@ -103,6 +103,15 @@ class UserAPIView(APIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class FamilyMemberProfile(APIView):
+    permission_classes = [IsUserBlockedPermission]
+
+    def get(self, request):
+        """Retrieve user details (single or list)"""
+        members = FamilyMember.objects.filter(primary_user=request.user)
+        serializer = FamilyMemberSerializer(members, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class AddFamilyMemberAPIView(APIView):
     permission_classes = [IsUserBlockedPermission]
