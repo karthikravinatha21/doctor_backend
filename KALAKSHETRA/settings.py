@@ -52,12 +52,14 @@ CSRF_TRUSTED_ORIGINS = [
     "https://www.vaidyabandhu.com",
     "https://vaidyabandhu.com",
     "https://admin.vaidyabandhu.com",
+    "https://www.admin.vaidyabandhu.com",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://stage.vaidyabandhu.com",
     "https://admin.vaidyabandhu.com",
+    "https://www.admin.vaidyabandhu.com",
     "https://www.vaidyabandhu.com",
     "https://vaidyabandhu.com",
 ]

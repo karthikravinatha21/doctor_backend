@@ -133,13 +133,13 @@ class AddFamilyMemberAPIView(APIView):
 
         member = FamilyMember.objects.create(
             primary_user=user,
-            full_name=member["full_name"],
-            age=member["age"],
-            profile_image=member["profile_image"],
-            gender=member["gender"],
-            relationship=member["relationship"],
-            aadhaar_number=member.get("aadhaar_number"),
-            pan_number=member.get("pan_number"),
+            full_name=request.data.get("full_name"),
+            age=request.data.get("age"),
+            profile_image=request.data.get("profile_image"),
+            gender=request.data.get("gender"),
+            relationship=request.data.get("relationship"),
+            aadhaar_number=request.data.get("aadhaar_number"),
+            pan_number=request.data.get("pan_number"),
         )
 
         return Response({
