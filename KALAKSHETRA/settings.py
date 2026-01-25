@@ -50,6 +50,7 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "https://stage.vaidyabandhu.com",
     "https://www.vaidyabandhu.com",
+    "https://vaidyabandhu.com",
     "https://admin.vaidyabandhu.com",
 ]
 
@@ -58,6 +59,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://stage.vaidyabandhu.com",
     "https://admin.vaidyabandhu.com",
     "https://www.vaidyabandhu.com",
+    "https://vaidyabandhu.com",
 ]
 
 # Read .env.development file if it exists
