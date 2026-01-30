@@ -61,11 +61,11 @@ class RazorpayView(custom_viewsets.ModelViewSet):
         # Calculate amount: subscription count × price from database
         amount = subscription * float(pricing.price)
         currency = pricing.currency
-        existing_subscription = UserSubscription.objects.filter(user=request.user,
-                                                                start_date__lte=datetime.datetime.now(),
-                                                                end_date__gte=datetime.datetime.now()).first()
-        if existing_subscription:
-            raise Exception("Already Subscribed")
+        # existing_subscription = UserSubscription.objects.filter(user=request.user,
+        #                                                         start_date__lte=datetime.datetime.now(),
+        #                                                         end_date__gte=datetime.datetime.now()).first()
+        # if existing_subscription:
+        #     raise Exception("Already Subscribed")
 
         try:
             order = client.order.create({
