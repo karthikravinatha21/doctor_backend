@@ -44,10 +44,15 @@ class RazorpayView(custom_viewsets.ModelViewSet):
     def create_order(self, request):
         days=0
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-        subscription = request.data.get("subscription")
+        
+        # Hardcoded pricing
+        price = 49
+        currency = "INR"
+        
+        # Fetch subscription for duration info
         pricing = Subscription.objects.filter(id=1).first()
         if not pricing:
-            return Response({"error": "Pricing not available for this subscription."}, status=400)
+            return Response({"error": "Subscription not found."}, status=400)
         
         # Get subscription count (defaults to 1 if not provided)
         subscription = request.data.get("subscription", 1)
@@ -58,9 +63,8 @@ class RazorpayView(custom_viewsets.ModelViewSet):
         except (TypeError, ValueError):
             return Response({"error": "Invalid subscription count"}, status=400)
         
-        # Calculate amount: subscription count × price from database
-        amount = subscription * float(pricing.price)
-        currency = pricing.currency
+        # Calculate amount: subscription count × hardcoded price
+        amount = subscription * price
         existing_subscription = UserSubscription.objects.filter(user=request.user,
                                                                 start_date__lte=datetime.datetime.now(),
                                                                 end_date__gte=datetime.datetime.now()).first()
