@@ -45,7 +45,7 @@ class RazorpayView(custom_viewsets.ModelViewSet):
         days=0
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         subscription = request.data.get("subscription")
-        pricing = Subscription.objects.filter(id=subscription).first()
+        pricing = Subscription.objects.filter(id=1).first()
         if not pricing:
             return Response({"error": "Pricing not available for this subscription."}, status=400)
         
