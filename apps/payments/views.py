@@ -44,16 +44,27 @@ class RazorpayView(custom_viewsets.ModelViewSet):
     def create_order(self, request):
         days=0
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-        subscription = request.data.get("subscription")
-        pricing = Subscription.objects.filter(id=subscription).first()
+        
+        # Hardcoded pricing
+        price = 49
+        currency = "INR"
+        
+        # Fetch subscription for duration info
+        pricing = Subscription.objects.filter(id=1).first()
         if not pricing:
-            raise ValueError("Pricing not available for this subscription.")
-        if UserSubscription.objects.filter(user=request.user, is_active=True):
-            member_count = FamilyMember.objects.filter(primary_user=request.user, is_active=False).count()
-        else:
-            member_count = 1 + FamilyMember.objects.filter(primary_user=request.user, is_active=False).count()
-        amount = member_count * pricing.price
-        currency = pricing.currency
+            return Response({"error": "Subscription not found."}, status=400)
+        
+        # Get subscription count (defaults to 1 if not provided)
+        subscription = request.data.get("subscription", 1)
+        try:
+            subscription = int(subscription)
+            if subscription < 1:
+                return Response({"error": "Subscription count must be at least 1"}, status=400)
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid subscription count"}, status=400)
+        
+        # Calculate amount: subscription count × hardcoded price
+        amount = subscription * price
         existing_subscription = UserSubscription.objects.filter(user=request.user,
                                                                 start_date__lte=datetime.datetime.now(),
                                                                 end_date__gte=datetime.datetime.now()).first()
@@ -158,7 +169,7 @@ class RazorpayView(custom_viewsets.ModelViewSet):
                 end_date = start_date + relativedelta(years=1)
 
             # Prevent duplicate subscription
-            if not UserSubscription.objects.filter(user=request.user, is_active=True):
+            if not UserSubscription.objects.filter(user=transaction.user, is_active=True):
                 UserSubscription.objects.get_or_create(
                     user=transaction.user,
                     subscription=subscription,
@@ -167,7 +178,7 @@ class RazorpayView(custom_viewsets.ModelViewSet):
                         "end_date": end_date,
                     },
                 )
-            family_members = FamilyMember.objects.filter(primary_user=request.user)
+            family_members = FamilyMember.objects.filter(primary_user=transaction.user)
             family_members.update(is_active=True)
 
             # ==========================
