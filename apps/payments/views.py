@@ -158,7 +158,7 @@ class RazorpayView(custom_viewsets.ModelViewSet):
                 end_date = start_date + relativedelta(years=1)
 
             # Prevent duplicate subscription
-            if not UserSubscription.objects.filter(user=request.user, is_active=True):
+            if not UserSubscription.objects.filter(user=transaction.user, is_active=True):
                 UserSubscription.objects.get_or_create(
                     user=transaction.user,
                     subscription=subscription,
@@ -167,7 +167,7 @@ class RazorpayView(custom_viewsets.ModelViewSet):
                         "end_date": end_date,
                     },
                 )
-            family_members = FamilyMember.objects.filter(primary_user=request.user)
+            family_members = FamilyMember.objects.filter(primary_user=transaction.user)
             family_members.update(is_active=True)
 
             # ==========================
