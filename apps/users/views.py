@@ -128,26 +128,22 @@ class AddFamilyMemberAPIView(APIView):
         ).exists():
             return Response(
                 {"error": "Active membership required"},
-                status=400
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        member = FamilyMember.objects.create(
-            primary_user=user,
-            full_name=request.data.get("full_name"),
-            age=request.data.get("age"),
-            profile_image=request.data.get("profile_image"),
-            gender=request.data.get("gender"),
-            relationship=request.data.get("relationship"),
-            aadhaar_number=request.data.get("aadhaar_number"),
-            pan_number=request.data.get("pan_number"),
-            blood_group=request.data.get("blood_group"),
-            is_active=True
-        )
+        data = request.data.copy()
+        data['primary_user'] = user.id
+        data['is_active'] = True
 
-        return Response({
-            "message": "Family member added",
-            "membership_id": member.membership_id
-        })
+        serializer = FamilyMemberSerializer(data=data)
+        if serializer.is_valid():
+            member = serializer.save()
+            return Response({
+                "message": "Family member added",
+                "membership_id": member.membership_id
+            }, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MembershipCardPDFView(APIView):
