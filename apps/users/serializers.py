@@ -84,6 +84,9 @@ class FamilyMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = FamilyMember
         fields = "__all__"
+
+        read_only_fields = ["membership_id"]
+
     
     def get_start_date(self, instance):
         if instance.is_active:
@@ -94,6 +97,7 @@ class FamilyMemberSerializer(serializers.ModelSerializer):
         if instance.is_active and instance.created_at:
             return instance.created_at + relativedelta(years=1)
         return None
+
 
 class ActorSerializer(serializers.ModelSerializer):
     class Meta:
