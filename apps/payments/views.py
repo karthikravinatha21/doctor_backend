@@ -45,20 +45,27 @@ class RazorpayView(custom_viewsets.ModelViewSet):
         days=0
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         subscription = request.data.get("subscription")
-        pricing = Subscription.objects.filter(id=subscription).first()
+        pricing = Subscription.objects.filter(id=1).first()
         if not pricing:
-            raise ValueError("Pricing not available for this subscription.")
-        if UserSubscription.objects.filter(user=request.user, is_active=True):
-            member_count = FamilyMember.objects.filter(primary_user=request.user, is_active=False).count()
-        else:
-            member_count = 1 + FamilyMember.objects.filter(primary_user=request.user, is_active=False).count()
-        amount = member_count * pricing.price
+            return Response({"error": "Pricing not available for this subscription."}, status=400)
+        
+        # Get subscription count (defaults to 1 if not provided)
+        subscription = request.data.get("subscription", 1)
+        try:
+            subscription = int(subscription)
+            if subscription < 1:
+                return Response({"error": "Subscription count must be at least 1"}, status=400)
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid subscription count"}, status=400)
+        
+        # Calculate amount: subscription count × price from database
+        amount = subscription * float(pricing.price)
         currency = pricing.currency
-        existing_subscription = UserSubscription.objects.filter(user=request.user,
-                                                                start_date__lte=datetime.datetime.now(),
-                                                                end_date__gte=datetime.datetime.now()).first()
-        if existing_subscription:
-            raise Exception("Already Subscribed")
+        # existing_subscription = UserSubscription.objects.filter(user=request.user,
+        #                                                         start_date__lte=datetime.datetime.now(),
+        #                                                         end_date__gte=datetime.datetime.now()).first()
+        # if existing_subscription:
+        #     raise Exception("Already Subscribed")
 
         try:
             order = client.order.create({

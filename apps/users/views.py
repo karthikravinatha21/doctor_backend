@@ -140,6 +140,8 @@ class AddFamilyMemberAPIView(APIView):
             relationship=request.data.get("relationship"),
             aadhaar_number=request.data.get("aadhaar_number"),
             pan_number=request.data.get("pan_number"),
+            blood_group=request.data.get("blood_group"),
+            is_active=True
         )
 
         return Response({
