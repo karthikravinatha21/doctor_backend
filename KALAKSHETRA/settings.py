@@ -321,7 +321,7 @@ REST_FRAMEWORK = {
 MAX_FILE_UPLOAD_SIZE = 10  # int(env('MAX_FILE_UPLOAD_SIZE_IN_MB', default=''))
 SILENCED_SYSTEM_CHECKS = ["ckeditor.W001"]
 
-AXES_FAILURE_LIMIT = 3
+AXES_FAILURE_LIMIT = 100
 AXES_COOLOFF_TIME = datetime.timedelta(minutes=1)
 AXES_LOCKOUT_PARAMETERS = ['username', 'ip_address']
 AXES_USERNAME_FORM_FIELD = 'mobile'

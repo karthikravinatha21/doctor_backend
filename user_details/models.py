@@ -71,7 +71,17 @@ class User(AbstractUser, PermissionsMixin):
 
     is_staff = models.BooleanField(default=False)
 
-    profile_image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
+    profile_image = models.ImageField(
+        storage=MediaStorage(),
+        upload_to="",
+        null=True,
+        blank=True,
+        validators=[
+            FileExtensionValidator(['jpg', 'jpeg', 'png', 'gif', 'webp']),
+            validate_file_size,
+            validate_file_authenticity,
+        ]
+    )
 
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
@@ -206,7 +216,17 @@ class FamilyMember(models.Model):
     pan_number = models.CharField(max_length=24, null=True, blank=True)
     blood_group = models.CharField(max_length=24, null=True, blank=True)
 
-    profile_image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
+    profile_image = models.ImageField(
+        storage=MediaStorage(),
+        upload_to="",
+        null=True,
+        blank=True,
+        validators=[
+            FileExtensionValidator(['jpg', 'jpeg', 'png', 'gif', 'webp']),
+            validate_file_size,
+            validate_file_authenticity,
+        ]
+    )
 
     membership_id = models.CharField(max_length=20, unique=True)
     is_active = models.BooleanField(default=False)
