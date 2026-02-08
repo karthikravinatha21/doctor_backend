@@ -75,6 +75,8 @@ class UserAPIView(APIView):
                     relationship=member["relationship"],
                     aadhaar_number=member.get("aadhaar_number"),
                     pan_number=member.get("pan_number"),
+                    blood_group=member.get("blood_group"),
+                    is_active=True
                 )
 
             return Response({
