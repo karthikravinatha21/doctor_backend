@@ -185,6 +185,10 @@ class FamilyMember(models.Model):
         ('mother', 'Mother'),
         ('grandfather', 'Grand Father'),
         ('grandmother', 'Grand Mother'),
+        ('relative', 'Relative'),
+        ('friend', 'Friend'),
+        ('neighbour', 'Neighbour'),
+        ('employee', 'Employee'),
     ]
 
     primary_user = models.ForeignKey(
