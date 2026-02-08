@@ -388,12 +388,7 @@ def get_unique_user_obj(username):
 
 
 def generate_otp(isRandom: bool = False):
-    if not settings.IS_PRODUCTION:
-        random_password = settings.HARDCODED_MOBILE_OTP
-    elif isRandom:
-        random_password = get_random_string(length=settings.OTP_LENGTH, allowed_chars=settings.OTP_CHARACTERS)
-    else:
-        random_password = get_random_string(length=settings.OTP_LENGTH, allowed_chars=settings.OTP_CHARACTERS)
+    random_password = get_random_string(length=settings.OTP_LENGTH, allowed_chars=settings.OTP_CHARACTERS)
     return random_password
 
 

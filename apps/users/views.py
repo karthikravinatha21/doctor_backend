@@ -270,17 +270,10 @@ class UserViewSet(custom_viewsets.ModelViewSet):
         source = request.headers.get('X-App-Type', '').upper()
 
         # Generate OTP
-        if mobile == settings.HARDCODED_MOBILE_NO:
-            random_password = settings.HARDCODED_MOBILE_NO_OTP
-        elif not settings.IS_PRODUCTION:
-            random_password = settings.HARDCODED_MOBILE_OTP
-        elif int(mobile) >= 9999999900:
-            random_password = settings.HARDCODED_MOBILE_OTP
-        else:
-            random_password = get_random_string(
-                length=settings.OTP_LENGTH,
-                allowed_chars=settings.OTP_CHARACTERS
-            )
+        random_password = get_random_string(
+            length=settings.OTP_LENGTH,
+            allowed_chars=settings.OTP_CHARACTERS
+        )
 
         otp_expiration_time = dj_timezone.now() + timedelta(seconds=int(settings.OTP_EXPIRATION_TIME))
 
@@ -454,14 +447,8 @@ class UserViewSet(custom_viewsets.ModelViewSet):
     def resend_otp(self, request):
         mobile = request.data.get('mobile')
 
-        if mobile == settings.HARDCODED_MOBILE_NO:
-            random_password = settings.HARDCODED_MOBILE_NO_OTP
-            # logger.info("Hardcoded Mobile password -----> %s" % (str(random_password)))
-        elif not settings.IS_PRODUCTION:
-            random_password = settings.HARDCODED_MOBILE_OTP
-        else:
-            random_password = get_random_string(
-                length=settings.OTP_LENGTH, allowed_chars=settings.OTP_CHARACTERS)
+        random_password = get_random_string(
+            length=settings.OTP_LENGTH, allowed_chars=settings.OTP_CHARACTERS)
         otp_expiration_time = dj_timezone.now() + timedelta(seconds=int(settings.OTP_EXPIRATION_TIME))
         OTPStorage.objects.filter(mobile=mobile).delete()
         AccessAttempt.objects.filter(username=mobile).delete()

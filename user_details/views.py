@@ -630,15 +630,6 @@ class OTPStorageViewSet(ModelViewSet):
         random_password = get_random_string(
             length=4, allowed_chars='0123456789')
 
-        if mobile and mobile > "9999999000" and mobile <= "9999999999":
-            random_password = "1234"
-
-        if mobile and mobile == "7022891038" or mobile == "9442953049" or mobile == "9951979545" or mobile == "8926876592" or mobile == "9743725012":
-            random_password = "1234"
-
-        if settings.SERVER_STAGE == 'local':
-            random_password = "1234"
-
         otp_expiration_time = datetime.now() + timedelta(seconds=int(OTP_EXPIRATION_TIME))
 
         if otp_obj:
