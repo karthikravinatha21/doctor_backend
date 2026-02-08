@@ -8,8 +8,8 @@ import pytz
 from axes.models import AccessAttempt
 try:
     from axes.exceptions import AxesSignalPermissionDenied
-except ImportError:  # django-axes >= 7 removed AxesSignalPermissionDenied
-    from axes.exceptions import AxesPermissionDenied as AxesSignalPermissionDenied
+except ImportError:  # django-axes >= 7 renamed to AxesBackendPermissionDenied
+    from axes.exceptions import AxesBackendPermissionDenied as AxesSignalPermissionDenied
 from rest_framework.decorators import action, api_view
 from rest_framework import filters, status
 from rest_framework.response import Response
