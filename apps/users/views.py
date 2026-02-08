@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta, timezone
+from django.utils import timezone as dj_timezone
 from django.utils.timezone import now
 from dateutil.relativedelta import relativedelta
 import boto3
@@ -35,6 +36,8 @@ from django.http import HttpResponse
 import tempfile, json
 from utils.constants import custom_json_response, validate_non_empty_fields, USER_TYPE_ADMIN
 from utils.utils import validate_access_attempts, generate_otp
+from rest_framework.serializers import ValidationError
+from axes.models import AccessAttempt
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from .models import *
@@ -279,10 +282,11 @@ class UserViewSet(custom_viewsets.ModelViewSet):
                 allowed_chars=settings.OTP_CHARACTERS
             )
 
-        otp_expiration_time = datetime.now() + timedelta(seconds=int(settings.OTP_EXPIRATION_TIME))
+        otp_expiration_time = dj_timezone.now() + timedelta(seconds=int(settings.OTP_EXPIRATION_TIME))
 
-        # Clear previous OTPs
+        # Clear previous OTPs and reset axes lockout for this user
         OTPStorage.objects.filter(mobile=mobile).delete()
+        AccessAttempt.objects.filter(username=mobile).delete()
         otp_obj = OTPStorage.objects.create(
             mobile=mobile,
             otp_code=random_password,
@@ -381,7 +385,7 @@ class UserViewSet(custom_viewsets.ModelViewSet):
             return custom_json_response(message="Invalid OTP", status=status.HTTP_400_BAD_REQUEST)
 
         # 3️⃣ Check if OTP expired
-        if datetime.now().timestamp() > otp_storage.otp_expiration_time.timestamp():
+        if dj_timezone.now().timestamp() > otp_storage.otp_expiration_time.timestamp():
             otp_storage.is_active = False
             otp_storage.save(update_fields=["is_active"])
             return custom_json_response(message="OTP expired", status=status.HTTP_400_BAD_REQUEST)
@@ -389,8 +393,12 @@ class UserViewSet(custom_viewsets.ModelViewSet):
         # 4️⃣ Verify the OTP
         try:
             authenticated_patient = validate_access_attempts(username, password, request)
+        except ValidationError as e:
+            # Return the actual error message (wrong attempt count or account locked)
+            error_msg = e.detail[0] if isinstance(e.detail, list) else str(e.detail)
+            return custom_json_response(message=str(error_msg), status=status.HTTP_400_BAD_REQUEST)
         except Exception:
-            return custom_json_response(message="Invalid OTP", status=status.HTTP_400_BAD_REQUEST)
+            return custom_json_response(message="Invalid OTP. Please try again.", status=status.HTTP_400_BAD_REQUEST)
 
         # 5️⃣ Mark OTP as used
         otp_storage.is_active = False
@@ -454,8 +462,9 @@ class UserViewSet(custom_viewsets.ModelViewSet):
         else:
             random_password = get_random_string(
                 length=settings.OTP_LENGTH, allowed_chars=settings.OTP_CHARACTERS)
-        otp_expiration_time = datetime.now() + timedelta(seconds=int(settings.OTP_EXPIRATION_TIME))
+        otp_expiration_time = dj_timezone.now() + timedelta(seconds=int(settings.OTP_EXPIRATION_TIME))
         OTPStorage.objects.filter(mobile=mobile).delete()
+        AccessAttempt.objects.filter(username=mobile).delete()
         otp_obj = OTPStorage.objects.create(
             mobile=mobile,
             otp_code=random_password,
@@ -766,6 +775,8 @@ class AdminUserViewSet(custom_viewsets.ModelViewSet):
         if not user_object:
             user_object = Doctor.objects.filter(email__iexact=email, is_active=True).first()
             user_type = "doctor"
+        if not user_object:
+            return custom_json_response(message='Invalid credentials', status=status.HTTP_400_BAD_REQUEST)
         permission_list = None
         if check_password(password, user_object.password):
             payload = {
