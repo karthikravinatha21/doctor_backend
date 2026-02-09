@@ -34,6 +34,7 @@ class UserDataSerializer(serializers.ModelSerializer):
             "is_active",
             "family_members",
         ]
+        read_only_fields = ["membership_id"]
     
     def get_start_date(self, instance):
         subscription = UserSubscription.objects.filter(user=instance)
