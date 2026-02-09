@@ -233,18 +233,23 @@ class FamilyMember(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @staticmethod
+    def generate_membership_id():
+        """Generate a unique VBHK-prefixed membership ID."""
+        last_member = FamilyMember.objects.filter(membership_id__startswith="VBHK").order_by("-id").first()
+        if last_member and last_member.membership_id:
+            try:
+                last_number = int(last_member.membership_id.replace("VBHK", ""))
+                new_number = last_number + 1
+            except ValueError:
+                new_number = 4999
+        else:
+            new_number = 4999
+        return "VBHK" + str(new_number).zfill(8)
+
     def save(self, *args, **kwargs):
         if not self.membership_id:
-            last_user = FamilyMember.objects.filter(membership_id__startswith="VBHK").order_by("-id").first()
-            if last_user and last_user.membership_id:
-                try:
-                    last_number = int(last_user.membership_id.replace("VBHK", ""))
-                    new_number = last_number + 1
-                except ValueError:
-                    new_number = 4999
-            else:
-                new_number = 4999
-            self.membership_id = "VBHK" + str(new_number).zfill(8)
+            self.membership_id = FamilyMember.generate_membership_id()
         super(FamilyMember, self).save(*args, **kwargs)
 
     def __str__(self):

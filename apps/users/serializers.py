@@ -91,7 +91,10 @@ class FamilyMemberSerializer(serializers.ModelSerializer):
 
         read_only_fields = ["membership_id"]
 
-    
+    def create(self, validated_data):
+        validated_data['membership_id'] = FamilyMember.generate_membership_id()
+        return super().create(validated_data)
+
     def get_start_date(self, instance):
         if instance.is_active:
             return instance.created_at

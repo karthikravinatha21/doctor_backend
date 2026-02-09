@@ -79,6 +79,7 @@ class UserAPIView(APIView):
                     blood_group=member.get("blood_group"),
                     is_active=True
                 )
+                fm.membership_id = FamilyMember.generate_membership_id()
                 try:
                     fm.full_clean()
                 except DjangoValidationError as e:
