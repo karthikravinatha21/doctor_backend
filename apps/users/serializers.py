@@ -7,7 +7,7 @@ from apps.payments.models import UserSubscription
 from user_details.models import User, FamilyMember
 
 class UserDataSerializer(serializers.ModelSerializer):
-    membership_id = serializers.CharField(read_only=True, required=False, allow_blank=True, allow_null=True)
+    membership_id = serializers.SerializerMethodField()
     start_date = serializers.SerializerMethodField('get_start_date')
     end_date = serializers.SerializerMethodField('get_end_date')
     is_active = serializers.SerializerMethodField('get_is_active')
@@ -35,7 +35,9 @@ class UserDataSerializer(serializers.ModelSerializer):
             "is_active",
             "family_members",
         ]
-        read_only_fields = ["membership_id"]
+
+    def get_membership_id(self, instance):
+        return instance.membership_id
     
     def get_start_date(self, instance):
         subscription = UserSubscription.objects.filter(user=instance)
