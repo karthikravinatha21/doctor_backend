@@ -222,6 +222,10 @@ def validate_file_authenticity(value):
     mime_type = magic.from_buffer(buffer, mime=True)
     file_ext = os.path.splitext(value.name)[1].lower().strip()
 
+    # Reject files whose actual content is not an allowed image type
+    if mime_type not in ALLOWED_IMAGE_MIME_TYPES:
+        raise ValidationError('Corrupted file is uploaded!')
+
     # Build the list of acceptable extensions from both mimetypes module
     # and our explicit map to avoid OS-dependent false positives.
     possible_file_extensions = set(mimetypes.guess_all_extensions(mime_type))
@@ -234,4 +238,17 @@ def validate_file_authenticity(value):
     )
 
     if file_ext not in possible_file_extensions:
-        raise ValidationError('Corrupted file is uploaded!')
+        # Extension doesn't match actual content (e.g. JPEG saved as .png by
+        # mobile devices). Fix the filename to use the correct extension
+        # instead of rejecting a perfectly valid image.
+        correct_ext = ALLOWED_MIME_EXTENSIONS.get(mime_type, [None])[0]
+        if correct_ext:
+            base_name = os.path.splitext(value.name)[0]
+            value.name = base_name + correct_ext
+            logger_file_validation.info(
+                "File extension mismatch corrected: original_ext=%s, "
+                "detected_mime=%s, new_name=%s",
+                file_ext, mime_type, value.name,
+            )
+        else:
+            raise ValidationError('Corrupted file is uploaded!')
