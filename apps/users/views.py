@@ -39,6 +39,7 @@ from utils.utils import validate_access_attempts, generate_otp
 from rest_framework.serializers import ValidationError
 from axes.models import AccessAttempt
 from rest_framework.views import APIView
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.shortcuts import get_object_or_404
 from .models import *
 from .serializers import *
@@ -66,7 +67,7 @@ class UserAPIView(APIView):
             count = 0
             for member in family_members:
                 count += 1
-                fm = FamilyMember.objects.create(
+                fm = FamilyMember(
                     primary_user=user,
                     full_name=member["full_name"],
                     age=member["age"],
@@ -78,6 +79,14 @@ class UserAPIView(APIView):
                     blood_group=member.get("blood_group"),
                     is_active=True
                 )
+                try:
+                    fm.full_clean()
+                except DjangoValidationError as e:
+                    return Response(
+                        e.message_dict,
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                fm.save()
 
             return Response({
                 "message": "User and family membership form submitted",

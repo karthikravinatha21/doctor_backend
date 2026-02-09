@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import mimetypes
 import os
 import uuid
@@ -193,14 +194,44 @@ def validate_file_size(value):
     else:
         return value
 
+# Explicit mapping of MIME types to extensions, covering gaps in Python's
+# mimetypes module which vary across operating systems (e.g. 'image/jpeg'
+# may not include '.jpg' on some Linux distributions).
+ALLOWED_MIME_EXTENSIONS = {
+    'image/jpeg': ['.jpg', '.jpeg', '.jpe'],
+    'image/png': ['.png'],
+    'image/gif': ['.gif'],
+    'image/webp': ['.webp'],
+    'image/bmp': ['.bmp'],
+    'image/tiff': ['.tiff', '.tif'],
+    'image/svg+xml': ['.svg'],
+}
+
+ALLOWED_IMAGE_MIME_TYPES = {
+    'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+}
+
+logger_file_validation = logging.getLogger('django')
+
+
 def validate_file_authenticity(value):
     value.file.seek(0)  # Reset file pointer
     buffer = value.file.read(2048)  # Read small chunk to detect mime type
     value.file.seek(0)  # Reset again for further processing
 
     mime_type = magic.from_buffer(buffer, mime=True)
+    file_ext = os.path.splitext(value.name)[1].lower().strip()
 
-    possible_file_extensions = mimetypes.guess_all_extensions(mime_type)
+    # Build the list of acceptable extensions from both mimetypes module
+    # and our explicit map to avoid OS-dependent false positives.
+    possible_file_extensions = set(mimetypes.guess_all_extensions(mime_type))
+    if mime_type in ALLOWED_MIME_EXTENSIONS:
+        possible_file_extensions.update(ALLOWED_MIME_EXTENSIONS[mime_type])
 
-    if os.path.splitext(value.name)[1].lower() not in possible_file_extensions:
+    logger_file_validation.debug(
+        "File validation: name=%s, ext=%s, detected_mime=%s, allowed_exts=%s",
+        value.name, file_ext, mime_type, possible_file_extensions,
+    )
+
+    if file_ext not in possible_file_extensions:
         raise ValidationError('Corrupted file is uploaded!')
