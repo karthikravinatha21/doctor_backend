@@ -1,20 +1,42 @@
-from django.utils import timezone
+# =========================================================
+# STANDARD LIBRARY
+# =========================================================
+import csv
 from datetime import timedelta
+
+# =========================================================
+# DJANGO CORE
+# =========================================================
 from django import forms
-from django.db.models import Q
 from django.conf import settings
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as useradmin
-from django.utils.html import format_html
-from apps.payments.models import UserSubscription
-from .models import Banner, User, Enquiry, Patient, ContactUs, FamilyMember
-from apps.payments.models import UserSubscription, Subscription
-from apps.users.models import Subscribe
 from django.contrib import admin, messages
+from django.contrib.auth.admin import UserAdmin as useradmin
 from django.contrib.auth.models import Group
-from django.urls import path, reverse
+from django.db.models import Q, OuterRef, Subquery
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.urls import path, reverse
+from django.utils import timezone
+from django.utils.html import format_html
+from django.contrib.admin import SimpleListFilter
+
+# =========================================================
+# LOCAL APPS
+# =========================================================
+from .models import (
+    Banner, User, Enquiry, Patient, ContactUs, FamilyMember
+)
 from .forms import ManagerUserForm, FrontDeskUserForm
+
+# =========================================================
+# PAYMENTS APP
+# =========================================================
+from apps.payments.models import UserSubscription, Subscription
+
+# =========================================================
+# USERS APP
+# =========================================================
+from apps.users.models import Subscribe
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -142,7 +164,80 @@ class UserAdmin(admin.ModelAdmin):
 class FamilyMemberAdmin(admin.ModelAdmin):
     list_display = ('membership_id', 'full_name', 'age', 'blood_group')
 
+
+# =========================================================
+# FILTER: Subscription Active / Inactive (LATEST ONLY)
+# =========================================================
+class SubscriptionStatusFilter(SimpleListFilter):
+    title = 'Subscription Status'
+    parameter_name = 'subscription_status'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('active', 'Active'),
+            ('inactive', 'Inactive'),
+        )
+
+    def queryset(self, request, queryset):
+        latest_sub = UserSubscription.objects.filter(
+            user=OuterRef('pk')
+        ).order_by('-start_date')
+
+        queryset = queryset.annotate(
+            latest_is_active=Subquery(latest_sub.values('is_active')[:1])
+        )
+
+        if self.value() == 'active':
+            return queryset.filter(latest_is_active=True)
+
+        if self.value() == 'inactive':
+            return queryset.filter(latest_is_active=False)
+
+        return queryset
+
+
+# =========================================================
+# ACTION: EXPORT CSV
+# =========================================================
+def export_patients_csv(modeladmin, request, queryset):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=patients.csv'
+
+    writer = csv.writer(response)
+
+    writer.writerow([
+        'Membership ID', 'Name', 'Mobile', 'Email',
+        'Gender', 'Subscription Status', 'Start Date', 'End Date'
+    ])
+
+    for obj in queryset:
+        sub = modeladmin._latest_subscription(obj)
+
+        writer.writerow([
+            obj.membership_id,
+            obj.full_name,
+            obj.mobile,
+            obj.email,
+            obj.gender,
+            "Active" if sub and sub.is_active else "Inactive",
+            sub.start_date if sub else "",
+            sub.end_date if sub else "",
+        ])
+
+    return response
+
+
+export_patients_csv.short_description = "Download Selected Patients"
+
+
+# =========================================================
+# ADMIN
+# =========================================================
 class PatientAdmin(admin.ModelAdmin):
+
+    # ---------------------------------------------------------
+    # LIST DISPLAY
+    # ---------------------------------------------------------
     list_display = (
         'id', 'membership_id', 'mobile', 'full_name', 'gender',
         'subscription_status', 'subscription_start_date',
@@ -150,6 +245,9 @@ class PatientAdmin(admin.ModelAdmin):
         'profile_image_tag'
     )
 
+    # ---------------------------------------------------------
+    # FIELDS
+    # ---------------------------------------------------------
     fields = (
         'membership_id', 'full_name', 'age', 'email', 'mobile',
         'alternate_number', 'dob', 'gender', 'aadhaar_number',
@@ -168,17 +266,23 @@ class PatientAdmin(admin.ModelAdmin):
     )
 
     # ---------------------------------------------------------
-    # Queryset
+    # FILTERS + ACTIONS
+    # ---------------------------------------------------------
+    list_filter = (SubscriptionStatusFilter, 'gender')
+    actions = [export_patients_csv]
+
+    # ---------------------------------------------------------
+    # QUERYSET
     # ---------------------------------------------------------
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.filter(
             is_staff=False,
             user_type='user'
-        ).prefetch_related('subscriptions')
+        ).prefetch_related('subscriptions').distinct()
 
     # ---------------------------------------------------------
-    # Subscription helpers
+    # SUBSCRIPTION HELPERS
     # ---------------------------------------------------------
     def _latest_subscription(self, obj):
         return obj.subscriptions.order_by('-start_date').first()
@@ -199,7 +303,7 @@ class PatientAdmin(admin.ModelAdmin):
     subscription_end_date.short_description = "End Date"
 
     # ---------------------------------------------------------
-    # Activate Subscription Button
+    # ACTIVATE SUBSCRIPTION BUTTON
     # ---------------------------------------------------------
     def activate_subscription_button(self, obj):
         sub = self._latest_subscription(obj)
@@ -219,7 +323,7 @@ class PatientAdmin(admin.ModelAdmin):
     activate_subscription_button.short_description = "Subscription Action"
 
     # ---------------------------------------------------------
-    # Admin URLs
+    # CUSTOM URL
     # ---------------------------------------------------------
     def get_urls(self):
         urls = super().get_urls()
@@ -233,12 +337,12 @@ class PatientAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     # ---------------------------------------------------------
-    # Subscription Activation Logic (FIXED)
+    # ACTIVATE SUBSCRIPTION LOGIC
     # ---------------------------------------------------------
     def activate_subscription(self, request, user_id):
         user = User.objects.get(id=user_id)
 
-        # Deactivate existing active subscriptions
+        # deactivate existing
         UserSubscription.objects.filter(
             user=user,
             is_active=True
@@ -246,14 +350,9 @@ class PatientAdmin(admin.ModelAdmin):
 
         subscription = Subscription.objects.first()
         if not subscription:
-            self.message_user(
-                request,
-                "No subscription plan found.",
-                level=messages.ERROR
-            )
+            self.message_user(request, "No subscription plan found.", messages.ERROR)
             return redirect(request.META.get('HTTP_REFERER'))
 
-        # 🔥 FIX: map duration string → days
         duration_map = {
             'monthly': 30,
             'yearly': 365,
@@ -261,11 +360,7 @@ class PatientAdmin(admin.ModelAdmin):
 
         duration_days = duration_map.get(subscription.duration)
         if not duration_days:
-            self.message_user(
-                request,
-                "Invalid subscription duration.",
-                level=messages.ERROR
-            )
+            self.message_user(request, "Invalid subscription duration.", messages.ERROR)
             return redirect(request.META.get('HTTP_REFERER'))
 
         start_date = timezone.now()
@@ -282,13 +377,13 @@ class PatientAdmin(admin.ModelAdmin):
         self.message_user(
             request,
             f"Subscription activated for {user.full_name}.",
-            level=messages.SUCCESS
+            messages.SUCCESS
         )
 
         return redirect(request.META.get('HTTP_REFERER'))
 
     # ---------------------------------------------------------
-    # Profile image display
+    # PROFILE IMAGE
     # ---------------------------------------------------------
     def profile_image_tag(self, obj):
         if obj.profile_image and hasattr(obj.profile_image, 'url'):
