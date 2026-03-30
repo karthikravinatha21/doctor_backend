@@ -5,6 +5,11 @@ from django.utils import timezone
 from . import apps
 import jwt
 import pytz
+from axes.models import AccessAttempt
+try:
+    from axes.exceptions import AxesSignalPermissionDenied
+except ImportError:  # django-axes >= 7 renamed to AxesBackendPermissionDenied
+    from axes.exceptions import AxesBackendPermissionDenied as AxesSignalPermissionDenied
 from rest_framework.decorators import action, api_view
 from rest_framework import filters, status
 from rest_framework.response import Response
@@ -313,9 +318,19 @@ class LoginAPIView(APIView):
                 user = User.objects.filter(mobile=identifier).first()
 
         if user:
-            user = authenticate(request, username=user.username, password=password)
+            original_username = user.username
+            try:
+                user = authenticate(request, username=user.username, password=password)
+            except AxesSignalPermissionDenied:
+                return Response(
+                    {"error": "Account locked due to too many failed attempts. Please try again after 1 minute."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
 
             if user is not None:
+                # Clear any previous failed attempt records on successful login
+                AccessAttempt.objects.filter(username=original_username).delete()
+
                 if user.is_active:
 
                     user_exist = user
@@ -371,6 +386,15 @@ class LoginAPIView(APIView):
                 return Response({"error": "User account is inactive"}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def handle_exception(self, exc):
+        """Catch any unhandled axes lockout that bypasses the try/except."""
+        if isinstance(exc, AxesSignalPermissionDenied):
+            return Response(
+                {"error": "Account locked due to too many failed attempts. Please try again after 1 minute."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().handle_exception(exc)
 
 
 class BannerViewSet(ReadOnlyModelViewSet):

@@ -71,7 +71,17 @@ class User(AbstractUser, PermissionsMixin):
 
     is_staff = models.BooleanField(default=False)
 
-    profile_image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
+    profile_image = models.ImageField(
+        storage=MediaStorage(),
+        upload_to="",
+        null=True,
+        blank=True,
+        validators=[
+            FileExtensionValidator(['jpg', 'jpeg', 'png', 'gif', 'webp']),
+            validate_file_size,
+            validate_file_authenticity,
+        ]
+    )
 
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
@@ -127,10 +137,13 @@ class User(AbstractUser, PermissionsMixin):
         if self.email:
             self.username = self.email
         if not self.membership_id:
-            last_user = User.objects.order_by("-id").first()
+            last_user = User.objects.filter(membership_id__startswith="VBHK").order_by("-id").first()
             if last_user and last_user.membership_id:
-                last_number = int(last_user.membership_id.replace("VBHK", ""))
-                new_number = last_number + 1
+                try:
+                    last_number = int(last_user.membership_id.replace("VBHK", ""))
+                    new_number = last_number + 1
+                except ValueError:
+                    new_number = 4999
             else:
                 new_number = 4999
             self.membership_id = "VBHK" + str(new_number).zfill(8)
@@ -182,6 +195,13 @@ class FamilyMember(models.Model):
         ('mother', 'Mother'),
         ('grandfather', 'Grand Father'),
         ('grandmother', 'Grand Mother'),
+        ('relative', 'Relative'),
+        ('friend', 'Friend'),
+        ('neighbour', 'Neighbour'),
+        ('employee', 'Employee'),
+        ('brother', 'Brother'),
+        ('sister', 'Sister'),
+        ('others', 'Others'),
     ]
 
     primary_user = models.ForeignKey(
@@ -199,22 +219,40 @@ class FamilyMember(models.Model):
     pan_number = models.CharField(max_length=24, null=True, blank=True)
     blood_group = models.CharField(max_length=24, null=True, blank=True)
 
-    profile_image = models.ImageField(storage=MediaStorage(), upload_to="", null=True, blank=True)
+    profile_image = models.ImageField(
+        storage=MediaStorage(),
+        upload_to="",
+        null=True,
+        blank=True,
+        validators=[
+            FileExtensionValidator(['jpg', 'jpeg', 'png', 'gif', 'webp']),
+            validate_file_size,
+            validate_file_authenticity,
+        ]
+    )
 
     membership_id = models.CharField(max_length=20, unique=True)
     is_active = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @staticmethod
+    def generate_membership_id():
+        """Generate a unique VBHK-prefixed membership ID."""
+        last_member = FamilyMember.objects.filter(membership_id__startswith="VBHK").order_by("-id").first()
+        if last_member and last_member.membership_id:
+            try:
+                last_number = int(last_member.membership_id.replace("VBHK", ""))
+                new_number = last_number + 1
+            except ValueError:
+                new_number = 4999
+        else:
+            new_number = 4999
+        return "VBHK" + str(new_number).zfill(8)
+
     def save(self, *args, **kwargs):
         if not self.membership_id:
-            last_user = FamilyMember.objects.order_by("-id").first()
-            if last_user and last_user.membership_id:
-                last_number = int(last_user.membership_id.replace("VBHK", ""))
-                new_number = last_number + 1
-            else:
-                new_number = 4999
-            self.membership_id = "VBHK" + str(new_number).zfill(8)
+            self.membership_id = FamilyMember.generate_membership_id()
         super(FamilyMember, self).save(*args, **kwargs)
 
     def __str__(self):

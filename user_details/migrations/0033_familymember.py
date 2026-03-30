@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('full_name', models.CharField(max_length=255)),
                 ('age', models.PositiveIntegerField()),
                 ('gender', models.CharField(max_length=20)),
-                ('relationship', models.CharField(choices=[('spouse', 'Spouse'), ('son', 'Son'), ('daughter', 'Daughter'), ('father', 'Father'), ('mother', 'Mother'), ('grandfather', 'Grand Father'), ('grandmother', 'Grand Mother')], max_length=20)),
+                ('relationship', models.CharField(choices=[('spouse', 'Spouse'), ('son', 'Son'), ('daughter', 'Daughter'), ('father', 'Father'), ('mother', 'Mother'), ('grandfather', 'Grand Father'), ('grandmother', 'Grand Mother'), ('relative','Relative'), ('friend', 'Friend'), ('neighbour', 'Neighbour'), ('employee', 'Employee'), ('brother', 'Brother'), ('sister', 'Sister'), ('others', 'Others')], max_length=20)),
                 ('aadhaar_number', models.CharField(blank=True, max_length=24, null=True)),
                 ('pan_number', models.CharField(blank=True, max_length=24, null=True)),
                 ('blood_group', models.CharField(blank=True, max_length=24, null=True)),

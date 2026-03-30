@@ -7,6 +7,7 @@ from apps.payments.models import UserSubscription
 from user_details.models import User, FamilyMember
 
 class UserDataSerializer(serializers.ModelSerializer):
+    membership_id = serializers.SerializerMethodField()
     start_date = serializers.SerializerMethodField('get_start_date')
     end_date = serializers.SerializerMethodField('get_end_date')
     is_active = serializers.SerializerMethodField('get_is_active')
@@ -34,6 +35,9 @@ class UserDataSerializer(serializers.ModelSerializer):
             "is_active",
             "family_members",
         ]
+
+    def get_membership_id(self, instance):
+        return instance.membership_id
     
     def get_start_date(self, instance):
         subscription = UserSubscription.objects.filter(user=instance)
@@ -84,7 +88,13 @@ class FamilyMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = FamilyMember
         fields = "__all__"
-    
+
+        read_only_fields = ["membership_id"]
+
+    def create(self, validated_data):
+        validated_data['membership_id'] = FamilyMember.generate_membership_id()
+        return super().create(validated_data)
+
     def get_start_date(self, instance):
         if instance.is_active:
             return instance.created_at
@@ -94,6 +104,7 @@ class FamilyMemberSerializer(serializers.ModelSerializer):
         if instance.is_active and instance.created_at:
             return instance.created_at + relativedelta(years=1)
         return None
+
 
 class ActorSerializer(serializers.ModelSerializer):
     class Meta:

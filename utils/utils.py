@@ -13,6 +13,10 @@ from rest_framework.exceptions import NotFound
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 from axes.models import AccessAttempt
+try:
+    from axes.exceptions import AxesSignalPermissionDenied
+except ImportError:  # django-axes >= 7 renamed to AxesBackendPermissionDenied
+    from axes.exceptions import AxesBackendPermissionDenied as AxesSignalPermissionDenied
 import logging
 from rest_framework.serializers import Serializer
 import jwt
@@ -86,37 +90,29 @@ def calculate_age(dob):
 
 
 def validate_access_attempts(username, password, request):
-    # is_family_member = False
-    # family_members_with_same_no_list = None
     if not (username and password):
-        # custom_json_response(message="Invalid Credentials/ Account Deactivated", status=200)
         raise Exception('InvalidCredentialsException')
 
-    authenticated_patient = authenticate(request=request, username=username, password=password)
-    # if not authenticated_patient:
-    #     # authenticate family member
-    #     authenticated_patient, family_members_with_same_no_list = validate_family_member_access_attempts(username, password, request)
-    #     is_family_member = True
+    try:
+        authenticated_patient = authenticate(request=request, username=username, password=password)
+    except AxesSignalPermissionDenied:
+        # django-axes has locked this account due to too many failed attempts
+        raise ValidationError(settings.MAX_WRONG_OTP_ATTEMPT_ERROR)
 
-    # if not is_family_member:
-    # users_list = Patient.objects.filter(username=username)
-    access_log = AccessAttempt.objects.all().values()
     access_log = AccessAttempt.objects.filter(username=username).first()
     if not authenticated_patient:
         if access_log:
             attempt = access_log.failures_since_start
-            if attempt < 3:
+            if attempt < settings.AXES_FAILURE_LIMIT:
                 message = settings.WRONG_OTP_ATTEMPT_ERROR.format(attempt)
                 raise ValidationError(message)
-            if attempt >= 3:
+            if attempt >= settings.AXES_FAILURE_LIMIT:
                 message = settings.MAX_WRONG_OTP_ATTEMPT_ERROR
                 raise ValidationError(message)
-        raise Exception('Invalid Credentials/ Account Deactivated')
-        # return custom_json_response(message="Account Deactivated", status=200)
+        raise ValidationError('Invalid OTP. Please try again.')
     if access_log:
         access_log.delete()
 
-    # return authenticated_patient, is_family_member, family_members_with_same_no_list
     return authenticated_patient
 
 
