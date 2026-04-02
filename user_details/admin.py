@@ -166,7 +166,7 @@ class FamilyMemberAdmin(admin.ModelAdmin):
 
 
 # =========================================================
-# FILTER: Subscription Active / Inactive (LATEST ONLY)
+# FILTER: Subscription Active / Inactive (LATEST ONLY - FIXED)
 # =========================================================
 class SubscriptionStatusFilter(SimpleListFilter):
     title = 'Subscription Status'
@@ -191,9 +191,60 @@ class SubscriptionStatusFilter(SimpleListFilter):
             return queryset.filter(latest_is_active=True)
 
         if self.value() == 'inactive':
-            return queryset.filter(latest_is_active=False)
+            return queryset.filter(
+                Q(latest_is_active=False) | Q(latest_is_active__isnull=True)
+            )
 
         return queryset
+
+
+# =========================================================
+# FILTER: Subscription Start Date
+# =========================================================
+class SubscriptionStartDateFilter(SimpleListFilter):
+    title = 'Subscription Start Date'
+    parameter_name = 'start_date'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('today', 'Today'),
+            ('last_7_days', 'Last 7 Days'),
+            ('this_month', 'This Month'),
+        )
+
+    def queryset(self, request, queryset):
+        latest_sub = UserSubscription.objects.filter(
+            user=OuterRef('pk')
+        ).order_by('-start_date')
+
+        queryset = queryset.annotate(
+            latest_start_date=Subquery(latest_sub.values('start_date')[:1])
+        )
+
+        now = timezone.now()
+
+        if self.value() == 'today':
+            return queryset.filter(latest_start_date__date=now.date())
+
+        if self.value() == 'last_7_days':
+            return queryset.filter(latest_start_date__gte=now - timedelta(days=7))
+
+        if self.value() == 'this_month':
+            return queryset.filter(
+                latest_start_date__month=now.month,
+                latest_start_date__year=now.year
+            )
+
+        return queryset
+
+
+# =========================================================
+# CSV FORMATTER
+# =========================================================
+def format_datetime(dt):
+    if not dt:
+        return ""
+    return dt.strftime("%d-%m-%Y %I:%M %p")
 
 
 # =========================================================
@@ -220,8 +271,8 @@ def export_patients_csv(modeladmin, request, queryset):
             obj.email,
             obj.gender,
             "Active" if sub and sub.is_active else "Inactive",
-            sub.start_date if sub else "",
-            sub.end_date if sub else "",
+            format_datetime(sub.start_date) if sub else "",
+            format_datetime(sub.end_date) if sub else "",
         ])
 
     return response
@@ -235,9 +286,6 @@ export_patients_csv.short_description = "Download Selected Patients"
 # =========================================================
 class PatientAdmin(admin.ModelAdmin):
 
-    # ---------------------------------------------------------
-    # LIST DISPLAY
-    # ---------------------------------------------------------
     list_display = (
         'id', 'membership_id', 'mobile', 'full_name', 'gender',
         'subscription_status', 'subscription_start_date',
@@ -245,9 +293,6 @@ class PatientAdmin(admin.ModelAdmin):
         'profile_image_tag'
     )
 
-    # ---------------------------------------------------------
-    # FIELDS
-    # ---------------------------------------------------------
     fields = (
         'membership_id', 'full_name', 'age', 'email', 'mobile',
         'alternate_number', 'dob', 'gender', 'aadhaar_number',
@@ -265,11 +310,23 @@ class PatientAdmin(admin.ModelAdmin):
         'subscription_end_date'
     )
 
-    # ---------------------------------------------------------
-    # FILTERS + ACTIONS
-    # ---------------------------------------------------------
-    list_filter = (SubscriptionStatusFilter, 'gender')
+    # ✅ FILTERS + ACTIONS
+    list_filter = (
+        SubscriptionStatusFilter,
+        SubscriptionStartDateFilter,
+        'gender'
+    )
     actions = [export_patients_csv]
+
+    # ❌ REMOVE DELETE OPTION
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if "delete_selected" in actions:
+            del actions["delete_selected"]
+        return actions
 
     # ---------------------------------------------------------
     # QUERYSET
@@ -290,20 +347,17 @@ class PatientAdmin(admin.ModelAdmin):
     def subscription_status(self, obj):
         sub = self._latest_subscription(obj)
         return "Active" if sub and sub.is_active else "Inactive"
-    subscription_status.short_description = "Subscription Status"
 
     def subscription_start_date(self, obj):
         sub = self._latest_subscription(obj)
-        return sub.start_date if sub else "NA"
-    subscription_start_date.short_description = "Start Date"
+        return format_datetime(sub.start_date) if sub else "NA"
 
     def subscription_end_date(self, obj):
         sub = self._latest_subscription(obj)
-        return sub.end_date if sub else "NA"
-    subscription_end_date.short_description = "End Date"
+        return format_datetime(sub.end_date) if sub else "NA"
 
     # ---------------------------------------------------------
-    # ACTIVATE SUBSCRIPTION BUTTON
+    # ACTIVATE BUTTON
     # ---------------------------------------------------------
     def activate_subscription_button(self, obj):
         sub = self._latest_subscription(obj)
@@ -320,7 +374,6 @@ class PatientAdmin(admin.ModelAdmin):
             'border-radius:4px;text-decoration:none;">Activate</a>',
             url
         )
-    activate_subscription_button.short_description = "Subscription Action"
 
     # ---------------------------------------------------------
     # CUSTOM URL
@@ -337,12 +390,11 @@ class PatientAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     # ---------------------------------------------------------
-    # ACTIVATE SUBSCRIPTION LOGIC
+    # ACTIVATE LOGIC
     # ---------------------------------------------------------
     def activate_subscription(self, request, user_id):
         user = User.objects.get(id=user_id)
 
-        # deactivate existing
         UserSubscription.objects.filter(
             user=user,
             is_active=True
@@ -383,7 +435,7 @@ class PatientAdmin(admin.ModelAdmin):
         return redirect(request.META.get('HTTP_REFERER'))
 
     # ---------------------------------------------------------
-    # PROFILE IMAGE
+    # IMAGE
     # ---------------------------------------------------------
     def profile_image_tag(self, obj):
         if obj.profile_image and hasattr(obj.profile_image, 'url'):
@@ -395,7 +447,6 @@ class PatientAdmin(admin.ModelAdmin):
                 obj.profile_image.url
             )
         return "-"
-    profile_image_tag.short_description = "Profile Image"
 
     def profile_image_preview(self, obj):
         if obj.profile_image and hasattr(obj.profile_image, 'url'):
@@ -407,7 +458,6 @@ class PatientAdmin(admin.ModelAdmin):
                 obj.profile_image.url
             )
         return "No image uploaded"
-    profile_image_preview.short_description = "Profile Image Preview"
 
 
 # Register both in admin

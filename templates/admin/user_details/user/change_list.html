@@ -2,16 +2,27 @@
 
 {% block object-tools %}
 <ul class="object-tools">
+    
     <li>
         <a href="{% url 'admin:user_details_user_create_manager' %}" class="addlink">
             ➕ Add Manager User
         </a>
     </li>
+
     <li>
         <a href="{% url 'admin:user_details_user_create_frontdesk' %}" class="addlink">
             ➕ Add Front Desk User
         </a>
     </li>
+
+    <!-- ✅ CLEAR FILTER BUTTON -->
+    <li>
+        <a href="{{ request.path }}" class="button">
+            ♻️ Clear Filters
+        </a>
+    </li>
+
 </ul>
+
 {{ block.super }}
 {% endblock %}
