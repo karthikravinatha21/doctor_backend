@@ -1,0 +1,27 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+<ul class="object-tools">
+
+    <!-- ✅ CLEAR FILTER BUTTON -->
+    <li>
+        <a href="{{ request.path }}" class="button">
+            ♻️ Clear Filters
+        </a>
+    </li>
+
+</ul>
+
+{{ block.super }}
+{% endblock %}
+
+
+{% block result_list %}
+    {{ block.super }}
+
+    <!-- ✅ PAGE TOTAL -->
+    <div style="margin-top:15px; padding:10px; background:#f8f9fa; border-radius:6px;">
+        <strong>Total Transaction Amount (This Page):</strong>
+        ₹ {{ page_total }}
+    </div>
+{% endblock %}

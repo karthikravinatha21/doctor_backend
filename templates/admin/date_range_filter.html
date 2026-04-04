@@ -1,0 +1,53 @@
+{% load i18n %}
+<div class="admin-filter">
+    <h3>{{ title }}</h3>
+
+    <form method="get">
+        {% for key, value in request.GET.items %}
+            {% if key != "start_date" and key != "end_date" %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+        {% endfor %}
+
+        <div style="margin-bottom:5px;">
+            <label>From:</label><br>
+            <input type="date" name="start_date" value="{{ request.GET.start_date }}">
+        </div>
+{% load i18n %}
+<div style="padding:10px;">
+    <h3>{{ title }}</h3>
+
+    <form method="get">
+
+        <!-- Preserve other filters -->
+        {% for key, value in request.GET.items %}
+            {% if key != "start_date" and key != "end_date" %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+        {% endfor %}
+
+        <div style="margin-bottom:8px;">
+            <label><b>From:</b></label><br>
+            <input type="date" name="start_date" value="{{ request.GET.start_date }}">
+        </div>
+
+        <div style="margin-bottom:8px;">
+            <label><b>To:</b></label><br>
+            <input type="date" name="end_date" value="{{ request.GET.end_date }}">
+        </div>
+
+        <button type="submit" class="button">Apply</button>
+
+        <a href="?" class="button" style="margin-left:5px;">Reset</a>
+
+    </form>
+</div>
+        <div style="margin-bottom:5px;">
+            <label>To:</label><br>
+            <input type="date" name="end_date" value="{{ request.GET.end_date }}">
+        </div>
+
+        <button type="submit" class="button">Apply</button>
+        <a href="?" class="button" style="margin-left:5px;">Reset</a>
+    </form>
+</div>

@@ -285,6 +285,7 @@ export_patients_csv.short_description = "Download Selected Patients"
 # ADMIN
 # =========================================================
 class PatientAdmin(admin.ModelAdmin):
+    change_list_template = "admin/user_details/patient/change_list.html"
 
     list_display = (
         'id', 'membership_id', 'mobile', 'full_name', 'gender',
