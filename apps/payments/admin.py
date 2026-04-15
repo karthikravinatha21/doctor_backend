@@ -67,7 +67,8 @@ class AdminPaymentTransactions(admin.ModelAdmin):
         'status',
     )
 
-    list_filter = ('status', 'currency')
+    list_filter = ('status', 'currency', 'created_at')
+    date_hierarchy = 'created_at'
     search_fields = ('razorpay_order_id', 'user__full_name', 'user__mobile')
 
     actions = [export_transactions_csv]
@@ -116,10 +117,15 @@ class AdminPaymentTransactions(admin.ModelAdmin):
         if not hasattr(response, "context_data"):
             return response
 
-        page_queryset = response.context_data['cl'].result_list
-        total = sum(obj.amount for obj in page_queryset)
+        cl = response.context_data['cl']
+        page_queryset = cl.result_list
+        filtered_queryset = cl.queryset
 
-        response.context_data['page_total'] = round(total, 2)
+        page_total = sum(obj.amount for obj in page_queryset)
+        filtered_total = filtered_queryset.aggregate(total_amount=Sum('amount')).get('total_amount') or 0
+
+        response.context_data['page_total'] = round(page_total, 2)
+        response.context_data['filtered_total'] = round(filtered_total, 2)
 
         return response
 

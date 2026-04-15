@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import (AbstractUser, BaseUserManager, PermissionsMixin, User, _user_has_module_perms,
                                         _user_has_perm)
 from django.db import models
+from django.utils.crypto import get_random_string
 # from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import (FileExtensionValidator)
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -116,6 +117,14 @@ class User(AbstractUser, PermissionsMixin):
     aadhaar_number = models.CharField(max_length=24, null=True, blank=True)
     pan_number = models.CharField(max_length=24, null=True, blank=True)
     blood_group = models.CharField(max_length=24, null=True, blank=True)
+    referral_code = models.CharField(max_length=50, null=True, blank=True)
+    referred_by = models.ForeignKey(
+        'Partner',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='referred_users'
+    )
 
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'mobile'
@@ -153,6 +162,12 @@ class User(AbstractUser, PermissionsMixin):
             self.username = self.username
         if self.password and not self.password.startswith('pbkdf2_'):
             self.password = make_password(self.password)
+
+        if self.referral_code and not self.referred_by:
+            partner = Partner.objects.filter(referral_code=self.referral_code).first()
+            if partner:
+                self.referred_by = partner
+
         super(User, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -257,6 +272,50 @@ class FamilyMember(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.relationship})"
+
+
+class Partner(models.Model):
+    CATEGORY_CHOICES = [
+        ('Agent', 'Agent'),
+        ('Corporate Office', 'Corporate Office'),
+        ('Hospital', 'Hospital'),
+    ]
+
+    name = models.CharField(max_length=255)
+    category = models.CharField(max_length=32, choices=CATEGORY_CHOICES)
+    address = models.TextField(null=True, blank=True)
+    mobile = models.CharField(max_length=13)
+    email = models.EmailField(max_length=455, null=True, blank=True)
+    referral_code = models.CharField(max_length=20, unique=True, editable=False)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Partner'
+        verbose_name_plural = 'Partners'
+        indexes = [
+            models.Index(fields=['category']),
+            models.Index(fields=['mobile']),
+            models.Index(fields=['email']),
+            models.Index(fields=['referral_code']),
+        ]
+
+    @staticmethod
+    def generate_referral_code():
+        allowed_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+        code = 'VBH' + get_random_string(5, allowed_chars=allowed_chars)
+        while Partner.objects.filter(referral_code=code).exists():
+            code = 'VBH' + get_random_string(5, allowed_chars=allowed_chars)
+        return code
+
+    def save(self, *args, **kwargs):
+        if not self.referral_code:
+            self.referral_code = self.generate_referral_code()
+        super(Partner, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.name} ({self.referral_code})"
 
 
 class Patient(User):

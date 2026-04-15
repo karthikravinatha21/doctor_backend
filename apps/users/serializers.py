@@ -30,6 +30,7 @@ class UserDataSerializer(serializers.ModelSerializer):
             "email",
             "aadhaar_number",
             "pan_number",
+            "referral_code",
             "start_date",
             "end_date",
             "is_active",

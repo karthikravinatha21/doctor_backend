@@ -24,7 +24,7 @@ from django.contrib.admin import SimpleListFilter
 # LOCAL APPS
 # =========================================================
 from .models import (
-    Banner, User, Enquiry, Patient, ContactUs, FamilyMember
+    Banner, User, Enquiry, Patient, ContactUs, FamilyMember, Partner
 )
 from .forms import ManagerUserForm, FrontDeskUserForm
 
@@ -44,15 +44,16 @@ class UserAdmin(admin.ModelAdmin):
 
     list_display = (
         'id', 'mobile', 'full_name', 'user_type', 'age', 'gender',
-        'last_login', 'is_active', 'profile_image_tag'
+        'referral_code', 'referred_by', 'last_login', 'is_active', 'profile_image_tag'
     )
     fields = (
         'full_name', 'membership_id', 'age', 'email', 'mobile', 'alternate_number', 'dob',
         'gender', 'aadhaar_number', 'pan_number', 'blood_group', 'address',
-        'pin_code', 'profile_image_preview', 'profile_image', 'is_active'
+        'pin_code', 'referral_code', 'referred_by', 'profile_image_preview',
+        'profile_image', 'is_active'
     )
 
-    search_fields = ('full_name', 'email', 'mobile')
+    search_fields = ('full_name', 'email', 'mobile', 'referral_code')
 
     readonly_fields = ('profile_image_preview',)
 
@@ -162,7 +163,46 @@ class UserAdmin(admin.ModelAdmin):
         return render(request, "admin/create_frontdesk_form.html", context)
 
 class FamilyMemberAdmin(admin.ModelAdmin):
-    list_display = ('membership_id', 'full_name', 'age', 'blood_group')
+    list_display = (
+        'membership_id', 'full_name', 'age', 'blood_group',
+        'primary_member_name', 'primary_member_mobile', 'status', 'created_at'
+    )
+    list_filter = ('is_active', 'relationship', 'created_at')
+    date_hierarchy = 'created_at'
+    search_fields = (
+        'membership_id', 'full_name', 'aadhaar_number', 'pan_number',
+        'primary_user__full_name', 'primary_user__mobile'
+    )
+
+    def primary_member_name(self, obj):
+        return obj.primary_user.full_name if obj.primary_user else '-'
+    primary_member_name.short_description = 'Primary Member'
+
+    def primary_member_mobile(self, obj):
+        return obj.primary_user.mobile if obj.primary_user else '-'
+    primary_member_mobile.short_description = 'Primary Mobile'
+
+    def status(self, obj):
+        return 'Active' if obj.is_active else 'Inactive'
+    status.short_description = 'Status'
+
+
+class PartnerAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'name', 'category', 'mobile', 'email', 'referral_code', 'referral_count', 'view_referrals'
+    )
+    list_filter = ('category', 'is_active')
+    search_fields = ('name', 'category', 'mobile', 'email', 'referral_code')
+    readonly_fields = ('referral_code',)
+
+    def referral_count(self, obj):
+        return obj.referred_users.count()
+    referral_count.short_description = 'Referral Users'
+
+    def view_referrals(self, obj):
+        url = reverse('admin:user_details_user_changelist') + f'?referral_code__exact={obj.referral_code}'
+        return format_html('<a href="{}">View Users</a>', url)
+    view_referrals.short_description = 'Referral Tracking'
 
 
 # =========================================================
@@ -463,6 +503,7 @@ class PatientAdmin(admin.ModelAdmin):
 
 # Register both in admin
 admin.site.register(User, UserAdmin)      # Shows only staff
+admin.site.register(Partner, PartnerAdmin)
 admin.site.register(FamilyMember, FamilyMemberAdmin)      # Shows only family member
 admin.site.register(Patient, PatientAdmin)  # Shows only non-staff
 
