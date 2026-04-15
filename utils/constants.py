@@ -8,6 +8,7 @@ from datetime import timedelta
 import pandas as pd
 import requests
 from django.conf import settings
+from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Model
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
@@ -187,12 +188,14 @@ def trigger_bulk_event_notifications(users, event_type, event_value):
         print(f"✅ Bulk Notification sent: {response.success_count} success, {response.failure_count} failed.")
 
 def validate_file_size(value):
+    if not isinstance(value, UploadedFile):
+        return value
+
     file_size = value.size
     if file_size > int(settings.MAX_FILE_UPLOAD_SIZE) * 1024 * 1024:
         raise ValidationError(
             "The maximum file size that can be uploaded is {}MB".format(settings.MAX_FILE_UPLOAD_SIZE))
-    else:
-        return value
+    return value
 
 # Explicit mapping of MIME types to extensions, covering gaps in Python's
 # mimetypes module which vary across operating systems (e.g. 'image/jpeg'
@@ -215,6 +218,9 @@ logger_file_validation = logging.getLogger('django')
 
 
 def validate_file_authenticity(value):
+    if not isinstance(value, UploadedFile):
+        return value
+
     value.file.seek(0)  # Reset file pointer
     buffer = value.file.read(2048)  # Read small chunk to detect mime type
     value.file.seek(0)  # Reset again for further processing

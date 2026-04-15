@@ -200,7 +200,7 @@ class PartnerAdmin(admin.ModelAdmin):
     referral_count.short_description = 'Referral Users'
 
     def view_referrals(self, obj):
-        url = reverse('admin:user_details_user_changelist') + f'?referral_code__exact={obj.referral_code}'
+        url = reverse('admin:user_details_patient_changelist') + f'?referral_code__exact={obj.referral_code}'
         return format_html('<a href="{}">View Users</a>', url)
     view_referrals.short_description = 'Referral Tracking'
 
