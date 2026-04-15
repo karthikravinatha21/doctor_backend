@@ -73,6 +73,10 @@ class AdminPaymentTransactions(admin.ModelAdmin):
 
     actions = [export_transactions_csv]
 
+    # ❌ REMOVE DELETE OPTION
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     # ---------------------------------------------------------
     # OPTIMIZED QUERYSET
     # ---------------------------------------------------------

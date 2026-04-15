@@ -44,16 +44,16 @@ class UserAdmin(admin.ModelAdmin):
 
     list_display = (
         'id', 'mobile', 'full_name', 'user_type', 'age', 'gender',
-        'referral_code', 'referred_by', 'last_login', 'is_active', 'profile_image_tag'
+        'last_login', 'is_active', 'profile_image_tag'
     )
     fields = (
         'full_name', 'membership_id', 'age', 'email', 'mobile', 'alternate_number', 'dob',
         'gender', 'aadhaar_number', 'pan_number', 'blood_group', 'address',
-        'pin_code', 'referral_code', 'referred_by', 'profile_image_preview',
+        'pin_code', 'profile_image_preview',
         'profile_image', 'is_active'
     )
 
-    search_fields = ('full_name', 'email', 'mobile', 'referral_code')
+    search_fields = ('full_name', 'email', 'mobile')
 
     readonly_fields = ('profile_image_preview',)
 
@@ -331,7 +331,7 @@ class PatientAdmin(admin.ModelAdmin):
         'id', 'membership_id', 'mobile', 'full_name', 'gender',
         'subscription_status', 'subscription_start_date',
         'subscription_end_date', 'activate_subscription_button',
-        'profile_image_tag'
+        'profile_image_tag', 'referral_code', 'referred_by'
     )
 
     fields = (
@@ -340,10 +340,10 @@ class PatientAdmin(admin.ModelAdmin):
         'pan_number', 'blood_group', 'address', 'pin_code',
         'profile_image_preview', 'profile_image',
         'subscription_status', 'subscription_start_date',
-        'subscription_end_date'
+        'subscription_end_date', 'referral_code', 'referred_by'
     )
 
-    search_fields = ('membership_id', 'full_name', 'email', 'mobile')
+    search_fields = ('membership_id', 'full_name', 'email', 'mobile','referral_code')
 
     readonly_fields = (
         'membership_id', 'profile_image_preview',
