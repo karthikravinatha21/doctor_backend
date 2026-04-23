@@ -18,7 +18,7 @@ class HospitalViewSet(custom_viewsets.ModelViewSet):
     status_code = 200
     # Add this line
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'city__city_name']
+    search_fields = ['name', 'city__city_name', 'address']
 
     def get_permissions(self):
         """
