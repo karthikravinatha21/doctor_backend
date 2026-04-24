@@ -5,12 +5,29 @@ from django.http import HttpResponse
 from django.db.models import Sum
 from django.utils.html import format_html
 from django.db.models import OuterRef, Subquery
+from django.utils.timezone import get_current_timezone
 
 from apps.master_data.models import SubDepartment
 from apps.payments.models import Transaction, Subscription, UserSubscription
 
 
 # Register your models here.
+
+# =========================================================
+# DATETIME FORMATTER (IST AWARE)
+# =========================================================
+def format_datetime_ist(dt):
+    """Convert timezone-aware datetime to IST before formatting"""
+    if not dt:
+        return ""
+    tz = get_current_timezone()
+    if dt.tzinfo is None:
+        from django.utils.timezone import make_aware
+        dt = make_aware(dt, tz)
+    else:
+        dt = dt.astimezone(tz)
+    return dt.strftime("%d-%m-%Y %I:%M %p")
+
 
 # =========================================================
 # CSV EXPORT
@@ -39,7 +56,7 @@ def export_transactions_csv(modeladmin, request, queryset):
             obj.currency,
             obj.status,
             "Active" if latest_sub and latest_sub.is_active else "Inactive",
-            obj.created_at.strftime("%d-%m-%Y %I:%M %p") if obj.created_at else "",
+            format_datetime_ist(obj.created_at),
         ])
 
     return response
@@ -107,9 +124,7 @@ class AdminPaymentTransactions(admin.ModelAdmin):
     subscription_status.short_description = "Subscription Status"
 
     def transaction_date(self, obj):
-        if obj.created_at:
-            return obj.created_at.strftime("%d-%m-%Y %I:%M %p")
-        return "-"
+        return format_datetime_ist(obj.created_at) if obj.created_at else "-"
     transaction_date.short_description = "Transaction Date"
 
     # ---------------------------------------------------------
