@@ -284,6 +284,13 @@ class SubscriptionStartDateFilter(SimpleListFilter):
 def format_datetime(dt):
     if not dt:
         return ""
+    # Convert to IST before formatting (timezone-aware display)
+    from django.utils.timezone import get_current_timezone
+    tz = get_current_timezone()
+    if dt.tzinfo is None:
+        dt = timezone.make_aware(dt, tz)
+    else:
+        dt = dt.astimezone(tz)
     return dt.strftime("%d-%m-%Y %I:%M %p")
 
 
