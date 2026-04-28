@@ -25,6 +25,13 @@ def generate_profile_path(self, filename):
     return "users/profile/{0}".format(obj_name)
 
 
+def generate_family_member_profile_path(self, filename):
+    _, obj_file_extension = os.path.splitext(filename)
+    member_identifier = self.membership_id or str(uuid.uuid4())
+    obj_name = str(uuid.uuid4()) + str(obj_file_extension)
+    return "family_members/profile/{0}/{1}".format(member_identifier, obj_name)
+
+
 class UserManager(BaseUserManager):
 
     def create_user(self, mobile, username, password=None):
@@ -74,7 +81,7 @@ class User(AbstractUser, PermissionsMixin):
 
     profile_image = models.ImageField(
         storage=MediaStorage(),
-        upload_to="",
+        upload_to=generate_profile_path,
         null=True,
         blank=True,
         validators=[
@@ -236,7 +243,7 @@ class FamilyMember(models.Model):
 
     profile_image = models.ImageField(
         storage=MediaStorage(),
-        upload_to="",
+        upload_to=generate_family_member_profile_path,
         null=True,
         blank=True,
         validators=[

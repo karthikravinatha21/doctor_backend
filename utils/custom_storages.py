@@ -19,6 +19,9 @@ class MediaStorage(S3Boto3Storage):
     location = 'media'
     file_overwrite = False
 
+    def _is_image(self, content):
+        return hasattr(content, 'content_type') and content.content_type.startswith('image/')
+
     def image_convert(self, name, content, *args, **kwargs):
         import io
         """
@@ -31,30 +34,28 @@ class MediaStorage(S3Boto3Storage):
             # Convert the image to WebP format
             output = io.BytesIO()
             image.save(output, format='WEBP')
-            content = io.BytesIO(output.getvalue())
             name = name.rsplit('.', 1)[0] + '.webp'
+            content = ContentFile(output.getvalue(), name=name)
             output.close()
 
-            # Save the processed image using the parent class's save method
-            return super()._save(name, content)
+            return name, content
         except Exception as e:
             raise Exception(f"Error converting image: {e}")
 
     def _save(self, name, content):
         """
-        Override the _save method to include image conversion.
+        Save content using the parent storage backend.
         """
-        # Check if the file is an image
-        if hasattr(content, 'content_type') and content.content_type.startswith('image/'):
-            return self.image_convert(name, content)
-        else:
-            return super()._save(name, content)
+        return super()._save(name, content)
 
     def save(self, name, content, max_length=None):
         """
-        Override the save method to handle image conversion.
+        Convert images to WebP, then let the storage backend pick a safe key.
         """
-        return self._save(name, content)
+        if self._is_image(content):
+            name, content = self.image_convert(name, content)
+        name = self.get_available_name(name, max_length=max_length)
+        return super()._save(name, content)
 
 
 class FileStorage(S3Boto3Storage):
@@ -81,4 +82,3 @@ class ImageHelpers:
             raise ImageConvertTypeException
         else:
             raise ValidationError(MANDATORY_FIELD_MISSING)
-
