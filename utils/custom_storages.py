@@ -50,11 +50,10 @@ class MediaStorage(S3Boto3Storage):
 
     def save(self, name, content, max_length=None):
         """
-        Convert images to WebP, then let the storage backend pick a safe key.
+        Convert images to WebP and save using the generated key.
         """
         if self._is_image(content):
             name, content = self.image_convert(name, content)
-        name = self.get_available_name(name, max_length=max_length)
         return super()._save(name, content)
 
 
