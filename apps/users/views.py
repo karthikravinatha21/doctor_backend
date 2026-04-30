@@ -146,19 +146,86 @@ class AddFamilyMemberAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        data = request.data.copy()
-        data['primary_user'] = user.id
-        data['is_active'] = True
-
-        serializer = FamilyMemberSerializer(data=data)
-        if serializer.is_valid():
-            member = serializer.save()
-            return Response({
-                "message": "Family member added",
-                "membership_id": member.membership_id
-            }, status=status.HTTP_201_CREATED)
+        # Parse family_members from request data (can be JSON string or direct data)
+        family_members_data = request.data.get('family_members', [])
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # If family_members is a JSON string, parse it
+        if isinstance(family_members_data, str):
+            try:
+                family_members_data = json.loads(family_members_data)
+            except json.JSONDecodeError:
+                return Response(
+                    {"error": "family_members must be a valid JSON array"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        # If family_members is not provided, treat the entire request as a single member (backward compatibility)
+        if not family_members_data:
+            # Single member mode - exclude system fields
+            single_data = {k: v for k, v in request.data.items() if k != 'family_members'}
+            family_members_data = [single_data] if single_data else []
+        
+        if not isinstance(family_members_data, list):
+            return Response(
+                {"error": "family_members must be a list"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not family_members_data:
+            return Response(
+                {"error": "At least one family member is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        created_members = []
+        errors = []
+        
+        for index, member_data in enumerate(family_members_data):
+            data = member_data.copy() if isinstance(member_data, dict) else {}
+            data['primary_user'] = user.id
+            data['is_active'] = True
+            
+            # Check if profile_image is provided for this member
+            profile_image_key = f'profile_image_{index}'
+            if profile_image_key in request.FILES:
+                data['profile_image'] = request.FILES[profile_image_key]
+            
+            serializer = FamilyMemberSerializer(data=data)
+            if serializer.is_valid():
+                member = serializer.save()
+                created_members.append({
+                    "full_name": member.full_name,
+                    "membership_id": member.membership_id,
+                    "relationship": member.relationship,
+                    "profile_image": str(member.profile_image) if member.profile_image else None
+                })
+            else:
+                errors.append({
+                    "index": index,
+                    "member_name": member_data.get("full_name", "Unknown"),
+                    "errors": serializer.errors
+                })
+        
+        # If no members were created successfully
+        if not created_members:
+            return Response({
+                "message": "Failed to create family members",
+                "errors": errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Partial success
+        if errors:
+            return Response({
+                "message": f"Created {len(created_members)} members, but {len(errors)} failed",
+                "created_members": created_members,
+                "errors": errors
+            }, status=status.HTTP_207_MULTI_STATUS)
+        
+        # All successful
+        return Response({
+            "message": f"Successfully added {len(created_members)} family member(s)",
+            "members": created_members
+        }, status=status.HTTP_201_CREATED)
 
 
 class MembershipCardPDFView(APIView):
