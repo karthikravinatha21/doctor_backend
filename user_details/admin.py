@@ -2,6 +2,7 @@
 # STANDARD LIBRARY
 # =========================================================
 import csv
+import logging
 from datetime import timedelta
 
 # =========================================================
@@ -10,6 +11,7 @@ from datetime import timedelta
 from django import forms
 from django.conf import settings
 from django.contrib import admin, messages
+from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin as useradmin
 from django.contrib.auth.models import Group
 from django.db.models import Q, OuterRef, Subquery
@@ -18,7 +20,6 @@ from django.shortcuts import render, redirect
 from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.html import format_html
-from django.contrib.admin import SimpleListFilter
 
 # =========================================================
 # ADDITIONAL IMPORTS FOR PDF
@@ -28,6 +29,8 @@ from weasyprint import HTML
 import tempfile
 from io import BytesIO
 from zipfile import ZipFile
+
+logger = logging.getLogger(__name__)
 
 # =========================================================
 # LOCAL APPS
@@ -307,34 +310,38 @@ def format_datetime(dt):
 # MEMBERSHIP CARD PDF GENERATOR
 # =========================================================
 def generate_membership_card_pdf(user):
-    sub = user.subscriptions.order_by('-start_date').first()
-    partner = user.referred_by or (Partner.objects.filter(referral_code=user.referral_code).first() if user.referral_code else None)
-    partner_image_url = partner.profile_image.url if partner and partner.profile_image else None
+    try:
+        sub = user.subscriptions.order_by('-start_date').first()
+        partner = user.referred_by or (Partner.objects.filter(referral_code=user.referral_code).first() if user.referral_code else None)
+        partner_image_url = partner.profile_image.url if partner and partner.profile_image else None
 
-    context = {
-        "membership_id": user.membership_id,
-        "name": user.full_name,
-        "age": user.age,
-        "gender": user.gender,
-        "contact": user.mobile,
-        "blood_group": user.blood_group,
-        "address": user.address,
-        "pin_code": user.pin_code,
-        "photo_url": user.profile_image.url if user.profile_image else "https://cdn-icons-png.flaticon.com/512/847/847969.png",
-        "start_date": sub.start_date if sub else "",
-        "end_date": sub.end_date if sub else "",
-        "partner_name": partner.name if partner else "",
-        "partner_image": partner_image_url,
-    }
+        context = {
+            "membership_id": user.membership_id,
+            "name": user.full_name,
+            "age": user.age,
+            "gender": user.gender,
+            "contact": user.mobile,
+            "blood_group": user.blood_group,
+            "address": user.address,
+            "pin_code": user.pin_code,
+            "photo_url": user.profile_image.url if user.profile_image else "https://cdn-icons-png.flaticon.com/512/847/847969.png",
+            "start_date": sub.start_date if sub else "",
+            "end_date": sub.end_date if sub else "",
+            "partner_name": partner.name if partner else "",
+            "partner_image": partner_image_url,
+        }
 
-    html = render_to_string("health_card.html", context)
+        html = render_to_string("health_card.html", context)
 
-    with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as tmp_file:
-        HTML(string=html).write_pdf(target=tmp_file.name)
-        tmp_file.seek(0)
-        pdf_data = tmp_file.read()
+        with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as tmp_file:
+            HTML(string=html).write_pdf(target=tmp_file.name)
+            tmp_file.seek(0)
+            pdf_data = tmp_file.read()
 
-    return pdf_data
+        return pdf_data
+    except Exception as e:
+        logger.error(f"Error generating PDF for user {user.id} ({user.full_name}): {e}")
+        raise
 
 
 # =========================================================
@@ -375,19 +382,36 @@ export_patients_csv.short_description = "Download Selected Patients"
 # ACTION: DOWNLOAD MEMBERSHIP CARDS FOR SELECTED
 # =========================================================
 def download_selected_membership_cards(modeladmin, request, queryset):
+    count = queryset.count()
+    if count > 20:
+        modeladmin.message_user(
+            request,
+            f"Cannot download more than 20 membership cards at once. Selected {count} users. Please select fewer users or use the bulk download button with filters.",
+            messages.WARNING
+        )
+        return
+
     buffer = BytesIO()
+    success_count = 0
     with ZipFile(buffer, 'w') as zip_file:
         for patient in queryset:
             try:
                 pdf_data = generate_membership_card_pdf(patient)
                 filename = f"{patient.membership_id}_{patient.full_name}.pdf"
                 zip_file.writestr(filename, pdf_data)
+                success_count += 1
             except Exception as e:
-                # Skip if error
-                pass
+                logger.error(f"Failed to add PDF for patient {patient.id}: {e}")
+                continue
+
+    if success_count == 0:
+        modeladmin.message_user(request, "No membership cards could be generated.", messages.ERROR)
+        return
+
     buffer.seek(0)
     response = HttpResponse(buffer.getvalue(), content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename=selected_membership_cards.zip'
+    response['Content-Disposition'] = f'attachment; filename=selected_membership_cards_{success_count}.zip'
+    modeladmin.message_user(request, f"Downloaded {success_count} membership cards.", messages.SUCCESS)
     return response
 
 download_selected_membership_cards.short_description = "Download Membership Cards for Selected Patients"
@@ -651,19 +675,36 @@ class MembershipCardAdmin(admin.ModelAdmin):
             try:
                 cl = self.get_changelist_instance(request)
                 queryset = cl.get_queryset(request)
+                count = queryset.count()
+                
+                if count > 20:
+                    messages.warning(
+                        request,
+                        f"Cannot download more than 20 membership cards at once. Filtered {count} users. Please apply more specific filters."
+                    )
+                    return redirect(request.get_full_path().replace('download=1', ''))
+                
                 buffer = BytesIO()
+                success_count = 0
                 with ZipFile(buffer, 'w') as zip_file:
                     for patient in queryset:
                         try:
                             pdf_data = generate_membership_card_pdf(patient)
                             filename = f"{patient.membership_id}_{patient.full_name}.pdf"
                             zip_file.writestr(filename, pdf_data)
+                            success_count += 1
                         except Exception as e:
-                            # Skip if error
-                            pass
+                            logger.error(f"Failed to add PDF for patient {patient.id}: {e}")
+                            continue
+                
+                if success_count == 0:
+                    messages.error(request, "No membership cards could be generated.")
+                    return redirect(request.get_full_path().replace('download=1', ''))
+                
                 buffer.seek(0)
                 response = HttpResponse(buffer.getvalue(), content_type='application/zip')
-                response['Content-Disposition'] = 'attachment; filename=membership_cards.zip'
+                response['Content-Disposition'] = f'attachment; filename=membership_cards_{success_count}.zip'
+                messages.success(request, f"Downloaded {success_count} membership cards.")
                 return response
             finally:
                 # Restore original GET
