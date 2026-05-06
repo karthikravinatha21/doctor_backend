@@ -203,6 +203,33 @@ body {
 }
 
 /* TERMS & INSTRUCTIONS */
+.partner-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.partner-photo {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #007a8f;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #fff;
+}
+.partner-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.partner-name {
+  font-size: 8px;
+  font-weight: 700;
+  color: #333;
+  text-transform: capitalize;
+}
+
 .section.terms ul,
 .section.instructions ul {
   list-style: disc;
@@ -351,6 +378,20 @@ body {
         <li>We help you choose the right doctor, hospital, or diagnostic center.</li>
       </ul>
     </div>
+
+    {% if partner_name %}
+    <div class="section partner-info">
+      <h3>REFERRED BY PARTNER</h3>
+      <div class="partner-card">
+        {% if partner_image %}
+          <div class="partner-photo">
+            <img src="{{ partner_image }}" alt="{{ partner_name }}">
+          </div>
+        {% endif %}
+        <div class="partner-name">{{ partner_name }}</div>
+      </div>
+    </div>
+    {% endif %}
 
     <div class="partition-line">
       <div class="cashback-oval">

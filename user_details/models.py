@@ -32,6 +32,13 @@ def generate_family_member_profile_path(self, filename):
     return "family_members/profile/{0}/{1}".format(member_identifier, obj_name)
 
 
+def generate_partner_profile_path(self, filename):
+    _, obj_file_extension = os.path.splitext(filename)
+    partner_identifier = self.referral_code or str(uuid.uuid4())
+    obj_name = str(uuid.uuid4()) + str(obj_file_extension)
+    return "partners/profile/{0}/{1}".format(partner_identifier, obj_name)
+
+
 class UserManager(BaseUserManager):
 
     def create_user(self, mobile, username, password=None):
@@ -123,7 +130,18 @@ class User(AbstractUser, PermissionsMixin):
 
     aadhaar_number = models.CharField(max_length=24, null=True, blank=True)
     pan_number = models.CharField(max_length=24, null=True, blank=True)
-    blood_group = models.CharField(max_length=24, null=True, blank=True)
+    blood_group = models.CharField(max_length=24, null=True, blank=True)    
+    profile_image = models.ImageField(
+        storage=MediaStorage(),
+        upload_to=generate_partner_profile_path,
+        null=True,
+        blank=True,
+        validators=[
+            FileExtensionValidator(['jpg', 'jpeg', 'png', 'gif', 'webp']),
+            validate_file_size,
+            validate_file_authenticity,
+        ]
+    )    
     referral_code = models.CharField(max_length=50, null=True, blank=True)
     referred_by = models.ForeignKey(
         'Partner',
@@ -170,10 +188,11 @@ class User(AbstractUser, PermissionsMixin):
         if self.password and not self.password.startswith('pbkdf2_'):
             self.password = make_password(self.password)
 
-        if self.referral_code and not self.referred_by:
+        if self.referral_code:
             partner = Partner.objects.filter(referral_code=self.referral_code).first()
-            if partner:
-                self.referred_by = partner
+            self.referred_by = partner
+        else:
+            self.referred_by = None
 
         super(User, self).save(*args, **kwargs)
 
@@ -293,6 +312,17 @@ class Partner(models.Model):
     address = models.TextField(null=True, blank=True)
     mobile = models.CharField(max_length=13)
     email = models.EmailField(max_length=455, null=True, blank=True)
+    profile_image = models.ImageField(
+        storage=MediaStorage(),
+        upload_to=generate_partner_profile_path,
+        null=True,
+        blank=True,
+        validators=[
+            FileExtensionValidator(['jpg', 'jpeg', 'png', 'gif', 'webp']),
+            validate_file_size,
+            validate_file_authenticity,
+        ]
+    )
     referral_code = models.CharField(max_length=20, unique=True, editable=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -330,6 +360,13 @@ class Patient(User):
         proxy = True
         verbose_name = "Patient"
         verbose_name_plural = "Patients"
+
+
+class MembershipPatient(User):
+    class Meta:
+        proxy = True
+        verbose_name = "Membership Card"
+        verbose_name_plural = "Membership Cards"
 
 
 class MyBaseModel(models.Model):

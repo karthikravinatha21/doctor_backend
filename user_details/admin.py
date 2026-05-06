@@ -21,10 +21,19 @@ from django.utils.html import format_html
 from django.contrib.admin import SimpleListFilter
 
 # =========================================================
+# ADDITIONAL IMPORTS FOR PDF
+# =========================================================
+from django.template.loader import render_to_string
+from weasyprint import HTML
+import tempfile
+from io import BytesIO
+from zipfile import ZipFile
+
+# =========================================================
 # LOCAL APPS
 # =========================================================
 from .models import (
-    Banner, User, Enquiry, Patient, ContactUs, FamilyMember, Partner
+    Banner, User, Enquiry, Patient, ContactUs, FamilyMember, Partner, MembershipPatient
 )
 from .forms import ManagerUserForm, FrontDeskUserForm
 
@@ -295,6 +304,40 @@ def format_datetime(dt):
 
 
 # =========================================================
+# MEMBERSHIP CARD PDF GENERATOR
+# =========================================================
+def generate_membership_card_pdf(user):
+    sub = user.subscriptions.order_by('-start_date').first()
+    partner = user.referred_by or (Partner.objects.filter(referral_code=user.referral_code).first() if user.referral_code else None)
+    partner_image_url = partner.profile_image.url if partner and partner.profile_image else None
+
+    context = {
+        "membership_id": user.membership_id,
+        "name": user.full_name,
+        "age": user.age,
+        "gender": user.gender,
+        "contact": user.mobile,
+        "blood_group": user.blood_group,
+        "address": user.address,
+        "pin_code": user.pin_code,
+        "photo_url": user.profile_image.url if user.profile_image else "https://cdn-icons-png.flaticon.com/512/847/847969.png",
+        "start_date": sub.start_date if sub else "",
+        "end_date": sub.end_date if sub else "",
+        "partner_name": partner.name if partner else "",
+        "partner_image": partner_image_url,
+    }
+
+    html = render_to_string("health_card.html", context)
+
+    with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as tmp_file:
+        HTML(string=html).write_pdf(target=tmp_file.name)
+        tmp_file.seek(0)
+        pdf_data = tmp_file.read()
+
+    return pdf_data
+
+
+# =========================================================
 # ACTION: EXPORT CSV
 # =========================================================
 def export_patients_csv(modeladmin, request, queryset):
@@ -326,6 +369,28 @@ def export_patients_csv(modeladmin, request, queryset):
 
 
 export_patients_csv.short_description = "Download Selected Patients"
+
+
+# =========================================================
+# ACTION: DOWNLOAD MEMBERSHIP CARDS FOR SELECTED
+# =========================================================
+def download_selected_membership_cards(modeladmin, request, queryset):
+    buffer = BytesIO()
+    with ZipFile(buffer, 'w') as zip_file:
+        for patient in queryset:
+            try:
+                pdf_data = generate_membership_card_pdf(patient)
+                filename = f"{patient.membership_id}_{patient.full_name}.pdf"
+                zip_file.writestr(filename, pdf_data)
+            except Exception as e:
+                # Skip if error
+                pass
+    buffer.seek(0)
+    response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename=selected_membership_cards.zip'
+    return response
+
+download_selected_membership_cards.short_description = "Download Membership Cards for Selected Patients"
 
 
 # =========================================================
@@ -508,11 +573,124 @@ class PatientAdmin(admin.ModelAdmin):
         return "No image uploaded"
 
 
+# =========================================================
+# MEMBERSHIP CARD ADMIN
+# =========================================================
+class MembershipCardAdmin(admin.ModelAdmin):
+    change_list_template = "admin/user_details/patient/change_list.html"
+
+    list_display = (
+        'id', 'membership_id', 'mobile', 'full_name', 'gender',
+        'subscription_status', 'subscription_start_date',
+        'subscription_end_date', 'profile_image_tag', 'referral_code', 'referred_by'
+    )
+
+    search_fields = ('membership_id', 'full_name', 'email', 'mobile','referral_code')
+
+    # ✅ FILTERS + ACTIONS
+    list_filter = (
+        SubscriptionStatusFilter,
+        SubscriptionStartDateFilter,
+        'gender',
+        'date_joined',
+        'referral_code'
+    )
+    actions = [download_selected_membership_cards]
+
+    # ❌ REMOVE DELETE OPTION
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if "delete_selected" in actions:
+            del actions["delete_selected"]
+        return actions
+
+    # --------------------------------------------------------- 
+    # QUERYSET
+    # --------------------------------------------------------- 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(
+            is_staff=False,
+            user_type='user'
+        ).prefetch_related('subscriptions').distinct()
+
+    # --------------------------------------------------------- 
+    # SUBSCRIPTION HELPERS
+    # --------------------------------------------------------- 
+    def _latest_subscription(self, obj):
+        return obj.subscriptions.order_by('-start_date').first()
+
+    def subscription_status(self, obj):
+        sub = self._latest_subscription(obj)
+        return "Active" if sub and sub.is_active else "Inactive"
+
+    def subscription_start_date(self, obj):
+        sub = self._latest_subscription(obj)
+        return format_datetime(sub.start_date) if sub else "NA"
+
+    def subscription_end_date(self, obj):
+        sub = self._latest_subscription(obj)
+        return format_datetime(sub.end_date) if sub else "NA"
+
+    # --------------------------------------------------------- 
+    # DOWNLOAD MEMBERSHIP CARDS FOR FILTERED
+    # --------------------------------------------------------- 
+    def changelist_view(self, request, extra_context=None):
+        if request.GET.get('download') == '1':
+            # Create a modified GET dict without 'download' param to avoid filter error
+            get_copy = request.GET.copy()
+            get_copy.pop('download')
+            
+            # Temporarily replace request.GET for the changelist
+            original_get = request.GET
+            request.GET = get_copy
+            
+            try:
+                cl = self.get_changelist_instance(request)
+                queryset = cl.get_queryset(request)
+                buffer = BytesIO()
+                with ZipFile(buffer, 'w') as zip_file:
+                    for patient in queryset:
+                        try:
+                            pdf_data = generate_membership_card_pdf(patient)
+                            filename = f"{patient.membership_id}_{patient.full_name}.pdf"
+                            zip_file.writestr(filename, pdf_data)
+                        except Exception as e:
+                            # Skip if error
+                            pass
+                buffer.seek(0)
+                response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+                response['Content-Disposition'] = 'attachment; filename=membership_cards.zip'
+                return response
+            finally:
+                # Restore original GET
+                request.GET = original_get
+        return super().changelist_view(request, extra_context)
+
+    # --------------------------------------------------------- 
+    # IMAGE
+    # --------------------------------------------------------- 
+    def profile_image_tag(self, obj):
+        if obj.profile_image and hasattr(obj.profile_image, 'url'):
+            return format_html(
+                '<a href="{0}" target="_blank">'
+                '<img src="{0}" width="50" height="50" '
+                'style="object-fit:cover;border-radius:50%;" />'
+                '</a>',
+                obj.profile_image.url
+            )
+        return "-"
+
+
 # Register both in admin
 admin.site.register(User, UserAdmin)      # Shows only staff
 admin.site.register(Partner, PartnerAdmin)
 admin.site.register(FamilyMember, FamilyMemberAdmin)      # Shows only family member
 admin.site.register(Patient, PatientAdmin)  # Shows only non-staff
+admin.site.register(MembershipPatient, MembershipCardAdmin)  # Membership cards
 
 
 @admin.register(Subscribe)  # Shows only non-staff

@@ -25,7 +25,7 @@ from apps.movies.models import Movie
 from apps.movies.serializers import MovieSerializer
 from apps.production_house.models import ProductionHouse
 from apps.schedule.models import Schedule
-from user_details.models import User, UserTokens, Banner, OTPStorage, Enquiry, FamilyMember
+from user_details.models import User, UserTokens, Banner, OTPStorage, Enquiry, FamilyMember, Partner
 from user_details.permission import IsUserBlockedPermission
 from user_details.adminpermission import IsUserblockedPermission, IsDoctorblockedPermission
 from user_details.serializers import BannerSerializer, UserSerializer, UserAdminSerializer, EnquirySerializer
@@ -239,6 +239,9 @@ class MembershipCardPDFView(APIView):
             serializer = UserDataSerializer(user)
             user_data = serializer.data
             # Prepare context for the dynamic front card
+            partner = user.referred_by or (Partner.objects.filter(referral_code=user.referral_code).first() if user.referral_code else None)
+            partner_image_url = partner.profile_image.url if partner and partner.profile_image else None
+
             context = {
                 "membership_id": user_data.get("membership_id", ""),
                 "name": user_data.get("full_name", ""),
@@ -251,6 +254,8 @@ class MembershipCardPDFView(APIView):
                 "photo_url": user_data.get("profile_image") or "https://cdn-icons-png.flaticon.com/512/847/847969.png",
                 "start_date": user_data.get("start_date", ""),
                 "end_date": user_data.get("end_date", ""),
+                "partner_name": partner.name if partner else "",
+                "partner_image": partner_image_url,
             }
 
             # Render front and back card templates
@@ -273,6 +278,9 @@ class MembershipCardPDFView(APIView):
             user_data = serializer.data
 
             # Prepare context for the dynamic front card
+            partner = user.primary_user.referred_by or (Partner.objects.filter(referral_code=user.primary_user.referral_code).first() if user.primary_user.referral_code else None)
+            partner_image_url = partner.profile_image.url if partner and partner.profile_image else None
+
             context = {
                 "membership_id": user_data.get("membership_id", ""),
                 "name": user_data.get("full_name", ""),
@@ -284,8 +292,9 @@ class MembershipCardPDFView(APIView):
                 "photo_url": user_data.get("profile_image") or "https://cdn-icons-png.flaticon.com/512/847/847969.png",
                 "start_date": user.created_at,
                 "end_date": user.created_at + relativedelta(years=1),
+                "partner_name": partner.name if partner else "",
+                "partner_image": partner_image_url,
             }
-
             # Render front and back card templates
             html = render_to_string("family_health_card.html", context)
 
