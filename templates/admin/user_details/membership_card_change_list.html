@@ -1,0 +1,35 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block search %}
+<div id="toolbar">
+    <form id="changelist-search" method="get">
+        <div>
+            <label for="searchbar">
+                <img src="{% static "admin/img/search.svg" %}" alt="Search">
+            </label>
+            <input type="text" size="40" name="q" value="{{ cl.query }}" id="searchbar" autofocus placeholder="Search">
+            <input type="submit" value="Search">
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block object-tools %}
+<ul class="object-tools">
+    <li>
+        <a href="?" class="button">
+            ♻️ Clear All Filters
+        </a>
+    </li>
+    
+    <li>
+        <a href="?download=1" class="button">
+            📥 Download Membership Cards
+        </a>
+    </li>
+</ul>
+
+{{ block.super }}
+{% endblock %}

@@ -362,13 +362,6 @@ class Patient(User):
         verbose_name_plural = "Patients"
 
 
-class MembershipPatient(User):
-    class Meta:
-        proxy = True
-        verbose_name = "Membership Card"
-        verbose_name_plural = "Membership Cards"
-
-
 class MyBaseModel(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
