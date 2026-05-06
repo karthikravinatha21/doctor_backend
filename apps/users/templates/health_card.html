@@ -33,7 +33,7 @@ body {
 
 /* FRONT CARD */
 .front {
-  padding: 10px 16px 6px 16px; /* Reduced padding */
+  padding: 10px 16px 6px 16px;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
@@ -48,11 +48,11 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 180px; /* Reduced size */
-  height: 180px; /* Reduced size */
+  width: 180px;
+  height: 180px;
   background: url('https://vaidya-bhandhu-prod.s3.ap-south-1.amazonaws.com/media/WhatsApp+Image+2025-11-03+at+8.16.46+PM.jpeg') no-repeat center center;
   background-size: contain;
-  opacity: 0.05; /* Reduced opacity */
+  opacity: 0.05;
   transform: translate(-50%, -50%);
   z-index: 0;
   pointer-events: none;
@@ -197,12 +197,12 @@ body {
   line-height: 1.1;
 }
 .section.benefits ul li::before {
-  content: "✔ ";
+  content: "✔️ ";
   color: #007a8f;
   font-weight: bold;
 }
 
-/* TERMS & INSTRUCTIONS */
+/* PARTNER SECTION */
 .partner-card {
   display: flex;
   align-items: center;
@@ -379,20 +379,6 @@ body {
       </ul>
     </div>
 
-    {% if partner_name %}
-    <div class="section partner-info">
-      <h3>REFERRED BY PARTNER</h3>
-      <div class="partner-card">
-        {% if partner_image %}
-          <div class="partner-photo">
-            <img src="{{ partner_image }}" alt="{{ partner_name }}">
-          </div>
-        {% endif %}
-        <div class="partner-name">{{ partner_name }}</div>
-      </div>
-    </div>
-    {% endif %}
-
     <div class="partition-line">
       <div class="cashback-oval">
         <div>10% CASHBACK ON YOUR</div>
@@ -415,6 +401,20 @@ body {
         <li>Does not cover emergency services unless pre-approved.</li>
       </ul>
     </div>
+
+    {% if partner_name %}
+    <div class="section partner-info">
+      <h3>REFERRED BY PARTNER</h3>
+      <div class="partner-card">
+        {% if partner_image %}
+          <div class="partner-photo">
+            <img src="{{ partner_image }}" alt="{{ partner_name }}">
+          </div>
+        {% endif %}
+        <div class="partner-name">{{ partner_name }}</div>
+      </div>
+    </div>
+    {% endif %}
 
     <div class="partition-before-instructions"></div>
 
