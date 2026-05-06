@@ -260,7 +260,11 @@ class SubscriptionStartDateFilter(SimpleListFilter):
         return (
             ('today', 'Today'),
             ('last_7_days', 'Last 7 Days'),
+            ('last_30_days', 'Last 30 Days'),
+            ('last_60_days', 'Last 60 Days'),
+            ('last_90_days', 'Last 90 Days'),
             ('this_month', 'This Month'),
+            ('this_year', 'This Year'),
         )
 
     def queryset(self, request, queryset):
@@ -279,10 +283,23 @@ class SubscriptionStartDateFilter(SimpleListFilter):
 
         if self.value() == 'last_7_days':
             return queryset.filter(latest_start_date__gte=now - timedelta(days=7))
+        
+        if self.value() == 'last_30_days':
+            return queryset.filter(latest_start_date__gte=now - timedelta(days=30))
+
+        if self.value() == 'last_60_days':
+            return queryset.filter(latest_start_date__gte=now - timedelta(days=60))
+
+        if self.value() == 'last_90_days':
+            return queryset.filter(latest_start_date__gte=now - timedelta(days=90))
 
         if self.value() == 'this_month':
             return queryset.filter(
                 latest_start_date__month=now.month,
+                latest_start_date__year=now.year
+            )
+        if self.value() == 'this_year':
+            return queryset.filter(
                 latest_start_date__year=now.year
             )
 
@@ -381,10 +398,10 @@ export_patients_csv.short_description = "Download Selected Patients"
 # =========================================================
 def download_selected_membership_cards(modeladmin, request, queryset):
     count = queryset.count()
-    if count > 20:
+    if count > 18:
         modeladmin.message_user(
             request,
-            f"Cannot download more than 20 membership cards at once. Selected {count} users. Please select fewer users or use the bulk download button with filters.",
+            f"Cannot download more than 18 membership cards at once. Selected {count} users. Please select fewer users or use the bulk download button with filters.",
             messages.WARNING
         )
         return
