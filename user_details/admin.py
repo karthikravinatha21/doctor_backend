@@ -15,7 +15,7 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin as useradmin
 from django.contrib.auth.models import Group
 from django.db.models import Q, OuterRef, Subquery
-from django.http import HttpResponse, FileResponse
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import path, reverse
 from django.utils import timezone
@@ -26,10 +26,9 @@ from django.utils.html import format_html
 # =========================================================
 from django.template.loader import render_to_string
 from weasyprint import HTML
-import os
 import tempfile
 from io import BytesIO
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
 
@@ -398,85 +397,37 @@ export_patients_csv.short_description = "Download Selected Patients"
 # ACTION: DOWNLOAD MEMBERSHIP CARDS FOR SELECTED
 # =========================================================
 def download_selected_membership_cards(modeladmin, request, queryset):
-    patients = list(queryset)
-    count = len(patients)
-    batch_size = 18  # Process in batches of 18 to avoid memory issues
-
-    total_success_count = 0
-    total_failed_count = 0
-    temp_path = None
-
-    try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as temp_zip:
-            temp_path = temp_zip.name
-
-        with ZipFile(temp_path, 'w', ZIP_DEFLATED) as zip_file:
-            for i in range(0, count, batch_size):
-                batch = patients[i:i + batch_size]
-                batch_success = 0
-                batch_failed = 0
-
-                for patient in batch:
-                    try:
-                        pdf_data = generate_membership_card_pdf(patient)
-                        filename = f"{patient.membership_id}_{patient.full_name}.pdf"
-                        filename = filename.replace('/', '_').replace('\\', '_')[:180]
-                        zip_file.writestr(filename, pdf_data)
-                        batch_success += 1
-                        total_success_count += 1
-                    except Exception as e:
-                        logger.error(f"Failed to generate PDF for patient {patient.id} ({patient.full_name}): {e}")
-                        batch_failed += 1
-                        total_failed_count += 1
-                        continue
-
-                batch_num = (i // batch_size) + 1
-                total_batches = (count + batch_size - 1) // batch_size
-                logger.info(f"Processed batch {batch_num}/{total_batches}: {batch_success} success, {batch_failed} failed")
-
-        if total_success_count == 0:
-            modeladmin.message_user(request, "No membership cards could be generated.", messages.ERROR)
-            return
-
-        response = FileResponse(open(temp_path, 'rb'), as_attachment=True, filename=f'membership_cards_{total_success_count}.zip')
-
-        if total_failed_count > 0:
-            modeladmin.message_user(
-                request,
-                f"Downloaded {total_success_count} membership cards. {total_failed_count} cards failed to generate.",
-                messages.WARNING
-            )
-        else:
-            modeladmin.message_user(
-                request,
-                f"Successfully downloaded {total_success_count} membership cards from {count} selected patients.",
-                messages.SUCCESS
-            )
-
-        return response
-
-    except MemoryError:
-        logger.error("Memory error during membership card generation")
+    count = queryset.count()
+    if count > 18:
         modeladmin.message_user(
             request,
-            "Memory error occurred while generating membership cards. Try selecting fewer patients.",
-            messages.ERROR
+            f"Cannot download more than 18 membership cards at once. Selected {count} users. Please select fewer users or use the bulk download button with filters.",
+            messages.WARNING
         )
         return
-    except Exception as e:
-        logger.error(f"Unexpected error during membership card download: {e}", exc_info=True)
-        modeladmin.message_user(
-            request,
-            "An error occurred while generating membership cards. Please try again.",
-            messages.ERROR
-        )
-        return
-    finally:
-        if temp_path and os.path.exists(temp_path):
+
+    buffer = BytesIO()
+    success_count = 0
+    with ZipFile(buffer, 'w') as zip_file:
+        for patient in queryset:
             try:
-                os.remove(temp_path)
-            except Exception:
-                pass
+                pdf_data = generate_membership_card_pdf(patient)
+                filename = f"{patient.membership_id}_{patient.full_name}.pdf"
+                zip_file.writestr(filename, pdf_data)
+                success_count += 1
+            except Exception as e:
+                logger.error(f"Failed to add PDF for patient {patient.id}: {e}")
+                continue
+
+    if success_count == 0:
+        modeladmin.message_user(request, "No membership cards could be generated.", messages.ERROR)
+        return
+
+    buffer.seek(0)
+    response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+    response['Content-Disposition'] = f'attachment; filename=selected_membership_cards_{success_count}.zip'
+    modeladmin.message_user(request, f"Downloaded {success_count} membership cards.", messages.SUCCESS)
+    return response
 
 download_selected_membership_cards.short_description = "Download Membership Cards for Selected Patients"
 
