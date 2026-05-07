@@ -398,95 +398,69 @@ export_patients_csv.short_description = "Download Selected Patients"
 # =========================================================
 def download_selected_membership_cards(modeladmin, request, queryset):
     count = queryset.count()
-    max_cards = 30  # Conservative limit for reliability
+    batch_size = 18  # Process in batches of 18 to avoid memory issues
 
-    if count > max_cards:
-        modeladmin.message_user(
-            request,
-            f"Cannot download more than {max_cards} membership cards at once. Selected {count} users. Please select fewer users or apply filters to reduce the selection.",
-            messages.WARNING
-        )
-        return
+    # Convert queryset to list for batching
+    patients = list(queryset)
+    total_success_count = 0
+    total_failed_count = 0
 
-    import tempfile
-    import os
-
-    # Use temporary file instead of memory buffer
-    temp_file = None
-    success_count = 0
-    failed_count = 0
+    buffer = BytesIO()
 
     try:
-        # Create temporary file for ZIP
-        temp_fd, temp_path = tempfile.mkstemp(suffix='.zip')
-        os.close(temp_fd)  # Close the file descriptor, we'll open it with ZipFile
+        with ZipFile(buffer, 'w') as zip_file:
+            # Process patients in batches of 18
+            for i in range(0, len(patients), batch_size):
+                batch = patients[i:i + batch_size]
+                batch_success = 0
+                batch_failed = 0
 
-        try:
-            with ZipFile(temp_path, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-                # Process patients one by one
-                for patient in queryset.iterator():
+                for patient in batch:
                     try:
                         pdf_data = generate_membership_card_pdf(patient)
                         filename = f"{patient.membership_id}_{patient.full_name}.pdf"
                         zip_file.writestr(filename, pdf_data)
-                        success_count += 1
+                        batch_success += 1
+                        total_success_count += 1
                     except Exception as e:
                         logger.error(f"Failed to generate PDF for patient {patient.id} ({patient.full_name}): {e}")
-                        failed_count += 1
+                        batch_failed += 1
+                        total_failed_count += 1
                         continue
-        except Exception as e:
-            logger.error(f"Failed to create ZIP file: {e}")
-            modeladmin.message_user(
-                request,
-                "Failed to create ZIP file. Please try again.",
-                messages.ERROR
-            )
-            return
 
-        if success_count == 0:
+                # Log batch progress
+                batch_num = (i // batch_size) + 1
+                total_batches = (len(patients) + batch_size - 1) // batch_size
+                logger.info(f"Processed batch {batch_num}/{total_batches}: {batch_success} success, {batch_failed} failed")
+
+        if total_success_count == 0:
             modeladmin.message_user(request, "No membership cards could be generated.", messages.ERROR)
             return
 
-        try:
-            # Read the ZIP file and return as response
-            with open(temp_path, 'rb') as f:
-                zip_data = f.read()
-        except Exception as e:
-            logger.error(f"Failed to read ZIP file: {e}")
+        buffer.seek(0)
+        response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename=membership_cards_{total_success_count}.zip'
+
+        # Show appropriate message based on results
+        if total_failed_count > 0:
             modeladmin.message_user(
                 request,
-                "Failed to read generated ZIP file. Please try again.",
-                messages.ERROR
-            )
-            return
-
-        response = HttpResponse(zip_data, content_type='application/zip')
-        response['Content-Disposition'] = f'attachment; filename=selected_membership_cards_{success_count}.zip'
-
-        if failed_count > 0:
-            modeladmin.message_user(
-                request,
-                f"Downloaded {success_count} membership cards. {failed_count} cards failed to generate.",
+                f"Downloaded {total_success_count} membership cards. {total_failed_count} cards failed to generate.",
                 messages.WARNING
             )
         else:
-            modeladmin.message_user(request, f"Downloaded {success_count} membership cards.", messages.SUCCESS)
+            modeladmin.message_user(
+                request,
+                f"Successfully downloaded {total_success_count} membership cards from {count} selected patients.",
+                messages.SUCCESS
+            )
 
         return response
 
     except MemoryError:
-        logger.error("Memory error during membership card download")
         modeladmin.message_user(
             request,
-            "Not enough memory to generate membership cards. Please try with fewer selections.",
-            messages.ERROR
-        )
-        return
-    except OSError as e:
-        logger.error(f"File system error during membership card download: {e}")
-        modeladmin.message_user(
-            request,
-            "File system error occurred. Please try again.",
+            "Memory error occurred while generating membership cards. Try selecting fewer patients.",
             messages.ERROR
         )
         return
@@ -494,18 +468,10 @@ def download_selected_membership_cards(modeladmin, request, queryset):
         logger.error(f"Unexpected error during membership card download: {e}")
         modeladmin.message_user(
             request,
-            "An unexpected error occurred. Please contact support if this persists.",
+            "An error occurred while generating membership cards. Please try again.",
             messages.ERROR
         )
         return
-
-    finally:
-        # Clean up temporary file
-        try:
-            if 'temp_path' in locals() and os.path.exists(temp_path):
-                os.unlink(temp_path)
-        except Exception as e:
-            logger.warning(f"Failed to clean up temporary file {temp_path}: {e}")
 
 download_selected_membership_cards.short_description = "Download Membership Cards for Selected Patients"
 
