@@ -398,36 +398,78 @@ export_patients_csv.short_description = "Download Selected Patients"
 # =========================================================
 def download_selected_membership_cards(modeladmin, request, queryset):
     count = queryset.count()
-    if count > 18:
+    max_cards = 100  # Increased limit for better usability
+
+    if count > max_cards:
         modeladmin.message_user(
             request,
-            f"Cannot download more than 18 membership cards at once. Selected {count} users. Please select fewer users or use the bulk download button with filters.",
+            f"Cannot download more than {max_cards} membership cards at once. Selected {count} users. Please select fewer users or apply filters to reduce the selection.",
             messages.WARNING
         )
         return
 
     buffer = BytesIO()
     success_count = 0
-    with ZipFile(buffer, 'w') as zip_file:
-        for patient in queryset:
-            try:
-                pdf_data = generate_membership_card_pdf(patient)
-                filename = f"{patient.membership_id}_{patient.full_name}.pdf"
-                zip_file.writestr(filename, pdf_data)
-                success_count += 1
-            except Exception as e:
-                logger.error(f"Failed to add PDF for patient {patient.id}: {e}")
-                continue
+    failed_count = 0
 
-    if success_count == 0:
-        modeladmin.message_user(request, "No membership cards could be generated.", messages.ERROR)
+    try:
+        with ZipFile(buffer, 'w') as zip_file:
+            # Process in batches to manage memory better
+            batch_size = 10
+            patients = list(queryset)
+
+            for i in range(0, len(patients), batch_size):
+                batch = patients[i:i + batch_size]
+
+                for patient in batch:
+                    try:
+                        pdf_data = generate_membership_card_pdf(patient)
+                        filename = f"{patient.membership_id}_{patient.full_name}.pdf"
+                        zip_file.writestr(filename, pdf_data)
+                        success_count += 1
+                    except Exception as e:
+                        logger.error(f"Failed to generate PDF for patient {patient.id} ({patient.full_name}): {e}")
+                        failed_count += 1
+                        continue
+
+                # Force garbage collection after each batch
+                import gc
+                gc.collect()
+
+        if success_count == 0:
+            modeladmin.message_user(request, "No membership cards could be generated.", messages.ERROR)
+            return
+
+        buffer.seek(0)
+        response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename=selected_membership_cards_{success_count}.zip'
+
+        if failed_count > 0:
+            modeladmin.message_user(
+                request,
+                f"Downloaded {success_count} membership cards. {failed_count} cards failed to generate.",
+                messages.WARNING
+            )
+        else:
+            modeladmin.message_user(request, f"Downloaded {success_count} membership cards.", messages.SUCCESS)
+
+        return response
+
+    except MemoryError:
+        modeladmin.message_user(
+            request,
+            "Memory error occurred while generating membership cards. Please try with fewer selections.",
+            messages.ERROR
+        )
         return
-
-    buffer.seek(0)
-    response = HttpResponse(buffer.getvalue(), content_type='application/zip')
-    response['Content-Disposition'] = f'attachment; filename=selected_membership_cards_{success_count}.zip'
-    modeladmin.message_user(request, f"Downloaded {success_count} membership cards.", messages.SUCCESS)
-    return response
+    except Exception as e:
+        logger.error(f"Unexpected error during membership card download: {e}")
+        modeladmin.message_user(
+            request,
+            "An error occurred while generating membership cards. Please try again or contact support.",
+            messages.ERROR
+        )
+        return
 
 download_selected_membership_cards.short_description = "Download Membership Cards for Selected Patients"
 
