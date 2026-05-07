@@ -383,7 +383,12 @@ def export_patients_csv(modeladmin, request, queryset):
         'Membership ID', 'Name', 'Mobile', 'Email',
         'Gender', 'Subscription Status', 'Start Date', 'End Date'
     ])
-
+    if len(queryset) >= 20:
+        modeladmin.message_user(
+            request,
+            "Please select less than 20 patients for CSV export to avoid performance issues.",
+            messages.WARNING
+        )
     for obj in queryset:
         sub = modeladmin._latest_subscription(obj)
 
