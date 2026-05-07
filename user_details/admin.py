@@ -26,6 +26,7 @@ from django.utils.html import format_html
 # =========================================================
 from django.template.loader import render_to_string
 from weasyprint import HTML
+import os
 import tempfile
 from io import BytesIO
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -397,19 +398,21 @@ export_patients_csv.short_description = "Download Selected Patients"
 # ACTION: DOWNLOAD MEMBERSHIP CARDS FOR SELECTED
 # =========================================================
 def download_selected_membership_cards(modeladmin, request, queryset):
-    count = queryset.count()
+    patients = list(queryset)
+    count = len(patients)
     batch_size = 18  # Process in batches of 18 to avoid memory issues
 
     total_success_count = 0
     total_failed_count = 0
-
-    temp_file = tempfile.TemporaryFile()
+    temp_path = None
 
     try:
-        with ZipFile(temp_file, 'w', ZIP_DEFLATED) as zip_file:
-            # Process patients in batches of 18
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as temp_zip:
+            temp_path = temp_zip.name
+
+        with ZipFile(temp_path, 'w', ZIP_DEFLATED) as zip_file:
             for i in range(0, count, batch_size):
-                batch = list(queryset[i:i + batch_size])
+                batch = patients[i:i + batch_size]
                 batch_success = 0
                 batch_failed = 0
 
@@ -435,8 +438,7 @@ def download_selected_membership_cards(modeladmin, request, queryset):
             modeladmin.message_user(request, "No membership cards could be generated.", messages.ERROR)
             return
 
-        temp_file.seek(0)
-        response = FileResponse(temp_file, as_attachment=True, filename=f'membership_cards_{total_success_count}.zip')
+        response = FileResponse(open(temp_path, 'rb'), as_attachment=True, filename=f'membership_cards_{total_success_count}.zip')
 
         if total_failed_count > 0:
             modeladmin.message_user(
@@ -462,13 +464,19 @@ def download_selected_membership_cards(modeladmin, request, queryset):
         )
         return
     except Exception as e:
-        logger.error(f"Unexpected error during membership card download: {e}")
+        logger.error(f"Unexpected error during membership card download: {e}", exc_info=True)
         modeladmin.message_user(
             request,
             "An error occurred while generating membership cards. Please try again.",
             messages.ERROR
         )
         return
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
 
 download_selected_membership_cards.short_description = "Download Membership Cards for Selected Patients"
 
