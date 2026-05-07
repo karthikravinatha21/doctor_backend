@@ -324,39 +324,49 @@ def format_datetime(dt):
 # =========================================================
 # MEMBERSHIP CARD PDF GENERATOR
 # =========================================================
-def generate_membership_card_pdf(user):
-    try:
-        sub = user.subscriptions.order_by('-start_date').first()
-        partner = user.referred_by or (Partner.objects.filter(referral_code=user.referral_code).first() if user.referral_code else None)
-        partner_image_url = partner.profile_image.url if partner and partner.profile_image else None
+def generate_membership_card_pdf_file(user):
+    sub = user.subscriptions.order_by('-start_date').first()
 
-        context = {
-            "membership_id": user.membership_id,
-            "name": user.full_name,
-            "age": user.age,
-            "gender": user.gender,
-            "contact": user.mobile,
-            "blood_group": user.blood_group,
-            "address": user.address,
-            "pin_code": user.pin_code,
-            "photo_url": user.profile_image.url if user.profile_image else "https://cdn-icons-png.flaticon.com/512/847/847969.png",
-            "start_date": sub.start_date if sub else "",
-            "end_date": sub.end_date if sub else "",
-            "partner_name": partner.name if partner else "",
-            "partner_image": partner_image_url,
-        }
+    partner = (
+        user.referred_by or
+        (Partner.objects.filter(referral_code=user.referral_code).first()
+         if user.referral_code else None)
+    )
 
-        html = render_to_string("health_card.html", context)
+    partner_image_url = (
+        partner.profile_image.url
+        if partner and partner.profile_image else None
+    )
 
-        with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as tmp_file:
-            HTML(string=html).write_pdf(target=tmp_file.name)
-            tmp_file.seek(0)
-            pdf_data = tmp_file.read()
+    context = {
+        "membership_id": user.membership_id,
+        "name": user.full_name,
+        "age": user.age,
+        "gender": user.gender,
+        "contact": user.mobile,
+        "blood_group": user.blood_group,
+        "address": user.address,
+        "pin_code": user.pin_code,
+        "photo_url": (
+            user.profile_image.url
+            if user.profile_image
+            else "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+        ),
+        "start_date": sub.start_date if sub else "",
+        "end_date": sub.end_date if sub else "",
+        "partner_name": partner.name if partner else "",
+        "partner_image": partner_image_url,
+    }
 
-        return pdf_data
-    except Exception as e:
-        logger.error(f"Error generating PDF for user {user.id} ({user.full_name}): {e}")
-        raise
+    html = render_to_string("health_card.html", context)
+
+    temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+
+    HTML(string=html).write_pdf(target=temp_pdf.name)
+
+    temp_pdf.close()
+
+    return temp_pdf.name
 
 
 # =========================================================
@@ -397,40 +407,65 @@ export_patients_csv.short_description = "Download Selected Patients"
 # ACTION: DOWNLOAD MEMBERSHIP CARDS FOR SELECTED
 # =========================================================
 def download_selected_membership_cards(modeladmin, request, queryset):
-    count = queryset.count()
-    if count > 18:
+
+    temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix=".zip")
+
+    success_count = 0
+
+    try:
+        with ZipFile(temp_zip.name, 'w', ZIP_DEFLATED) as zip_file:
+
+            for patient in queryset.iterator(chunk_size=20):
+
+                try:
+                    pdf_path = generate_membership_card_pdf_file(patient)
+
+                    filename = (
+                        f"{patient.membership_id}_{patient.full_name}.pdf"
+                    )
+
+                    zip_file.write(pdf_path, arcname=filename)
+
+                    os.remove(pdf_path)
+
+                    success_count += 1
+
+                except Exception as e:
+                    logger.error(
+                        f"Failed to generate PDF for patient "
+                        f"{patient.id}: {e}"
+                    )
+
+        if success_count == 0:
+            modeladmin.message_user(
+                request,
+                "No membership cards could be generated.",
+                messages.ERROR
+            )
+            return
+
+        response = FileResponse(
+            open(temp_zip.name, 'rb'),
+            content_type='application/zip'
+        )
+
+        response[
+            'Content-Disposition'
+        ] = (
+            f'attachment; '
+            f'filename=membership_cards_{success_count}.zip'
+        )
+
+        return response
+
+    except Exception as e:
+        logger.error(f"ZIP generation failed: {e}")
+
         modeladmin.message_user(
             request,
-            f"Cannot download more than 18 membership cards at once. Selected {count} users. Please select fewer users or use the bulk download button with filters.",
-            messages.WARNING
+            "Failed to generate membership cards.",
+            messages.ERROR
         )
-        return
-
-    buffer = BytesIO()
-    success_count = 0
-    with ZipFile(buffer, 'w') as zip_file:
-        for patient in queryset:
-            try:
-                pdf_data = generate_membership_card_pdf(patient)
-                filename = f"{patient.membership_id}_{patient.full_name}.pdf"
-                zip_file.writestr(filename, pdf_data)
-                success_count += 1
-            except Exception as e:
-                logger.error(f"Failed to add PDF for patient {patient.id}: {e}")
-                continue
-
-    if success_count == 0:
-        modeladmin.message_user(request, "No membership cards could be generated.", messages.ERROR)
-        return
-
-    buffer.seek(0)
-    response = HttpResponse(buffer.getvalue(), content_type='application/zip')
-    response['Content-Disposition'] = f'attachment; filename=selected_membership_cards_{success_count}.zip'
-    modeladmin.message_user(request, f"Downloaded {success_count} membership cards.", messages.SUCCESS)
-    return response
-
-download_selected_membership_cards.short_description = "Download Membership Cards for Selected Patients"
-
 
 # =========================================================
 # ADMIN
