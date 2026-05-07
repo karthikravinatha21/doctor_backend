@@ -398,7 +398,7 @@ export_patients_csv.short_description = "Download Selected Patients"
 # =========================================================
 def download_selected_membership_cards(modeladmin, request, queryset):
     count = queryset.count()
-    max_cards = 100  # Increased limit for better usability
+    max_cards = 30  # Conservative limit for reliability
 
     if count > max_cards:
         modeladmin.message_user(
@@ -408,40 +408,41 @@ def download_selected_membership_cards(modeladmin, request, queryset):
         )
         return
 
-    buffer = BytesIO()
+    import tempfile
+    import os
+
+    # Use temporary file instead of memory buffer
+    temp_file = None
     success_count = 0
     failed_count = 0
 
     try:
-        with ZipFile(buffer, 'w') as zip_file:
-            # Process in batches to manage memory better
-            batch_size = 10
-            patients = list(queryset)
+        # Create temporary file for ZIP
+        temp_fd, temp_path = tempfile.mkstemp(suffix='.zip')
+        os.close(temp_fd)  # Close the file descriptor, we'll open it with ZipFile
 
-            for i in range(0, len(patients), batch_size):
-                batch = patients[i:i + batch_size]
-
-                for patient in batch:
-                    try:
-                        pdf_data = generate_membership_card_pdf(patient)
-                        filename = f"{patient.membership_id}_{patient.full_name}.pdf"
-                        zip_file.writestr(filename, pdf_data)
-                        success_count += 1
-                    except Exception as e:
-                        logger.error(f"Failed to generate PDF for patient {patient.id} ({patient.full_name}): {e}")
-                        failed_count += 1
-                        continue
-
-                # Force garbage collection after each batch
-                import gc
-                gc.collect()
+        with ZipFile(temp_path, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            # Process patients one by one
+            for patient in queryset.iterator():
+                try:
+                    pdf_data = generate_membership_card_pdf(patient)
+                    filename = f"{patient.membership_id}_{patient.full_name}.pdf"
+                    zip_file.writestr(filename, pdf_data)
+                    success_count += 1
+                except Exception as e:
+                    logger.error(f"Failed to generate PDF for patient {patient.id} ({patient.full_name}): {e}")
+                    failed_count += 1
+                    continue
 
         if success_count == 0:
             modeladmin.message_user(request, "No membership cards could be generated.", messages.ERROR)
             return
 
-        buffer.seek(0)
-        response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+        # Read the ZIP file and return as response
+        with open(temp_path, 'rb') as f:
+            zip_data = f.read()
+
+        response = HttpResponse(zip_data, content_type='application/zip')
         response['Content-Disposition'] = f'attachment; filename=selected_membership_cards_{success_count}.zip'
 
         if failed_count > 0:
@@ -455,21 +456,22 @@ def download_selected_membership_cards(modeladmin, request, queryset):
 
         return response
 
-    except MemoryError:
-        modeladmin.message_user(
-            request,
-            "Memory error occurred while generating membership cards. Please try with fewer selections.",
-            messages.ERROR
-        )
-        return
     except Exception as e:
-        logger.error(f"Unexpected error during membership card download: {e}")
+        logger.error(f"Error during membership card download: {e}")
         modeladmin.message_user(
             request,
-            "An error occurred while generating membership cards. Please try again or contact support.",
+            "An error occurred while generating membership cards. Please try with fewer selections.",
             messages.ERROR
         )
         return
+
+    finally:
+        # Clean up temporary file
+        if temp_file and os.path.exists(temp_path):
+            try:
+                os.unlink(temp_path)
+            except:
+                pass
 
 download_selected_membership_cards.short_description = "Download Membership Cards for Selected Patients"
 
