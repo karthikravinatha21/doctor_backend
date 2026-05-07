@@ -374,6 +374,14 @@ def generate_membership_card_pdf_file(user):
 # ACTION: EXPORT CSV
 # =========================================================
 def export_patients_csv(modeladmin, request, queryset):
+    count = queryset.count()
+    if count > 18:
+        modeladmin.message_user(
+            request,
+            f"Cannot download more than 18 membership cards at once. Selected {count} users. Please select fewer users or use the bulk download button with filters.",
+            messages.WARNING
+        )
+        return
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=patients.csv'
 
@@ -383,12 +391,7 @@ def export_patients_csv(modeladmin, request, queryset):
         'Membership ID', 'Name', 'Mobile', 'Email',
         'Gender', 'Subscription Status', 'Start Date', 'End Date'
     ])
-    if len(queryset) >= 20:
-        modeladmin.message_user(
-            request,
-            "Please select less than 20 patients for CSV export to avoid performance issues.",
-            messages.WARNING
-        )
+    
     for obj in queryset:
         sub = modeladmin._latest_subscription(obj)
 
