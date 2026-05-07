@@ -15,7 +15,7 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin as useradmin
 from django.contrib.auth.models import Group
 from django.db.models import Q, OuterRef, Subquery
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 from django.urls import path, reverse
 from django.utils import timezone
@@ -28,7 +28,7 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 import tempfile
 from io import BytesIO
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
 
 logger = logging.getLogger(__name__)
 
@@ -400,18 +400,16 @@ def download_selected_membership_cards(modeladmin, request, queryset):
     count = queryset.count()
     batch_size = 18  # Process in batches of 18 to avoid memory issues
 
-    # Convert queryset to list for batching
-    patients = list(queryset)
     total_success_count = 0
     total_failed_count = 0
 
-    buffer = BytesIO()
+    temp_file = tempfile.TemporaryFile()
 
     try:
-        with ZipFile(buffer, 'w') as zip_file:
+        with ZipFile(temp_file, 'w', ZIP_DEFLATED) as zip_file:
             # Process patients in batches of 18
-            for i in range(0, len(patients), batch_size):
-                batch = patients[i:i + batch_size]
+            for i in range(0, count, batch_size):
+                batch = list(queryset[i:i + batch_size])
                 batch_success = 0
                 batch_failed = 0
 
@@ -419,6 +417,7 @@ def download_selected_membership_cards(modeladmin, request, queryset):
                     try:
                         pdf_data = generate_membership_card_pdf(patient)
                         filename = f"{patient.membership_id}_{patient.full_name}.pdf"
+                        filename = filename.replace('/', '_').replace('\\', '_')[:180]
                         zip_file.writestr(filename, pdf_data)
                         batch_success += 1
                         total_success_count += 1
@@ -428,20 +427,17 @@ def download_selected_membership_cards(modeladmin, request, queryset):
                         total_failed_count += 1
                         continue
 
-                # Log batch progress
                 batch_num = (i // batch_size) + 1
-                total_batches = (len(patients) + batch_size - 1) // batch_size
+                total_batches = (count + batch_size - 1) // batch_size
                 logger.info(f"Processed batch {batch_num}/{total_batches}: {batch_success} success, {batch_failed} failed")
 
         if total_success_count == 0:
             modeladmin.message_user(request, "No membership cards could be generated.", messages.ERROR)
             return
 
-        buffer.seek(0)
-        response = HttpResponse(buffer.getvalue(), content_type='application/zip')
-        response['Content-Disposition'] = f'attachment; filename=membership_cards_{total_success_count}.zip'
+        temp_file.seek(0)
+        response = FileResponse(temp_file, as_attachment=True, filename=f'membership_cards_{total_success_count}.zip')
 
-        # Show appropriate message based on results
         if total_failed_count > 0:
             modeladmin.message_user(
                 request,
@@ -458,6 +454,7 @@ def download_selected_membership_cards(modeladmin, request, queryset):
         return response
 
     except MemoryError:
+        logger.error("Memory error during membership card generation")
         modeladmin.message_user(
             request,
             "Memory error occurred while generating membership cards. Try selecting fewer patients.",
