@@ -1,7 +1,7 @@
 # =========================================================
 # STANDARD LIBRARY
 # =========================================================
-import csv
+import csv, os
 import logging
 from datetime import timedelta
 
@@ -28,7 +28,8 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 import tempfile
 from io import BytesIO
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
+from django.http import FileResponse
 
 logger = logging.getLogger(__name__)
 
