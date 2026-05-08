@@ -184,7 +184,7 @@ class FamilyMemberAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'relationship', 'created_at')
     date_hierarchy = 'created_at'
     search_fields = (
-        'membership_id', 'full_name', 'aadhaar_number', 'pan_number',
+        'membership_id', 'full_name', 'aadhaar_number', 'primary_user__referral_code',
         'primary_user__full_name', 'primary_user__mobile'
     )
     actions = ['download_selected_family_membership_cards']
