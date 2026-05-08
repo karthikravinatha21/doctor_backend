@@ -4,6 +4,7 @@
 import csv
 import logging
 from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
 # =========================================================
 # DJANGO CORE
@@ -177,7 +178,8 @@ class UserAdmin(admin.ModelAdmin):
 class FamilyMemberAdmin(admin.ModelAdmin):
     list_display = (
         'membership_id', 'full_name', 'age', 'blood_group',
-        'primary_member_name', 'primary_member_mobile', 'status', 'created_at'
+        'primary_member_name', 'primary_member_mobile', 'status', 'created_at', 
+        'referral_code', 'referred_by'
     )
     list_filter = ('is_active', 'relationship', 'created_at')
     date_hierarchy = 'created_at'
@@ -185,6 +187,7 @@ class FamilyMemberAdmin(admin.ModelAdmin):
         'membership_id', 'full_name', 'aadhaar_number', 'pan_number',
         'primary_user__full_name', 'primary_user__mobile'
     )
+    actions = ['download_selected_family_membership_cards']
 
     def primary_member_name(self, obj):
         return obj.primary_user.full_name if obj.primary_user else '-'
@@ -194,9 +197,52 @@ class FamilyMemberAdmin(admin.ModelAdmin):
         return obj.primary_user.mobile if obj.primary_user else '-'
     primary_member_mobile.short_description = 'Primary Mobile'
 
+    def referral_code(self, obj):
+        return obj.primary_user.referral_code if obj.primary_user.referral_code else '-'
+    referral_code.short_description = 'Referral Code'
+
+    def referred_by(self, obj):
+        return obj.primary_user.referred_by if obj.primary_user.referred_by else '-'
+    referred_by.short_description = 'Referred By'
+
     def status(self, obj):
         return 'Active' if obj.is_active else 'Inactive'
     status.short_description = 'Status'
+
+    def download_selected_family_membership_cards(self, request, queryset):
+        count = queryset.count()
+        if count > 18:
+            self.message_user(
+                request,
+                f"Cannot download more than 18 membership cards at once. Selected {count} members. Please select fewer members.",
+                messages.WARNING
+            )
+            return
+
+        buffer = BytesIO()
+        success_count = 0
+        with ZipFile(buffer, 'w') as zip_file:
+            for member in queryset:
+                try:
+                    pdf_data = generate_family_member_membership_card_pdf(member)
+                    filename = f"{member.membership_id}_{member.full_name}.pdf"
+                    zip_file.writestr(filename, pdf_data)
+                    success_count += 1
+                except Exception as e:
+                    logger.error(f"Failed to add PDF for family member {member.id}: {e}")
+                    continue
+
+        if success_count == 0:
+            self.message_user(request, "No membership cards could be generated.", messages.ERROR)
+            return
+
+        buffer.seek(0)
+        response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename=selected_family_membership_cards_{success_count}.zip'
+        self.message_user(request, f"Downloaded {success_count} membership cards.", messages.SUCCESS)
+        return response
+
+    download_selected_family_membership_cards.short_description = "Download Membership Cards for Selected Family Members"
 
 
 class PartnerAdmin(admin.ModelAdmin):
@@ -356,6 +402,42 @@ def generate_membership_card_pdf(user):
         return pdf_data
     except Exception as e:
         logger.error(f"Error generating PDF for user {user.id} ({user.full_name}): {e}")
+        raise
+
+
+def generate_family_member_membership_card_pdf(member):
+    try:
+        partner = member.primary_user.referred_by or (
+            Partner.objects.filter(referral_code=member.primary_user.referral_code).first()
+            if member.primary_user.referral_code else None
+        )
+        partner_image_url = partner.profile_image.url if partner and partner.profile_image else None
+
+        context = {
+            "membership_id": member.membership_id,
+            "name": member.full_name,
+            "age": member.age,
+            "gender": member.gender,
+            "relationship": member.relationship,
+            "blood_group": member.blood_group,
+            "primary_holder": member.primary_user.full_name,
+            "photo_url": member.profile_image.url if member.profile_image else "https://cdn-icons-png.flaticon.com/512/847/847969.png",
+            "start_date": member.created_at,
+            "end_date": member.created_at + relativedelta(years=1),
+            "partner_name": partner.name if partner else "",
+            "partner_image": partner_image_url,
+        }
+
+        html = render_to_string("family_health_card.html", context)
+
+        with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as tmp_file:
+            HTML(string=html).write_pdf(target=tmp_file.name)
+            tmp_file.seek(0)
+            pdf_data = tmp_file.read()
+
+        return pdf_data
+    except Exception as e:
+        logger.error(f"Error generating PDF for family member {member.id} ({member.full_name}): {e}")
         raise
 
 
