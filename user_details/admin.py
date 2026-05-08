@@ -247,15 +247,20 @@ class FamilyMemberAdmin(admin.ModelAdmin):
 
 class PartnerAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'name', 'category', 'mobile', 'email', 'referral_code', 'referral_count', 'view_referrals'
+        'id', 'name', 'category', 'mobile', 'email', 'referral_code', 
+        'primary_user_referral_count', 'family_member_referral_count', 'view_referrals'
     )
     list_filter = ('category', 'is_active')
     search_fields = ('name', 'category', 'mobile', 'email', 'referral_code')
     readonly_fields = ('referral_code',)
 
-    def referral_count(self, obj):
+    def primary_user_referral_count(self, obj):
         return obj.referred_users.count()
-    referral_count.short_description = 'Referral Users'
+    primary_user_referral_count.short_description = 'Referral Users'
+
+    def family_member_referral_count(self, obj):
+        return FamilyMember.objects.filter(primary_user__referred_by=obj).count()
+    family_member_referral_count.short_description = 'Family Referral Users'
 
     def view_referrals(self, obj):
         url = reverse('admin:user_details_patient_changelist') + f'?referral_code__exact={obj.referral_code}'
