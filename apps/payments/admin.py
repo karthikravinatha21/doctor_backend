@@ -84,8 +84,12 @@ class TransactionStatusFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() == 'success':
             return queryset.filter(status='success')
-        if self.value() == 'created_failed':
-            return queryset.filter(status__in=['created', 'failed'])
+        if self.value() == 'created':
+            return queryset.filter(status='created')
+        if self.value() == 'failed':
+            return queryset.filter(status='failed')
+        if self.value() == 'pending':
+            return queryset.filter(status='pending')
         return queryset
 
 
