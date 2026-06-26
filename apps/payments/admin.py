@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django import forms
 import csv
 from django.http import HttpResponse
@@ -66,6 +67,29 @@ export_transactions_csv.short_description = "Download Transactions CSV"
 
 
 # =========================================================
+# FILTER: Transaction Status
+# =========================================================
+class TransactionStatusFilter(SimpleListFilter):
+    title = 'Transaction Status'
+    parameter_name = 'transaction_status'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('success', 'Success'),
+            ('created', 'Created'),
+            ('failed', 'Failed'),
+            ('pending', 'Pending'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'success':
+            return queryset.filter(status='success')
+        if self.value() == 'created_failed':
+            return queryset.filter(status__in=['created', 'failed'])
+        return queryset
+
+
+# =========================================================
 # ADMIN
 # =========================================================
 @admin.register(Transaction)
@@ -84,7 +108,7 @@ class AdminPaymentTransactions(admin.ModelAdmin):
         'status',
     )
 
-    list_filter = ('status', 'currency', 'created_at')
+    list_filter = (TransactionStatusFilter, 'currency', 'created_at')
     date_hierarchy = 'created_at'
     search_fields = ('razorpay_order_id', 'user__full_name', 'user__mobile')
 
